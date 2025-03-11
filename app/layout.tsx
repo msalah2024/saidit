@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto_Slab } from "next/font/google";
-import { ThemeProvider } from "@/app/components/theme-provider"
+// import { ThemeProvider } from "@/app/components/theme-provider"
 import "./globals.css";
 
 const robotoSlap = Roboto_Slab({
@@ -23,14 +23,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <head />
         <body className={robotoSlap.className} suppressHydrationWarning>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
+          {children}
         </body>
       </html>
     </>

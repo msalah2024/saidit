@@ -5,77 +5,57 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 110 40% 49%;
-    /* Updated primary color */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 100% 50%;
-    /* Reddit's blue */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 210 100% 50%;
-    /* Reddit's blue */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 110 40% 49%;
-    /* Updated primary color */
+    --background: oklch(0.2 0.01 270);
+    /* Near-black */
+    --foreground: oklch(1 0 0);
+    /* White */
+    --card: oklch(0.2 0.01 270);
+    /* Near-black */
+    --card-foreground: oklch(1 0 0);
+    /* White */
+    --popover: oklch(0.2 0.01 270);
+    /* Near-black */
+    --popover-foreground: oklch(1 0 0);
+    /* White */
+    --primary: oklch(0.6 0.2 140);
+    /* Your primary color (110 40% 49% in OKLCH) */
+    --primary-foreground: oklch(1 0 0);
+    /* White */
+    --secondary: oklch(0.74 0.23 262.5);
+    /* Reddit's blue in OKLCH */
+    --secondary-foreground: oklch(1 0 0);
+    /* White */
+    --muted: oklch(0.3 0.02 270);
+    /* Dark gray */
+    --muted-foreground: oklch(0.6 0.02 270);
+    /* Medium gray */
+    --accent: oklch(0.4 0.1 250);
+    /* Darker Reddit's blue in OKLCH */
+    --accent-foreground: oklch(1 0 0);
+    /* White */
+    --destructive: oklch(62.8% 0.306 29);
+    /* Darker red in OKLCH */
+    --destructive-foreground: oklch(1 0 0);
+    /* White */
+    --border: oklch(0.3 0.02 270);
+    /* Dark gray */
+    --input: oklch(0.3 0.02 270);
+    /* Dark gray */
+    --ring: oklch(1 0 0);
+    /* Your primary color */
     --radius: 1rem;
-    --chart-1: 16 100% 50%;
-    /* Reddit's orange */
-    --chart-2: 210 100% 50%;
-    /* Reddit's blue */
-    --chart-3: 120 60% 40%;
-    /* Green */
-    --chart-4: 300 70% 50%;
-    /* Purple */
-    --chart-5: 60 80% 50%;
-    /* Yellow */
+    --chart-1: oklch(0.6 0.2 25);
+    /* Reddit's orange in OKLCH */
+    --chart-2: oklch(0.6 0.2 250);
+    /* Reddit's blue in OKLCH */
+    --chart-3: oklch(0.5 0.15 120);
+    /* Green in OKLCH */
+    --chart-4: oklch(0.6 0.2 300);
+    /* Purple in OKLCH */
+    --chart-5: oklch(0.7 0.2 60);
+    /* Yellow in OKLCH */
 }
 
-.dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 110 40% 49%;
-    /* Updated primary color */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 100% 50%;
-    /* Reddit's blue */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 210 100% 50%;
-    /* Reddit's blue */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 110 40% 49%;
-    /* Updated primary color */
-    --chart-1: 16 100% 50%;
-    /* Reddit's orange */
-    --chart-2: 210 100% 50%;
-    /* Reddit's blue */
-    --chart-3: 120 60% 40%;
-    /* Green */
-    --chart-4: 300 70% 50%;
-    /* Purple */
-    --chart-5: 60 80% 50%;
-    /* Yellow */
-}
 
 @theme inline {
     --color-background: var(--background);
@@ -124,4 +104,8 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+Button {
+    cursor: pointer;
 }
