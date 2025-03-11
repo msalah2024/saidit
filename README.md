@@ -29,7 +29,7 @@
 -   [x] Set up ESLint, Prettier.
 -   [x] Install and configure shadcn/ui.
 -   [ ] Set up Supabase and configure authentication.
--   [ ] Add social login (Google, GitHub, etc.).
+-   [ ] Add social login (Google, Discord).
 -   [ ] Create protected routes middleware.
 
 ## Database Setup
