@@ -107,12 +107,12 @@ export default function LoginDialog() {
                                 )}
                             />
                             <div className='flex flex-col gap-2 ml-2'>
-                                <Link href="/forgot-password">
+                                <Link href="/home">
                                     <small className="text-sm leading-none text-secondary">Forgot password?</small>
                                 </Link>
                                 <div>
                                     <small className="text-sm leading-none ">New to Saidit?</small>
-                                    <Link href="/register">
+                                    <Link href="/home">
                                         <small className="text-sm leading-none text-secondary">{" "}Sign Up</small>
                                     </Link>
                                 </div>
