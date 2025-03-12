@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react'
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Button } from "@/components/ui/button"
 import {
@@ -34,17 +35,22 @@ import discordLogo from "@/app/images/discordIcon.svg"
 import Link from 'next/link';
 
 export default function LoginDialog() {
-
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const LoginForm = useForm({
         resolver: zodResolver(LoginSchema),
         defaultValues: {
             username: "",
             password: ""
         }
+        , mode: "onChange"
     })
 
+    const isValid = LoginForm.formState.isValid
+
     const onSubmit = (data: z.infer<typeof LoginSchema>) => {
+        setIsSubmitting(true)
         console.log(data)
+        setIsSubmitting(false)
     }
 
     return (
@@ -118,7 +124,7 @@ export default function LoginDialog() {
                                 </div>
 
                             </div>
-                            <Button type="submit" className='w-full p-6 rounded-4xl'>Log In</Button>
+                            <Button type="submit" disabled={!isValid || isSubmitting} className='w-full p-6 rounded-4xl'>{isSubmitting ? "Loggin In" : "Log In"}</Button>
                         </form>
                     </Form>
                 </div>
