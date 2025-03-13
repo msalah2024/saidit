@@ -50,7 +50,7 @@
 -   [ ] Implement sign-up, login, and logout.
 -   [ ] Add social login (Google, GitHub, etc.).
 -   [ ] Create user profile pages.
--   [ ] Allow users to edit their profiles (username, bio, avatar).
+-   [ ] Allow users to edit their profiles (bio, avatar, banner).
 
 ## Communities
 

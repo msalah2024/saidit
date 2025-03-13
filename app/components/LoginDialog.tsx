@@ -22,7 +22,6 @@ import Link from "next/link"
 import googleLogo from "@/app/images/googleIcon.svg"
 import discordLogo from "@/app/images/discordIcon.svg"
 
-
 const steps = [
     { id: "email", name: "Email" },
     { id: "account", name: "Account Details" },
