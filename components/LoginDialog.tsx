@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Link from "next/link"
 import googleLogo from "@/app/images/googleIcon.svg"
 import discordLogo from "@/app/images/discordIcon.svg"
+import { signUpAction } from "@/app/actions"
 
 const steps = [
     { id: "email", name: "Email" },
@@ -89,18 +90,24 @@ export default function LoginDialog() {
     }
 
     const onSignupSubmit = async (data: z.infer<typeof RegisterSchema>) => {
-        setIsSubmitting(true)
+        setIsSubmitting(true);
         try {
-            console.log("Signup data:", data)
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-            console.log("Account created successfully")
-            handleClose()
+
+            const formData = new FormData();
+            formData.append('email', data.email);
+            formData.append('username', data.username);
+            formData.append('password', data.password);
+            formData.append('gender', data.gender);
+
+            await signUpAction(formData);
+            console.log("Signup successful");
+            handleClose();
         } catch (error) {
-            console.error("Signup error:", error)
+            console.error("Signup error:", error);
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
-    }
+    };
 
     const handleClose = () => {
         setOpen(false)
@@ -113,9 +120,10 @@ export default function LoginDialog() {
     }
 
     const nextStep = async () => {
-        const fieldsToValidate = currentStep === 0 ? ["email"] : currentStep === 1 ? ["username", "password"] : ["gender"]
+        const fieldsToValidate: (keyof z.infer<typeof RegisterSchema>)[] =
+            currentStep === 0 ? ["email"] : currentStep === 1 ? ["username", "password"] : ["gender"];
 
-        const isValid = await trigger(fieldsToValidate as any)
+        const isValid = await trigger(fieldsToValidate)
 
         if (isValid && currentStep < steps.length - 1) {
             setCurrentStep((prev) => prev + 1)
