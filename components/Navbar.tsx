@@ -1,8 +1,8 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import Logo from "@/app/images/saidit-logo.svg"
-import LoginDialog from './LoginDialog'
+import Logo from "@/public/assets/images/saidit-logo.svg"
+import AuthDialog from './AuthDialog'
 
 export default function Navbar() {
     return (
@@ -13,7 +13,7 @@ export default function Navbar() {
                     saidit
                 </h2>
             </Link>
-            <LoginDialog />
+            <AuthDialog />
         </div>
     )
 }

@@ -1,4 +1,4 @@
-import Logo from "@/app/images/saidit-logo.svg";
+import Logo from "@/public/assets/images/saidit-logo.svg";
 import Image from "next/image";
 export default function Home() {
   return (
