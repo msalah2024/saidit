@@ -105,7 +105,7 @@ export default function LogInForm({ onSwitchToSignUp }: SignInFormProps) {
                                 <Link href="#" className='text-sm text-secondary' onClick={onSwitchToSignUp}>Sign Up</Link>
                             </div>
                         </div>
-                        <Button type='submit' disabled={!form.formState.isValid} className='p-6 w-full rounded-3xl'>Log In</Button>
+                        <Button type='submit' className='p-6 w-full rounded-3xl'>Log In</Button>
                     </form>
                 </Form>
             </div>

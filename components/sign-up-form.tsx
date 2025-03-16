@@ -65,6 +65,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
     defaultValues: {
       email: "",
     },
+    mode: 'onBlur'
   })
 
   const credentialsForm = useForm<z.infer<typeof CredentialsStepSchema>>({
@@ -73,6 +74,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
       username: "",
       password: "",
     },
+    mode: 'onBlur'
   })
 
   const genderForm = useForm<z.infer<typeof GenderStepSchema>>({
@@ -153,21 +155,6 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
     }
   }
 
-  const renderStep = () => {
-    switch (step) {
-      case 0:
-        return <EmailStep form={emailForm} />
-      case 1:
-        return <CredentialsStep form={credentialsForm} />
-      case 2:
-        return <GenderStep form={genderForm} />
-      case 3:
-        return <SuccessStep formData={form.getValues()} />
-      default:
-        return null
-    }
-  }
-
   return (
     <div>
       <DialogHeader>
@@ -195,7 +182,45 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
         }
       </DialogHeader>
       <div className="grid gap-4 py-4">
-        <Form {...form}>
+        {
+          step === 0 ? (
+            <Form {...emailForm}>
+              <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-3">
+                <EmailStep form={emailForm} />
+                <div className='ml-2 mb-6'>
+                  <div className='space-x-1'>
+                    <small className="text-sm font-medium leading-none">Already a Saiditor?</small>
+                    <Link href="#" className='text-sm text-secondary' onClick={onSwitchToLogIn}>Log In</Link>
+                  </div>
+                </div>
+                <Button type='submit' disabled={!emailForm.formState.isValid} className='p-6 w-full rounded-3xl'>
+                  {isChecking ? 'Checking...' : 'Continue'}
+                </Button>
+              </form>
+            </Form>
+          ) : step === 1 ? (
+            <Form {...credentialsForm}>
+              <form onSubmit={credentialsForm.handleSubmit(onCredentialsSubmit)} className="space-y-3">
+                <CredentialsStep form={credentialsForm} />
+                <Button type='submit' disabled={!credentialsForm.formState.isValid} className='p-6 w-full rounded-3xl'>{
+                  isChecking ? 'Checking...' : 'Continue'
+                }</Button>
+              </form>
+            </Form>
+          ) : step === 2 ? (
+            <Form {...genderForm}>
+              <form onSubmit={genderForm.handleSubmit(onGenderSubmit)} className="space-y-3">
+                <GenderStep form={genderForm} />
+                <Button type='submit' disabled={!genderForm.formState.isValid} className='p-6 w-full rounded-3xl'>{
+                  isSubmitting ? 'Creating Account...' : 'Create Account'
+                }</Button>
+              </form>
+            </Form>
+          ) : (
+            <SuccessStep formData={form.getValues()} />
+          )
+        }
+        {/* <Form {...form}>
           <form onSubmit={
             step === 0 ? emailForm.handleSubmit(onEmailSubmit) :
               step === 1 ? credentialsForm.handleSubmit(onCredentialsSubmit) :
@@ -230,7 +255,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
               )
             }
           </form>
-        </Form>
+        </Form> */}
       </div>
     </div>
   )
