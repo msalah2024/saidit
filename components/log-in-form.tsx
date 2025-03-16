@@ -99,13 +99,13 @@ export default function LogInForm({ onSwitchToSignUp }: SignInFormProps) {
                             )}
                         />
                         <div className='ml-2 mb-6'>
-                            <Link href='/' className='text-sm text-secondary'>Forgot password?</Link>
+                            <Link href='#' className='text-sm text-secondary'>Forgot password?</Link>
                             <div className='space-x-1'>
                                 <small className="text-sm font-medium leading-none">New to Saidit?</small>
                                 <Link href="#" className='text-sm text-secondary' onClick={onSwitchToSignUp}>Sign Up</Link>
                             </div>
                         </div>
-                        <Button type='submit' className='p-6 w-full rounded-3xl'>Log In</Button>
+                        <Button type='submit' disabled={!form.formState.isValid} className='p-6 w-full rounded-3xl'>Log In</Button>
                     </form>
                 </Form>
             </div>
