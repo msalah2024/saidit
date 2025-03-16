@@ -5,55 +5,55 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-    --background: oklch(0.2 0.01 270);
-    /* Near-black */
-    --foreground: oklch(1 0 0);
-    /* White */
-    --card: oklch(0.2 0.01 270);
-    /* Near-black */
-    --card-foreground: oklch(1 0 0);
-    /* White */
-    --popover: oklch(0.2 0.01 270);
-    /* Near-black */
-    --popover-foreground: oklch(1 0 0);
-    /* White */
-    --primary: oklch(0.6 0.2 140);
-    /* Your primary color (110 40% 49% in OKLCH) */
-    --primary-foreground: oklch(1 0 0);
-    /* White */
-    --secondary: oklch(0.74 0.23 262.5);
-    /* Reddit's blue in OKLCH */
-    --secondary-foreground: oklch(1 0 0);
-    /* White */
-    --muted: oklch(0.3 0.02 270);
-    /* Dark gray */
-    --muted-foreground: oklch(0.6 0.02 270);
-    /* Medium gray */
-    --accent: oklch(0.4 0.1 250);
-    /* Darker Reddit's blue in OKLCH */
-    --accent-foreground: oklch(1 0 0);
-    /* White */
-    --destructive: oklch(62.8% 0.306 29);
-    /* Darker red in OKLCH */
-    --destructive-foreground: oklch(1 0 0);
-    /* White */
-    --border: oklch(0.3 0.02 270);
-    /* Dark gray */
-    --input: oklch(0.3 0.02 270);
-    /* Dark gray */
-    --ring: oklch(1 0 0);
-    /* Your primary color */
     --radius: 1rem;
-    --chart-1: oklch(0.6 0.2 25);
-    /* Reddit's orange in OKLCH */
-    --chart-2: oklch(0.6 0.2 250);
-    /* Reddit's blue in OKLCH */
-    --chart-3: oklch(0.5 0.15 120);
-    /* Green in OKLCH */
-    --chart-4: oklch(0.6 0.2 300);
-    /* Purple in OKLCH */
-    --chart-5: oklch(0.7 0.2 60);
-    /* Yellow in OKLCH */
+    /* Base colors */
+    --background: oklch(0.15 0.01 240);
+    --foreground: oklch(100% 0 0);
+    --card: oklch(0.18 0.01 240);
+    --card-foreground: oklch(100% 0 0);
+    --popover: oklch(0.18 0.01 240);
+    --popover-foreground: oklch(100% 0 0);
+
+    /* Primary colors */
+    --primary: oklch(67.59% 0.1591 140.34);
+    --primary-foreground: oklch(100% 0 0);
+
+    /* Secondary colors */
+    --secondary: oklch(55.49% 0.1745 253.63);
+    --secondary-foreground: oklch(100% 0 0);
+    ;
+
+    /* Muted colors */
+    --muted: oklch(0.22 0.01 240);
+    --muted-foreground: oklch(0.55 0.01 240);
+
+    /* Accent colors */
+    --accent: oklch(59.97% 0.1495 259.75);
+    --accent-foreground: oklch(100% 0 0);
+
+    /* Utility colors */
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.985 0.001 106.423);
+    --border: oklch(0.22 0.01 240);
+    --input: oklch(0.22 0.01 240);
+    --ring: oklch(67.59% 0.1591 140.34);
+
+    /* Chart colors - keeping original */
+    --chart-1: oklch(0.646 0.222 41.116);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
+
+    /* Sidebar colors */
+    --sidebar: oklch(0.15 0.01 240);
+    --sidebar-foreground: oklch(0.85 0.01 240);
+    --sidebar-primary: oklch(0.65 0.15 135);
+    --sidebar-primary-foreground: oklch(0.85 0.01 240);
+    --sidebar-accent: oklch(0.18 0.01 240);
+    --sidebar-accent-foreground: oklch(0.85 0.01 240);
+    --sidebar-border: oklch(0.22 0.01 240);
+    --sidebar-ring: oklch(0.55 0.18 250);
 }
 
 

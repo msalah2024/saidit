@@ -193,7 +193,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
                     <Link href="#" className='text-sm text-secondary' onClick={onSwitchToLogIn}>Log In</Link>
                   </div>
                 </div>
-                <Button type='submit' disabled={!emailForm.formState.isValid} className='p-6 w-full rounded-3xl'>
+                <Button type='submit' disabled={!emailForm.formState.isValid} className='p-6 w-full rounded-3xl mt-3'>
                   {isChecking ? 'Checking...' : 'Continue'}
                 </Button>
               </form>
@@ -202,7 +202,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
             <Form {...credentialsForm}>
               <form onSubmit={credentialsForm.handleSubmit(onCredentialsSubmit)} className="space-y-3">
                 <CredentialsStep form={credentialsForm} />
-                <Button type='submit' disabled={!credentialsForm.formState.isValid} className='p-6 w-full rounded-3xl'>{
+                <Button type='submit' disabled={!credentialsForm.formState.isValid} className='p-6 w-full rounded-3xl mt-3'>{
                   isChecking ? 'Checking...' : 'Continue'
                 }</Button>
               </form>
@@ -211,7 +211,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
             <Form {...genderForm}>
               <form onSubmit={genderForm.handleSubmit(onGenderSubmit)} className="space-y-3">
                 <GenderStep form={genderForm} />
-                <Button type='submit' disabled={!genderForm.formState.isValid} className='p-6 w-full rounded-3xl'>{
+                <Button type='submit' disabled={!genderForm.formState.isValid} className='p-6 w-full rounded-3xl mt-3'>{
                   isSubmitting ? 'Creating Account...' : 'Create Account'
                 }</Button>
               </form>
