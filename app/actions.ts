@@ -12,26 +12,60 @@ export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>
   const email = formData.email
   const supabase = await createClient()
 
-  const { error } = await supabase.from("users").select("email").eq("email", email).single()
+  try {
+    const { error: emailError } = await supabase.from("users").select("email").eq("email", email).single()
 
-  if (error && error.code === 'PGRST116') {
-    return true
+    if (emailError && emailError.code === 'PGRST116') {
+      return {
+        success: true,
+        message: "Email is available"
+      }
+    }
+
+    else {
+      return {
+        success: false,
+        message: "Email is already taken"
+      }
+    }
+
+  } catch (error) {
+    console.error("Email Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
   }
-
-  return false
 }
 
 export async function isUserNameAvailable(formData: z.infer<typeof CredentialsStepSchema>) {
   const username = formData.username
   const supabase = await createClient()
 
-  const { error } = await supabase.from("users").select("username").eq("username", username).single()
+  try {
+    const { error: usernameError } = await supabase.from("users").select("username").eq("username", username).single()
 
-  if (error && error.code === 'PGRST116') {
-    return true
+    if (usernameError && usernameError.code === 'PGRST116') {
+      return {
+        success: true,
+        message: "Username is available"
+      }
+    }
+
+    else {
+      return {
+        success: false,
+        message: "Username is already taken"
+      }
+    }
+
+  } catch (error) {
+    console.error("Username Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
   }
-
-  return false
 }
 
 export async function signUp(formData: z.infer<typeof RegisterSchema>) {

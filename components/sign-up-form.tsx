@@ -86,17 +86,19 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
   })
 
   async function onEmailSubmit(values: z.infer<typeof EmailStepSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+
     try {
 
       setIsChecking(true)
 
-      const isAvailable = await isEmailAvailable(values)
+      const result = await isEmailAvailable(values)
+      console.log(result)
 
-      setIsChecking(false)
-
-      if (!isAvailable) {
+      if (result.success) {
+        form.setValue('email', values.email)
+        setStep((prev) => prev + 1)
+      }
+      else {
         emailForm.setError('email', {
           type: 'manual',
           message: 'Email is already taken'
@@ -104,28 +106,28 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
         return
       }
 
-      form.setValue('email', values.email)
-      setStep((prev) => prev + 1)
-
     } catch (error) {
       console.error(error)
     } finally {
-
+      setIsChecking(false)
     }
   }
 
   async function onCredentialsSubmit(values: z.infer<typeof CredentialsStepSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+
     try {
 
       setIsChecking(true)
 
-      const isAvailable = await isUserNameAvailable(values)
+      const result = await isUserNameAvailable(values)
+      console.log(result)
 
-      setIsChecking(false)
-
-      if (!isAvailable) {
+      if (result.success) {
+        form.setValue('username', values.username)
+        form.setValue('password', values.password)
+        setStep((prev) => prev + 1)
+      }
+      else {
         credentialsForm.setError('username', {
           type: 'manual',
           message: 'Username is already taken'
@@ -133,21 +135,15 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
         return
       }
 
-      form.setValue('username', values.username)
-      form.setValue('password', values.password)
-
-      setStep((prev) => prev + 1)
-
     } catch (error) {
       console.error(error)
     } finally {
-
+      setIsChecking(false)
     }
   }
 
   function onGenderSubmit(values: z.infer<typeof GenderStepSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+
     try {
 
       form.setValue('gender', values.gender)
@@ -160,26 +156,23 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
   }
 
   async function onSubmit(values: z.infer<typeof RegisterSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
 
     try {
 
       setIsSubmitting(true)
 
       const result = await signUp(values)
-      console.log(result)
 
-
-      if (!result.success) {
+      if (result.success) {
+        setStep((prev) => prev + 1)
+      }
+      else {
         genderForm.setError('gender', {
           type: 'manual',
-          message: 'An error occurred'
+          message: "An error occurred"
         })
         return
       }
-
-      setStep((prev) => prev + 1)
 
     } catch (error) {
       console.error(error)
@@ -258,42 +251,6 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
             <SuccessStep formData={form.getValues()} />
           )
         }
-        {/* <Form {...form}>
-          <form onSubmit={
-            step === 0 ? emailForm.handleSubmit(onEmailSubmit) :
-              step === 1 ? credentialsForm.handleSubmit(onCredentialsSubmit) :
-                genderForm.handleSubmit(onGenderSubmit)
-          } className="space-y-3">
-            <>{renderStep()}</>
-            {
-              step === 0 && (
-                <div className='ml-2 mb-6'>
-                  <div className='space-x-1'>
-                    <small className="text-sm font-medium leading-none">Already a Saiditor?</small>
-                    <Link href="#" className='text-sm text-secondary' onClick={onSwitchToLogIn}>Log In</Link>
-                  </div>
-                </div>
-              )
-            }
-            {
-              step === 0 ? (
-                <Button type='submit' disabled={!emailForm.formState.isValid} className='p-6 w-full rounded-3xl'>
-                  {isChecking ? 'Checking...' : 'Continue'}
-                </Button>
-              ) : step === 1 ? (
-                <Button type='submit' disabled={!credentialsForm.formState.isValid} className='p-6 w-full rounded-3xl'>{
-                  isChecking ? 'Checking...' : 'Continue'
-                }</Button>
-              ) : step === 2 ? (
-                <Button type='submit' disabled={!genderForm.formState.isValid} className='p-6 w-full rounded-3xl'>{
-                  isSubmitting ? 'Creating Account...' : 'Create Account'
-                }</Button>
-              ) : (
-                null
-              )
-            }
-          </form>
-        </Form> */}
       </div>
     </div>
   )

@@ -32,7 +32,7 @@ export default function GenderStep({ form }: GenderStepProps) {
                             <SelectItem value="female" className='p-2'>female</SelectItem>
                         </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className='ml-2'/>
                 </FormItem>
             )}
         />
