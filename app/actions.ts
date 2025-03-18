@@ -76,7 +76,7 @@ export async function signUp(formData: z.infer<typeof RegisterSchema>) {
   const password = formData.password
 
   try {
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password
     })
@@ -89,7 +89,8 @@ export async function signUp(formData: z.infer<typeof RegisterSchema>) {
     const { error: profileError } = await supabase.from("users").insert({
       username,
       email,
-      gender
+      gender,
+      account_id: authData?.user?.id
     })
 
     if (profileError) {
