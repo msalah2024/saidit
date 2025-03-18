@@ -251,6 +251,20 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
             <SuccessStep formData={form.getValues()} />
           )
         }
+        <div className="flex justify-center space-x-2 mt-3">
+          {steps.slice(0, steps.length - 1).map((_, index) => (
+            <div
+              key={index}
+              className={`h-2 w-2 rounded-full transition-all duration-300 ${index === step
+                ? "bg-primary w-4" // Active dot is wider
+                : index < step
+                  ? "bg-primary" // Completed dot
+                  : "bg-muted" // Upcoming dot
+                }`}
+              aria-label={`Step ${index + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   )
