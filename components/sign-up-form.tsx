@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
 } from "@/components/ui/form"
+import { Loader2 } from "lucide-react"
 import Image from 'next/image'
 import discordLogo from "@/public/assets/images/discordIcon.svg"
 import googleLogo from "@/public/assets/images/googleIcon.svg"
@@ -24,7 +25,7 @@ import { RegisterSchema } from '@/schema'
 import { EmailStepSchema } from '@/schema'
 import { CredentialsStepSchema } from '@/schema'
 import { GenderStepSchema } from '@/schema'
-
+import { isEmailAvailable, isUserNameAvailable, signUp } from '@/app/actions'
 
 interface SignUpFormProps {
   onSwitchToLogIn: () => void
@@ -84,14 +85,25 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
     }
   })
 
-  function onEmailSubmit(values: z.infer<typeof EmailStepSchema>) {
+  async function onEmailSubmit(values: z.infer<typeof EmailStepSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     try {
 
       setIsChecking(true)
-      console.log(values)
+
+      const isAvailable = await isEmailAvailable(values)
+
       setIsChecking(false)
+
+      if (!isAvailable) {
+        emailForm.setError('email', {
+          type: 'manual',
+          message: 'Email is already taken'
+        })
+        return
+      }
+
       form.setValue('email', values.email)
       setStep((prev) => prev + 1)
 
@@ -102,16 +114,28 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
     }
   }
 
-  function onCredentialsSubmit(values: z.infer<typeof CredentialsStepSchema>) {
+  async function onCredentialsSubmit(values: z.infer<typeof CredentialsStepSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     try {
 
       setIsChecking(true)
-      console.log(values)
+
+      const isAvailable = await isUserNameAvailable(values)
+
       setIsChecking(false)
+
+      if (!isAvailable) {
+        credentialsForm.setError('username', {
+          type: 'manual',
+          message: 'Username is already taken'
+        })
+        return
+      }
+
       form.setValue('username', values.username)
       form.setValue('password', values.password)
+
       setStep((prev) => prev + 1)
 
     } catch (error) {
@@ -133,25 +157,34 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
     catch (error) {
       console.error(error)
     }
-    finally {
-    }
   }
 
-  function onSubmit(values: z.infer<typeof RegisterSchema>) {
+  async function onSubmit(values: z.infer<typeof RegisterSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
 
     try {
 
       setIsSubmitting(true)
-      console.log(values)
-      setIsSubmitting(false)
+
+      const result = await signUp(values)
+      console.log(result)
+
+
+      if (!result.success) {
+        genderForm.setError('gender', {
+          type: 'manual',
+          message: 'An error occurred'
+        })
+        return
+      }
+
       setStep((prev) => prev + 1)
 
     } catch (error) {
       console.error(error)
     } finally {
-
+      setIsSubmitting(false)
     }
   }
 
@@ -193,8 +226,9 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
                     <Link href="#" className='text-sm text-secondary' onClick={onSwitchToLogIn}>Log In</Link>
                   </div>
                 </div>
-                <Button type='submit' disabled={!emailForm.formState.isValid} className='p-6 w-full rounded-3xl mt-3'>
-                  {isChecking ? 'Checking...' : 'Continue'}
+                <Button type='submit' disabled={!emailForm.formState.isValid || isChecking} className='p-6 w-full rounded-3xl mt-3'>
+                  {isChecking ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Checking...</> : 'Continue'}
                 </Button>
               </form>
             </Form>
@@ -203,7 +237,9 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
               <form onSubmit={credentialsForm.handleSubmit(onCredentialsSubmit)} className="space-y-3">
                 <CredentialsStep form={credentialsForm} />
                 <Button type='submit' disabled={!credentialsForm.formState.isValid} className='p-6 w-full rounded-3xl mt-3'>{
-                  isChecking ? 'Checking...' : 'Continue'
+                  isChecking ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Checking...
+                  </> : 'Continue'
                 }</Button>
               </form>
             </Form>
@@ -212,7 +248,9 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
               <form onSubmit={genderForm.handleSubmit(onGenderSubmit)} className="space-y-3">
                 <GenderStep form={genderForm} />
                 <Button type='submit' disabled={!genderForm.formState.isValid} className='p-6 w-full rounded-3xl mt-3'>{
-                  isSubmitting ? 'Creating Account...' : 'Create Account'
+                  isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating Account...
+                  </> : 'Create Account'
                 }</Button>
               </form>
             </Form>
