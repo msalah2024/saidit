@@ -9,7 +9,7 @@ import { EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema } f
 import { revalidatePath } from "next/cache";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
-  const email = formData.email
+  const email = formData.email.toLowerCase()
   const supabase = await createClient()
 
   try {
@@ -39,7 +39,7 @@ export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>
 }
 
 export async function isUserNameAvailable(formData: z.infer<typeof CredentialsStepSchema>) {
-  const username = formData.username
+  const username = formData.username.toLowerCase()
   const supabase = await createClient()
 
   try {
@@ -71,7 +71,7 @@ export async function isUserNameAvailable(formData: z.infer<typeof CredentialsSt
 export async function signUp(formData: z.infer<typeof RegisterSchema>) {
   const supabase = await createClient()
   const username = formData.username
-  const email = formData.email
+  const email = formData.email.toLowerCase()
   const gender = formData.gender
   const password = formData.password
 

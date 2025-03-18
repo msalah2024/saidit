@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
 } from "@/components/ui/form"
-import { Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import Image from 'next/image'
 import discordLogo from "@/public/assets/images/discordIcon.svg"
 import googleLogo from "@/public/assets/images/googleIcon.svg"
@@ -184,6 +184,18 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
   return (
     <div>
       <DialogHeader>
+        {step > 0 && step < steps.length - 1 && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setStep((prev) => prev - 1)}
+            className="absolute top-2 left-2 p-2 h-8 w-8"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        )}
         <DialogTitle className='text-center text-2xl'>{steps[step].title}</DialogTitle>
         <DialogDescription className='text-center'>
           {steps[step].description}
