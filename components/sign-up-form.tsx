@@ -190,7 +190,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
             variant="ghost"
             size="sm"
             onClick={() => setStep((prev) => prev - 1)}
-            className="absolute top-2 left-2 p-2 h-8 w-8"
+            className="absolute top-2 left-2 p-2 h-8 w-8 hover:bg-muted"
             aria-label="Go back"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -268,10 +268,10 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
             <div
               key={index}
               className={`h-2 w-2 rounded-full transition-all duration-300 ${index === step
-                ? "bg-primary w-4" // Active dot is wider
+                ? "bg-primary w-4"
                 : index < step
-                  ? "bg-primary" // Completed dot
-                  : "bg-muted" // Upcoming dot
+                  ? "bg-primary"
+                  : "bg-muted"
                 }`}
               aria-label={`Step ${index + 1}`}
             />

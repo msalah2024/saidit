@@ -3,7 +3,12 @@ import { z } from "zod"
 export const LoginSchema = z.object({
     username: z.string().min(3, {
         message: "Please enter a valid username or email address."
-    }).max(50),
+    }).max(50).regex(
+        /^[a-zA-Z0-9-_]+$/,
+        'Username or email can only contain letters, numbers, hyphens (-), and underscores (_).'
+    ).refine((val) => !/\s/.test(val), {
+        message: 'Username or email cannot contain spaces.',
+    }),
     password: z.string().min(8, {
         message: "Please enter a valid password."
     })
@@ -14,8 +19,15 @@ export const RegisterSchema = z.object({
         message: "Please enter a valid email address."
     }),
     username: z.string().min(3, {
-        message: "username must be at least 3 characters long."
-    }).max(20),
+        message: "Username must be at least 3 characters long."
+    }).max(20, {
+        message: "Username must be at most 20 characters long."
+    }).regex(
+        /^[a-zA-Z0-9-_]+$/,
+        'Username can only contain letters, numbers, hyphens (-), and underscores (_).'
+    ).refine((val) => !/\s/.test(val), {
+        message: 'Username cannot contain spaces.',
+    }),
     password: z
         .string()
         .min(8, { message: "Password must be at least 8 characters long." })
@@ -35,8 +47,15 @@ export const EmailStepSchema = z.object({
 
 export const CredentialsStepSchema = z.object({
     username: z.string().min(3, {
-        message: "username must be at least 3 characters long."
-    }).max(20),
+        message: "Username must be at least 3 characters long."
+    }).max(20, {
+        message: "Username must be at most 20 characters long."
+    }).regex(
+        /^[a-zA-Z0-9-_]+$/,
+        'Username can only contain letters, numbers, hyphens (-), and underscores (_).'
+    ).refine((val) => !/\s/.test(val), {
+        message: 'Username cannot contain spaces.',
+    }),
     password: z
         .string()
         .min(8, { message: "Password must be at least 8 characters long." })
