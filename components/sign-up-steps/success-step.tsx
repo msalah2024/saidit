@@ -19,6 +19,9 @@ export default function SuccessStep({ formData }: SuccessStepProps) {
             <p className="text-muted-foreground">
                 Welcome, {formData.username}! Your account has been created with the email {formData.email}.
             </p>
+            <p className="text-muted-foreground">
+                Check your email to confirm your sign up.
+            </p>
         </div>
     )
 }
