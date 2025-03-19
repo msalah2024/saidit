@@ -34,7 +34,7 @@
 
 ## Database Setup
 
--   [ ] Create `users` table.
+-   [x] Create `users` table.
 -   [ ] Create `communities` table.
 -   [ ] Create `posts` table.
 -   [ ] Create `comments` table.
