@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -22,6 +22,8 @@ import Image from 'next/image'
 import discordLogo from "@/public/assets/images/discordIcon.svg"
 import googleLogo from "@/public/assets/images/googleIcon.svg"
 import { LoginSchema } from '@/schema'
+import { logIn } from '@/app/actions'
+import { Loader2 } from 'lucide-react'
 
 
 interface SignInFormProps {
@@ -29,24 +31,40 @@ interface SignInFormProps {
 }
 
 export default function LogInForm({ onSwitchToSignUp }: SignInFormProps) {
+    const [isLoginIn, setIsLoginIn] = useState(false)
 
     const form = useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
         defaultValues: {
-            username: "",
+            identifier: "",
             password: "",
         },
     })
 
-    function onSubmit(values: z.infer<typeof LoginSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
+    async function onSubmit(values: z.infer<typeof LoginSchema>) {
         try {
+            setIsLoginIn(true)
+
+            const result = await logIn(values)
+
+            if (result.success) {
+                console.log('Logged in')
+            }
+            else {
+                form.setError('identifier', {
+                    type: 'manual',
+                })
+                form.setError('password', {
+                    type: 'manual',
+                    message: result.message
+                })
+
+            }
 
         } catch (error) {
             console.error(error)
         } finally {
-
+            setIsLoginIn(false)
         }
     }
 
@@ -76,7 +94,7 @@ export default function LogInForm({ onSwitchToSignUp }: SignInFormProps) {
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                         <FormField
                             control={form.control}
-                            name="username"
+                            name="identifier"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
@@ -105,7 +123,11 @@ export default function LogInForm({ onSwitchToSignUp }: SignInFormProps) {
                                 <Link href="#" className='text-sm text-accent' onClick={onSwitchToSignUp}>Sign Up</Link>
                             </div>
                         </div>
-                        <Button type='submit' className='p-6 w-full rounded-3xl'>Log In</Button>
+                        <Button type='submit' className='p-6 w-full rounded-3xl'>{
+                            isLoginIn ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Login In...
+                            </> : 'Log In'
+                        }</Button>
                     </form>
                 </Form>
             </div>

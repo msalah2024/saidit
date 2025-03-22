@@ -1,14 +1,24 @@
 import { z } from "zod"
 
+const emailSchema = z.string().email({
+    message: "Please enter a valid email address."
+})
+
+const userNameSchema = z.string().min(3, {
+    message: "Username must be at least 3 characters long."
+}).max(20, {
+    message: "Username must be at most 20 characters long."
+}).regex(
+    /^[a-zA-Z0-9-_]+$/,
+    'Username can only contain letters, numbers, hyphens (-), and underscores (_).'
+).refine((val) => !/\s/.test(val), {
+    message: 'Username cannot contain spaces.',
+})
+
+const unifiedLoginSchema = z.union([emailSchema, userNameSchema])
+
 export const LoginSchema = z.object({
-    username: z.string().min(3, {
-        message: "Please enter a valid username or email address."
-    }).max(50).regex(
-        /^[a-zA-Z0-9-_]+$/,
-        'Username or email can only contain letters, numbers, hyphens (-), and underscores (_).'
-    ).refine((val) => !/\s/.test(val), {
-        message: 'Username or email cannot contain spaces.',
-    }),
+    identifier: unifiedLoginSchema,
     password: z.string().min(8, {
         message: "Please enter a valid password."
     })

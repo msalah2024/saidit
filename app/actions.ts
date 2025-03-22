@@ -6,7 +6,7 @@ import { z } from "zod";
 // import { headers } from "next/headers";
 // import { redirect } from "next/navigation";
 import { EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema } from "@/schema";
-import { revalidatePath } from "next/cache";
+// import { revalidatePath } from "next/cache";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
   const email = formData.email.toLowerCase()
@@ -106,6 +106,66 @@ export async function signUp(formData: z.infer<typeof RegisterSchema>) {
 
   } catch (error) {
     console.error("Sign Up Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
+}
+
+export async function logIn(formData: z.infer<typeof LoginSchema>) {
+  const supabase = await createClient()
+  const { identifier, password } = formData
+
+  const isEmail = z.string().email().safeParse(identifier).success
+
+  try {
+
+    if (isEmail) {
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: identifier,
+        password
+      })
+
+      if (authError) {
+        console.error("Auth Error", authError.message)
+        throw new Error(authError.message || "An error occurred")
+      }
+
+      return {
+        success: true,
+        message: "Logged in successfully",
+        data: authData
+      }
+
+    }
+    else {
+      const { data: userEmail, error: emailError } = await supabase.from("users").select("email").eq("username", identifier).single()
+
+      if (emailError) {
+        console.error("Email Error", emailError.message)
+        throw new Error(emailError.message || "An error occurred")
+      }
+
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: userEmail?.email,
+        password
+      })
+
+      if (authError) {
+        console.error("Auth Error", authError.message)
+        throw new Error(authError.message || "An error occurred")
+      }
+
+      return {
+        success: true,
+        message: "Logged in successfully",
+        data: authData
+      }
+    }
+
+  } catch (error) {
+    console.error("Log In Error", error)
     return {
       success: false,
       message: error instanceof Error ? error.message : "An error occurred"
