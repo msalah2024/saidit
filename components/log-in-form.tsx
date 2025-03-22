@@ -28,9 +28,11 @@ import { Loader2 } from 'lucide-react'
 
 interface SignInFormProps {
     onSwitchToSignUp: () => void
+    setOpen: (value: boolean) => void
 }
 
-export default function LogInForm({ onSwitchToSignUp }: SignInFormProps) {
+
+export default function LogInForm({ onSwitchToSignUp, setOpen }: SignInFormProps) {
     const [isLoginIn, setIsLoginIn] = useState(false)
 
     const form = useForm<z.infer<typeof LoginSchema>>({
@@ -48,7 +50,7 @@ export default function LogInForm({ onSwitchToSignUp }: SignInFormProps) {
             const result = await logIn(values)
 
             if (result.success) {
-                console.log('Logged in')
+                setOpen(false)
             }
             else {
                 form.setError('identifier', {
@@ -67,7 +69,6 @@ export default function LogInForm({ onSwitchToSignUp }: SignInFormProps) {
             setIsLoginIn(false)
         }
     }
-
 
     return (
         <div>

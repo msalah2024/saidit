@@ -15,7 +15,7 @@ const userNameSchema = z.string().min(3, {
     message: 'Username cannot contain spaces.',
 })
 
-const unifiedLoginSchema = z.union([emailSchema, userNameSchema])
+const unifiedLoginSchema = z.union([userNameSchema, emailSchema])
 
 export const LoginSchema = z.object({
     identifier: unifiedLoginSchema,
