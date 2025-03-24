@@ -21,7 +21,6 @@
     /* Secondary colors */
     --secondary: oklch(55.49% 0.1745 253.63);
     --secondary-foreground: oklch(100% 0 0);
-    ;
 
     /* Muted colors */
     --muted: oklch(0.22 0.01 240);
@@ -108,4 +107,9 @@
 
 Button {
     cursor: pointer;
+}
+
+input:autofill {
+    background-color: var(--background) !important;
+    color: var(--foreground) !important;
 }

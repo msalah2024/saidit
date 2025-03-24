@@ -25,7 +25,7 @@ export default function AuthDialog() {
 
     return (
         <Dialog onOpenChange={setOpen} open={open}>
-            <DialogTrigger asChild>
+            <DialogTrigger asChild className='mr-4'>
                 <Button className='rounded-xl'>Log In</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">

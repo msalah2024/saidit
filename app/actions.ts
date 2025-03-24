@@ -6,6 +6,7 @@ import { z } from "zod";
 // import { headers } from "next/headers";
 // import { redirect } from "next/navigation";
 import { EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema } from "@/schema";
+import { revalidatePath } from "next/cache";
 // import { revalidatePath } from "next/cache";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
@@ -86,11 +87,14 @@ export async function signUp(formData: z.infer<typeof RegisterSchema>) {
       throw new Error(authError.message || "An error occurred")
     }
 
+    const avatar_url = gender === "male" ? (await supabase.storage.from("saidit-defaults").getPublicUrl("default-avatars/saidit-male-avatar-new.png")) : (await supabase.storage.from("saidit-defaults").getPublicUrl("default-avatars/saidit-female-avatar-new.png"))
+
     const { error: profileError } = await supabase.from("users").insert({
       username,
       email,
       gender,
-      account_id: authData?.user?.id
+      account_id: authData?.user?.id,
+      avatar_url: avatar_url.data.publicUrl
     })
 
     if (profileError) {
@@ -172,3 +176,9 @@ export async function logIn(formData: z.infer<typeof LoginSchema>) {
     }
   }
 }
+
+export const SignOut = async () => {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  return revalidatePath("/")
+};
