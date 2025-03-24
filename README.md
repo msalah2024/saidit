@@ -28,7 +28,7 @@
 -   [x] Initialize Next.js project with TypeScript.
 -   [x] Set up ESLint, Prettier.
 -   [x] Install and configure shadcn/ui.
--   [ ] Set up Supabase and configure authentication.
+-   [x] Set up Supabase and configure authentication.
 -   [ ] Add social login (Google, Discord).
 -   [ ] Create protected routes middleware.
 
@@ -47,7 +47,7 @@
 
 ## Authentication
 
--   [ ] Implement sign-up, login, and logout.
+-   [x] Implement sign-up, login, and logout.
 -   [ ] Add social login (Google, GitHub, etc.).
 -   [ ] Create user profile pages.
 -   [ ] Allow users to edit their profiles (bio, avatar, banner).

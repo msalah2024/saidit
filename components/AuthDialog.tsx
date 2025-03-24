@@ -13,8 +13,6 @@ export default function AuthDialog() {
     const [authMode, setAuthMode] = useState<"logIn" | "signUp">("logIn")
     const [open, setOpen] = useState(false)
 
-
-
     useEffect(() => {
         if (!open) {
             setTimeout(() => {
