@@ -29,7 +29,7 @@ export default async function ProfileMenu({ user }: { user: User | null }) {
                 <DropdownMenuItem className='py-4 focus:bg-card mr-10'>
                     <Avatar className='size-10'>
                         <AvatarImage src={profile?.avatar_url} />
-                        <AvatarFallback>hh</AvatarFallback>
+                        <AvatarFallback>SI</AvatarFallback>
                     </Avatar>
                     <div>
                         <p>View Profile</p>
