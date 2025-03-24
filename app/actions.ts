@@ -4,9 +4,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { z } from "zod";
 // import { headers } from "next/headers";
-// import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema } from "@/schema";
-import { revalidatePath } from "next/cache";
+// import { revalidatePath } from "next/cache";
 // import { revalidatePath } from "next/cache";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
@@ -180,5 +180,5 @@ export async function logIn(formData: z.infer<typeof LoginSchema>) {
 export const SignOut = async () => {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  return revalidatePath("/")
+  return redirect("/home")
 };
