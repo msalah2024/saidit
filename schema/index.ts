@@ -78,3 +78,7 @@ export const CredentialsStepSchema = z.object({
 export const GenderStepSchema = z.object({
     gender: z.enum(["male", "female"])
 })
+
+export const ResetPasswordIdentifierSchema = z.object({
+    identifier: unifiedLoginSchema
+})

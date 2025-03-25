@@ -8,9 +8,10 @@ import {
 } from "@/components/ui/dialog"
 import LogInForm from './log-in-form'
 import SignUpForm from './sign-up-form'
+import ResetPasswordForm from './reset-password-form'
 
 export default function AuthDialog() {
-    const [authMode, setAuthMode] = useState<"logIn" | "signUp">("logIn")
+    const [authMode, setAuthMode] = useState<"logIn" | "signUp" | "forgetPassword">("logIn")
     const [open, setOpen] = useState(false)
 
     useEffect(() => {
@@ -29,9 +30,11 @@ export default function AuthDialog() {
             <DialogContent className="sm:max-w-[425px]">
                 {
                     authMode === "logIn" ? (
-                        <LogInForm onSwitchToSignUp={() => setAuthMode("signUp")} setOpen={setOpen} />
-                    ) : (
+                        <LogInForm onSwitchToSignUp={() => setAuthMode("signUp")} onSwitchToResetPassword={() => setAuthMode('forgetPassword')} setOpen={setOpen} />
+                    ) : authMode === "signUp" ? (
                         <SignUpForm onSwitchToLogIn={() => setAuthMode("logIn")} />
+                    ) : (
+                        <ResetPasswordForm onSwitchToLogIn={() => setAuthMode("logIn")} />
                     )
                 }
             </DialogContent>

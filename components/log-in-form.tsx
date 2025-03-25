@@ -28,11 +28,12 @@ import { Loader2 } from 'lucide-react'
 
 interface SignInFormProps {
     onSwitchToSignUp: () => void
+    onSwitchToResetPassword: () => void
     setOpen: (value: boolean) => void
 }
 
 
-export default function LogInForm({ onSwitchToSignUp, setOpen }: SignInFormProps) {
+export default function LogInForm({ onSwitchToSignUp, onSwitchToResetPassword, setOpen }: SignInFormProps) {
     const [isLoginIn, setIsLoginIn] = useState(false)
 
     const form = useForm<z.infer<typeof LoginSchema>>({
@@ -118,7 +119,7 @@ export default function LogInForm({ onSwitchToSignUp, setOpen }: SignInFormProps
                             )}
                         />
                         <div className='ml-2 mb-6'>
-                            <Link href='#' className='text-sm text-accent'>Forgot password?</Link>
+                            <Link href='#' onClick={onSwitchToResetPassword} className='text-sm text-accent'>Forgot password?</Link>
                             <div className='space-x-1'>
                                 <small className="text-sm font-medium leading-none">New to Saidit?</small>
                                 <Link href="#" className='text-sm text-accent' onClick={onSwitchToSignUp}>Sign Up</Link>

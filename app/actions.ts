@@ -6,8 +6,6 @@ import { z } from "zod";
 // import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema } from "@/schema";
-// import { revalidatePath } from "next/cache";
-// import { revalidatePath } from "next/cache";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
   const email = formData.email.toLowerCase()
