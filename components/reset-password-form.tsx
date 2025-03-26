@@ -15,6 +15,7 @@ import { z } from "zod"
 import { ResetPasswordIdentifierSchema } from '@/schema'
 import EmailStep from './reset-password-steps/email-step'
 import CheckYourEmailStep from './reset-password-steps/check-your-email-step'
+import { resetPassword } from '@/app/actions'
 
 interface ResetPasswordFormProps {
     onSwitchToLogIn: () => void
@@ -43,13 +44,26 @@ export default function ResetPasswordForm({ onSwitchToLogIn }: ResetPasswordForm
         mode: 'onBlur'
     })
 
-    function onSubmit(values: z.infer<typeof ResetPasswordIdentifierSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
+    async function onSubmit(values: z.infer<typeof ResetPasswordIdentifierSchema>) {
         try {
+
             setIsSubmitting(true)
-            setStep((prev) => prev + 1)
-            console.log(values)
+
+            const result = await resetPassword(values)
+
+            if (result.success) {
+                setStep((prev) => prev + 1)
+                console.log(values)
+            }
+
+            else {
+                identifierForm.setError('identifier', {
+                    type: 'manual',
+                    message: result.message
+                })
+                return
+            }
+
         } catch (error) {
             console.error(error)
         }
@@ -65,14 +79,14 @@ export default function ResetPasswordForm({ onSwitchToLogIn }: ResetPasswordForm
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => onSwitchToLogIn()}
+                    onClick={() => step === 0 ? onSwitchToLogIn() : setStep(0)}
                     className="absolute top-2 left-2 p-2 h-8 w-8 hover:bg-muted"
                     aria-label="Go back"
                 >
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <DialogTitle className='text-center text-2xl'>{steps[step].title}</DialogTitle>
-                <DialogDescription className='text-center'>
+                <DialogDescription className='text-center mb-1'>
                     {steps[step].description}
                 </DialogDescription>
             </DialogHeader>

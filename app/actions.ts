@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { z } from "zod";
 // import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema } from "@/schema";
+import { EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema, ResetPasswordIdentifierSchema } from "@/schema";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
   const email = formData.email.toLowerCase()
@@ -180,3 +180,50 @@ export const SignOut = async () => {
   await supabase.auth.signOut();
   return redirect("/home")
 };
+
+
+export async function resetPassword(formData: z.infer<typeof ResetPasswordIdentifierSchema>) {
+  const supabase = await createClient()
+  const identifier = formData.identifier
+
+  try {
+    if (z.string().email().safeParse(identifier).success) {
+      const { error } = await supabase.auth.resetPasswordForEmail(identifier)
+      if (error) {
+        console.error("Reset Password Error", error)
+        throw new Error(error.message || "An error occurred")
+      }
+      return {
+        success: true,
+        message: "Password reset email sent successfully",
+      }
+    }
+    else {
+      const { data: userEmail, error: userEmailError } = await supabase.from("users").select("email").eq("username", identifier).single()
+
+      if (userEmailError) {
+        console.error("User Email Error", userEmailError.message)
+        throw new Error(userEmailError.message || "An error occurred")
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(userEmail?.email)
+
+      if (error) {
+        console.error("Reset Password Error", error)
+        throw new Error(error.message || "An error occurred")
+      }
+
+      return {
+        success: true,
+        message: "Password reset email sent successfully",
+      }
+    }
+
+  } catch (error) {
+    console.error("Reset Password Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
+}
