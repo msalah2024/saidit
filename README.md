@@ -2,6 +2,8 @@
 
 ### **A fully open-source, feature-rich Reddit alternative built with Next.js & Supabase.**
 
+![localhost_3000_ (1)](https://github.com/user-attachments/assets/54240b94-6a90-4331-a68c-6d9c6297d52a)
+
 ## **📌 Features**
 
 ✅ **User Authentication** (Email & Password, Google, Facebook, GitHub OAuth)  
