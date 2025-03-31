@@ -113,3 +113,8 @@ input:autofill {
     background-color: var(--background) !important;
     color: var(--foreground) !important;
 }
+
+.patternBG {
+    background-image: url('../public/assets/images/saidit-logo-background.svg');
+    background-position: center;
+}

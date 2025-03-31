@@ -77,7 +77,7 @@ export async function signUp(formData: z.infer<typeof RegisterSchema>) {
   try {
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
-      password
+      password,
     })
 
     if (authError) {
@@ -175,12 +175,11 @@ export async function logIn(formData: z.infer<typeof LoginSchema>) {
   }
 }
 
-export const SignOut = async () => {
+export async function SignOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   return redirect("/home")
 };
-
 
 export async function resetPassword(formData: z.infer<typeof ResetPasswordIdentifierSchema>) {
   const supabase = await createClient()
