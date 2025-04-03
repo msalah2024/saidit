@@ -71,7 +71,6 @@ export default function ResetPasswordForm({ onSwitchToLogIn }: ResetPasswordForm
             if (result.success) {
                 setStep((prev) => prev + 1)
                 setCountDown(60)
-                console.log(values)
             }
 
             else {
