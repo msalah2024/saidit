@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Roboto_Slab } from "next/font/google";
 // import { ThemeProvider } from "@/app/components/theme-provider"
 import "./globals.css";
+import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner"
 
 const robotoSlap = Roboto_Slab({
@@ -24,6 +25,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <head />
         <body className={robotoSlap.className} suppressHydrationWarning>
+          <Navbar/>
           {children}
           <Toaster position="top-center" />
         </body>

@@ -64,7 +64,7 @@ export default function Page() {
     }
 
     return (
-        <div className='h-screen patternBG flex items-center justify-center'>
+        <div className='h-[calc(100vh-56px)] patternBG flex items-center justify-center'>
             <Card className="w-[90%] max-w-[500px] bg-background">
                 <CardHeader>
                     <CardTitle className='text-2xl text-center'>Reset your password</CardTitle>

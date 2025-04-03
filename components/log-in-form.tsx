@@ -125,7 +125,7 @@ export default function LogInForm({ onSwitchToSignUp, onSwitchToResetPassword, s
                                 <Link href="#" className='text-sm text-accent' onClick={onSwitchToSignUp}>Sign Up</Link>
                             </div>
                         </div>
-                        <Button type='submit' className='p-6 w-full rounded-3xl'>{
+                        <Button type='submit' disabled={isLoginIn} className='p-6 w-full rounded-3xl'>{
                             isLoginIn ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Login In...
                             </> : 'Log In'
