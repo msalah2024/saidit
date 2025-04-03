@@ -21,9 +21,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { ResetPasswordSchema } from '@/schema'
 import { toast } from "sonner"
+import { updatePassword } from '@/app/actions'
+import { Loader2 } from 'lucide-react'
 
 export default function Page() {
     const router = useRouter()
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const form = useForm<z.infer<typeof ResetPasswordSchema>>({
         resolver: zodResolver(ResetPasswordSchema),
@@ -33,10 +36,31 @@ export default function Page() {
         },
     })
 
-    function onSubmit(values: z.infer<typeof ResetPasswordSchema>) {
-        toast.success("Password reset successfully")
-        // router.push('/home')
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof ResetPasswordSchema>) {
+        try {
+            setIsSubmitting(true)
+            const result = await updatePassword(values)
+
+            if (result.success) {
+                toast.success("Password reset successfully")
+                router.push('/home')
+            }
+
+            else {
+                form.setError('password', {
+                    type: 'manual',
+                })
+                form.setError('confirmPassword', {
+                    type: 'manual',
+                })
+                toast.error(result.message)
+            }
+
+        } catch (error) {
+            console.error("Reset Password Error", error)
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -75,7 +99,13 @@ export default function Page() {
                             <div className='flex w-full mt-7 justify-center items-center'>
                                 <small className="text-sm text-center text-muted-foreground  leading-none">Resetting your password will log you out on all devices.</small>
                             </div>
-                            <Button type="submit" className='p-6 w-full rounded-3xl'>Continue</Button>
+                            <Button type="submit" disabled={isSubmitting} className='p-6 w-full rounded-3xl'>
+                                {
+                                    isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Resetting password...
+                                    </> : 'Continue'
+                                }
+                            </Button>
                         </form>
                     </Form>
                 </CardContent>

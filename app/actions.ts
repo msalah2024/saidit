@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { z } from "zod";
 // import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema, ResetPasswordIdentifierSchema } from "@/schema";
+import { EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema, ResetPasswordIdentifierSchema, ResetPasswordSchema } from "@/schema";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
   const email = formData.email.toLowerCase()
@@ -220,6 +220,34 @@ export async function resetPassword(formData: z.infer<typeof ResetPasswordIdenti
 
   } catch (error) {
     console.error("Reset Password Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
+}
+
+export async function updatePassword(formData: z.infer<typeof ResetPasswordSchema>) {
+  const supabase = await createClient()
+  const password = formData.password
+
+  try {
+    await supabase.auth.updateUser({ password: password })
+
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      console.error("Sign Out Error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    return {
+      success: true,
+      message: "Password updated successfully",
+    }
+
+  } catch (error) {
+    console.error("Update Password Error", error)
     return {
       success: false,
       message: error instanceof Error ? error.message : "An error occurred"

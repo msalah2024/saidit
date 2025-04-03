@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { EmailOtpType } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
@@ -33,6 +34,17 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/home'
     return NextResponse.redirect(url)
+  }
+
+  if (request.nextUrl.pathname.startsWith('/protected/reset-password')) {
+    const token_hash = request.nextUrl.searchParams.get('token_hash')
+    const type = request.nextUrl.searchParams.get('type') as EmailOtpType | null
+
+    if (!token_hash || !type) {
+      const redirectTo = request.nextUrl.clone()
+      redirectTo.pathname = '/home'
+      return NextResponse.redirect(redirectTo)
+    }
   }
 
   return supabaseResponse

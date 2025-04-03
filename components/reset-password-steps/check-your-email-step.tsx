@@ -17,7 +17,8 @@ export default function CheckYourEmailStep({ isResending, countDown, setResend }
                 Didn&#39;t get an email? <Button variant="link" disabled={isResending || countDown > 0} onClick={() => setResend(true)} className='text-foreground p-1'>
                     {
                         countDown > 0 ? `Resend (${countDown}s)` : "Resend"
-                    }</Button>
+                    }
+                </Button>
             </p>
         </div>
     )
