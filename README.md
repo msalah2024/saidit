@@ -6,7 +6,7 @@
 
 ## **📌 Features**
 
-✅ **User Authentication** (Email & Password, Google, Facebook, GitHub OAuth)  
+✅ **User Authentication** (Email & Password, Google, Discord)  
 ✅ **Community System** (Subreddits equivalent)  
 ✅ **Post Creation (Text, Image, Video)**  
 ✅ **Voting System (Upvote/Downvote)**  
@@ -32,7 +32,7 @@
 -   [x] Install and configure shadcn/ui.
 -   [x] Set up Supabase and configure authentication.
 -   [ ] Add social login (Google, Discord).
--   [ ] Create protected routes middleware.
+-   [x] Create protected routes middleware.
 
 ## Database Setup
 
