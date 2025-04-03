@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
     DialogDescription,
     DialogHeader,
@@ -16,6 +16,7 @@ import { ResetPasswordIdentifierSchema } from '@/schema'
 import EmailStep from './reset-password-steps/email-step'
 import CheckYourEmailStep from './reset-password-steps/check-your-email-step'
 import { resetPassword } from '@/app/actions'
+import { toast } from "sonner"
 
 interface ResetPasswordFormProps {
     onSwitchToLogIn: () => void
@@ -35,6 +36,9 @@ const steps = [
 export default function ResetPasswordForm({ onSwitchToLogIn }: ResetPasswordFormProps) {
     const [step, setStep] = useState(0)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [countDown, setCountDown] = useState(0)
+    const [isResending, setIsResending] = useState(false)
+    const [resend, setResend] = useState(false)
 
     const identifierForm = useForm<z.infer<typeof ResetPasswordIdentifierSchema>>({
         resolver: zodResolver(ResetPasswordIdentifierSchema),
@@ -43,6 +47,19 @@ export default function ResetPasswordForm({ onSwitchToLogIn }: ResetPasswordForm
         },
         mode: 'onBlur'
     })
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout
+
+        if (countDown > 0) {
+            timer = setTimeout(() => setCountDown(countDown - 1), 1000)
+        }
+
+        return () => {
+            clearTimeout(timer)
+        }
+
+    }, [countDown])
 
     async function onSubmit(values: z.infer<typeof ResetPasswordIdentifierSchema>) {
         try {
@@ -53,6 +70,7 @@ export default function ResetPasswordForm({ onSwitchToLogIn }: ResetPasswordForm
 
             if (result.success) {
                 setStep((prev) => prev + 1)
+                setCountDown(60)
                 console.log(values)
             }
 
@@ -71,6 +89,33 @@ export default function ResetPasswordForm({ onSwitchToLogIn }: ResetPasswordForm
             setIsSubmitting(false)
         }
     }
+
+    const handleResend = useCallback(async () => {
+        try {
+            setIsResending(true)
+            const result = await resetPassword(identifierForm.getValues())
+
+            if (result.success) {
+                toast.success("Email sent successfully")
+                setCountDown(60)
+            } else {
+                toast.error(result.message)
+            }
+
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsResending(false)
+        }
+
+    }, [identifierForm])
+
+    useEffect(() => {
+        if (resend) {
+            handleResend()
+            setResend(false)
+        }
+    }, [handleResend, resend])
 
     return (
         <div>
@@ -103,7 +148,7 @@ export default function ResetPasswordForm({ onSwitchToLogIn }: ResetPasswordForm
                             </form>
                         </Form>
                     ) : (
-                        <CheckYourEmailStep />
+                        <CheckYourEmailStep isResending={isResending} countDown={countDown} setResend={setResend} />
                     )
                 }
             </div>
