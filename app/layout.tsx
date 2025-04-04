@@ -4,6 +4,7 @@ import { Roboto_Slab } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner"
+import { createClient } from '@/utils/supabase/server'
 
 const robotoSlap = Roboto_Slab({
   variable: "--font-roboto-slab",
@@ -15,17 +16,21 @@ export const metadata: Metadata = {
   description: "An open-source Reddit alternative",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: profile } = await supabase.from('users').select("username, avatar_url").eq("email", user?.email).single()
+
   return (
     <>
       <html lang="en" suppressHydrationWarning>
         <head />
         <body className={robotoSlap.className} suppressHydrationWarning>
-          <Navbar/>
+          <Navbar user={user} profile={profile} />
           {children}
           <Toaster position="top-center" />
         </body>

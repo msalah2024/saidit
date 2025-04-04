@@ -1,3 +1,4 @@
+"use client"
 import React from 'react'
 import {
     DropdownMenu,
@@ -8,27 +9,27 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, Settings, UserPen } from 'lucide-react'
-import { type User } from '@supabase/supabase-js'
-import { createClient } from '@/utils/supabase/server'
 import { SignOut } from '@/app/actions'
 
-export default async function ProfileMenu({ user }: { user: User | null }) {
-    const supabase = await createClient()
+type Profile = {
+    username: string
+    avatar_url: string | null
+}
 
-    const { data: profile } = await supabase.from('users').select("username, avatar_url").eq("email", user?.email).single()
+export default function ProfileMenu({ profile }: { profile: Profile | null }) {
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger className='hover:bg-muted p-2 rounded-full mr-2'>
                 <Avatar >
-                    <AvatarImage src={profile?.avatar_url} />
+                    <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback>SI</AvatarFallback>
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className='mr-2 mt-2'>
                 <DropdownMenuItem className='py-4 focus:bg-card mr-10'>
                     <Avatar className='size-10'>
-                        <AvatarImage src={profile?.avatar_url} />
+                        <AvatarImage src={profile?.avatar_url || undefined} />
                         <AvatarFallback>SI</AvatarFallback>
                     </Avatar>
                     <div>

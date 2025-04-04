@@ -234,13 +234,6 @@ export async function updatePassword(formData: z.infer<typeof ResetPasswordSchem
   try {
     await supabase.auth.updateUser({ password: password })
 
-    const { error } = await supabase.auth.signOut()
-
-    if (error) {
-      console.error("Sign Out Error", error.message)
-      throw new Error(error.message || "An error occurred")
-    }
-
     return {
       success: true,
       message: "Password updated successfully",
