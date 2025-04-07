@@ -31,7 +31,7 @@
 -   [x] Set up ESLint, Prettier.
 -   [x] Install and configure shadcn/ui.
 -   [x] Set up Supabase and configure authentication.
--   [ ] Add social login (Google, Discord).
+-   [x] Add social login (Google, Discord).
 -   [x] Create protected routes middleware.
 
 ## Database Setup
@@ -50,7 +50,7 @@
 ## Authentication
 
 -   [x] Implement sign-up, login, and logout.
--   [ ] Add social login (Google, GitHub, etc.).
+-   [x] Add social login (Google, GitHub, etc.).
 -   [ ] Create user profile pages.
 -   [ ] Allow users to edit their profiles (bio, avatar, banner).
 

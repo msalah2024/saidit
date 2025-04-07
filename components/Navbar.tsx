@@ -28,8 +28,6 @@ export default function Navbar({ user, profile }: NavbarProps) {
 
     const shouldDisableNavbar = disabledPaths.some((path) => pathname.startsWith(path))
 
-    console.log("user", user)
-
     useEffect(() => {
         const checkForProfile = user?.app_metadata?.provider === "discord" || user?.app_metadata?.provider === "google"
         if (user && !profile && checkForProfile) {
