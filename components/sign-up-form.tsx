@@ -25,7 +25,10 @@ import { RegisterSchema } from '@/schema'
 import { EmailStepSchema } from '@/schema'
 import { CredentialsStepSchema } from '@/schema'
 import { GenderStepSchema } from '@/schema'
-import { isEmailAvailable, isUserNameAvailable, signUp } from '@/app/actions'
+import {
+  isEmailAvailable, isUserNameAvailable, signUp
+  , signInWithDiscord, signInWithGoogle
+} from '@/app/actions'
 
 interface SignUpFormProps {
   onSwitchToLogIn: () => void
@@ -200,8 +203,8 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
           step === 0 && (
             <div>
               <div className='flex flex-col gap-2 w-full mt-2'>
-                <Button className='bg-white hover:bg-white text-black p-6 rounded-3xl'><Image src={googleLogo} alt='googleLogo' width={18} height={18}></Image> Continue with Google</Button>
-                <Button className='bg-white hover:bg-white text-black p-6 rounded-3xl'><Image src={discordLogo} alt='discordLogo' width={18} height={18}></Image> Continue with Discord</Button>
+                <Button onClick={signInWithGoogle} className='bg-white hover:bg-white text-black p-6 rounded-3xl'><Image src={googleLogo} alt='googleLogo' width={18} height={18}></Image> Continue with Google</Button>
+                <Button onClick={signInWithDiscord} className='bg-white hover:bg-white text-black p-6 rounded-3xl'><Image src={discordLogo} alt='discordLogo' width={18} height={18}></Image> Continue with Discord</Button>
               </div>
               <div className="relative mt-2">
                 <div className="absolute inset-0 flex items-center">
