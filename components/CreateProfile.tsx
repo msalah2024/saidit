@@ -70,9 +70,7 @@ export default function CreateProfile({ user }: CreateProfileProps) {
     })
 
     async function onUserNameSubmit(values: z.infer<typeof CreateProfileUserNameSchema>) {
-
         try {
-
             setIsChecking(true)
             const result = await isUserNameAvailable(values)
 

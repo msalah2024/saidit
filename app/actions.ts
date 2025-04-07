@@ -11,6 +11,7 @@ import {
   CreateProfileSchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
   const email = formData.email.toLowerCase()
@@ -273,6 +274,30 @@ export async function signInWithDiscord() {
   }
 }
 
+export async function signInWithGoogle() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: 'http://localhost:3000/auth/callback',
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  })
+
+  if (error) {
+    console.error("Discord Sign In Error", error)
+    throw new Error(error.message || "An error occurred")
+  }
+
+  if (data.url) {
+    redirect(data.url)
+  }
+}
+
 export async function createProfile(formData: z.infer<typeof CreateProfileSchema>, user: User) {
   const supabase = await createClient()
   const username = formData.username
@@ -295,6 +320,8 @@ export async function createProfile(formData: z.infer<typeof CreateProfileSchema
       console.error("Profile Error", profileError.message)
       throw new Error(profileError.message || "An error occurred")
     }
+
+    revalidatePath("/")
 
     return {
       success: true,

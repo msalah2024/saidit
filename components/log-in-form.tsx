@@ -24,7 +24,7 @@ import googleLogo from "@/public/assets/images/googleIcon.svg"
 import { LoginSchema } from '@/schema'
 import { logIn } from '@/app/actions'
 import { Loader2 } from 'lucide-react'
-import { signInWithDiscord } from '@/app/actions'
+import { signInWithDiscord, signInWithGoogle } from '@/app/actions'
 
 interface SignInFormProps {
     onSwitchToSignUp: () => void
@@ -79,7 +79,7 @@ export default function LogInForm({ onSwitchToSignUp, onSwitchToResetPassword, s
                     By continuing, you acknowledge that you understand and accept Saidit&apos;s terms and policies (coming soon).
                 </DialogDescription>
                 <div className='flex flex-col gap-2 w-full mt-2'>
-                    <Button className='bg-white hover:bg-white text-background p-6 rounded-3xl'><Image src={googleLogo} alt='googleLogo' width={18} height={18}></Image> Continue with Google</Button>
+                    <Button onClick={signInWithGoogle} className='bg-white hover:bg-white text-background p-6 rounded-3xl'><Image src={googleLogo} alt='googleLogo' width={18} height={18}></Image> Continue with Google</Button>
                     <Button onClick={signInWithDiscord} className='bg-white hover:bg-white text-background p-6 rounded-3xl'><Image src={discordLogo} alt='discordLogo' width={18} height={18}></Image> Continue with Discord</Button>
                 </div>
                 <div className="relative mt-2">
