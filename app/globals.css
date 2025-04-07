@@ -118,3 +118,7 @@ input:autofill {
     background-image: url('../public/assets/images/saidit-logo-background.svg');
     background-position: top;
 }
+
+.full-height {
+    height: calc(100vh - 56px);
+}

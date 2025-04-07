@@ -23,7 +23,7 @@ const robotoSlapLocal = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "saidit",
+  title: "Saidit",
   description: "An open-source Reddit alternative",
 };
 

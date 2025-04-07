@@ -333,3 +333,38 @@ export async function createProfile(formData: z.infer<typeof CreateProfileSchema
   }
 
 }
+
+export async function fetchProfile(username: string) {
+  const supabase = await createClient()
+  try {
+    const { data: profile, error } = await supabase.from("users").select("*").eq("username", username).single()
+
+    if (error && error.code === 'PGRST116') {
+      return {
+        success: false,
+        message: "Profile not found"
+      }
+    }
+
+    if (error) {
+      console.error("Profile Fetch Error", error)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Profile fetched successfully",
+        data: profile
+      }
+    }
+
+  } catch (error) {
+    console.error("Profile Fetch Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
+
+}
