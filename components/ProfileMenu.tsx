@@ -10,6 +10,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, Settings, UserPen } from 'lucide-react'
 import { SignOut } from '@/app/actions'
+import { useRouter } from 'next/navigation'
 
 type Profile = {
     username: string
@@ -17,6 +18,7 @@ type Profile = {
 }
 
 export default function ProfileMenu({ profile }: { profile: Profile | null }) {
+    const router = useRouter()
 
     return (
         <DropdownMenu>
@@ -27,7 +29,7 @@ export default function ProfileMenu({ profile }: { profile: Profile | null }) {
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className='mr-2 mt-2'>
-                <DropdownMenuItem className='py-4 focus:bg-card mr-10'>
+                <DropdownMenuItem onClick={() => router.push(`/user/${profile?.username}`)} className='py-4 focus:bg-card mr-10'>
                     <Avatar className='size-10'>
                         <AvatarImage src={profile?.avatar_url || undefined} />
                         <AvatarFallback>SI</AvatarFallback>
