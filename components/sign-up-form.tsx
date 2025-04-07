@@ -90,9 +90,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
     try {
 
       setIsChecking(true)
-
       const result = await isEmailAvailable(values)
-      console.log(result)
 
       if (result.success) {
         form.setValue('email', values.email)
@@ -118,9 +116,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
     try {
 
       setIsChecking(true)
-
       const result = await isUserNameAvailable(values)
-      console.log(result)
 
       if (result.success) {
         form.setValue('username', values.username)

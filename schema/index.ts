@@ -96,3 +96,13 @@ export const ResetPasswordSchema = z.object({
     message: "Passwords do not match",
     path: ["confirmPassword"],
 });
+
+export const CreateProfileUserNameSchema = z.object({
+    username: userNameSchema,
+})
+
+export const CreateProfileGenderSchema = z.object({
+    gender: z.enum(["male", "female"]),
+})
+
+export const CreateProfileSchema = z.object({}).merge(CreateProfileUserNameSchema).merge(CreateProfileGenderSchema)

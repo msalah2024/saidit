@@ -5,7 +5,12 @@ import { createClient } from "@/utils/supabase/server";
 import { z } from "zod";
 // import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema, ResetPasswordIdentifierSchema, ResetPasswordSchema } from "@/schema";
+import {
+  EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema,
+  ResetPasswordIdentifierSchema, ResetPasswordSchema, CreateProfileUserNameSchema,
+  CreateProfileSchema
+} from "@/schema";
+import { User } from "@supabase/supabase-js";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
   const email = formData.email.toLowerCase()
@@ -37,7 +42,7 @@ export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>
   }
 }
 
-export async function isUserNameAvailable(formData: z.infer<typeof CredentialsStepSchema>) {
+export async function isUserNameAvailable(formData: z.infer<typeof CredentialsStepSchema> | z.infer<typeof CreateProfileUserNameSchema>) {
   const username = formData.username.toLowerCase()
   const supabase = await createClient()
 
@@ -178,7 +183,7 @@ export async function logIn(formData: z.infer<typeof LoginSchema>) {
 export async function SignOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  return redirect("/home")
+  return redirect("/")
 };
 
 export async function resetPassword(formData: z.infer<typeof ResetPasswordIdentifierSchema>) {
@@ -246,4 +251,62 @@ export async function updatePassword(formData: z.infer<typeof ResetPasswordSchem
       message: error instanceof Error ? error.message : "An error occurred"
     }
   }
+}
+
+export async function signInWithDiscord() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'discord',
+    options: {
+      redirectTo: 'http://localhost:3000/auth/callback',
+    },
+  })
+
+  if (error) {
+    console.error("Discord Sign In Error", error)
+    throw new Error(error.message || "An error occurred")
+  }
+
+  if (data.url) {
+    redirect(data.url)
+  }
+}
+
+export async function createProfile(formData: z.infer<typeof CreateProfileSchema>, user: User) {
+  const supabase = await createClient()
+  const username = formData.username
+  const gender = formData.gender
+  const email = user.email?.toLowerCase()
+  const account_id = user.id
+
+  try {
+    const avatar_url = gender === "male" ? (await supabase.storage.from("saidit-defaults").getPublicUrl("default-avatars/saidit-male-avatar-new.png")) : (await supabase.storage.from("saidit-defaults").getPublicUrl("default-avatars/saidit-female-avatar-new.png"))
+
+    const { error: profileError } = await supabase.from("users").insert({
+      username,
+      email,
+      gender,
+      account_id: account_id,
+      avatar_url: avatar_url.data.publicUrl
+    })
+
+    if (profileError) {
+      console.error("Profile Error", profileError.message)
+      throw new Error(profileError.message || "An error occurred")
+    }
+
+    return {
+      success: true,
+      message: "Profile created successfully",
+    }
+
+  } catch (error) {
+    console.error("Profile Creation Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
+
 }

@@ -32,7 +32,7 @@ export async function updateSession(request: NextRequest) {
 
   if (request.nextUrl.pathname.startsWith('/protected') && !user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/home'
+    url.pathname = '/'
     return NextResponse.redirect(url)
   }
 
@@ -42,7 +42,7 @@ export async function updateSession(request: NextRequest) {
 
     if (!token_hash || !type) {
       const redirectTo = request.nextUrl.clone()
-      redirectTo.pathname = '/home'
+      redirectTo.pathname = '/'
       return NextResponse.redirect(redirectTo)
     }
   }

@@ -43,7 +43,7 @@ export default function Page() {
 
             if (result.success) {
                 toast.success("Password reset successfully")
-                router.push('/home')
+                router.push('/')
             }
 
             else {
