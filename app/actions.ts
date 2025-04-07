@@ -281,10 +281,6 @@ export async function signInWithGoogle() {
     provider: 'google',
     options: {
       redirectTo: 'http://localhost:3000/auth/callback',
-      queryParams: {
-        access_type: 'offline',
-        prompt: 'consent',
-      },
     },
   })
 

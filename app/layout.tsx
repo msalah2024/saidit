@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Roboto_Slab } from "next/font/google";
-// import { ThemeProvider } from "@/app/components/theme-provider"
+import { Roboto_Slab, Inter } from "next/font/google";
+import localFont from 'next/font/local'
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner"
@@ -10,6 +10,17 @@ const robotoSlap = Roboto_Slab({
   variable: "--font-roboto-slab",
   subsets: ["latin"],
 });
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
+
+const robotoSlapLocal = localFont({
+  src: './fonts/RobotoSlab-VariableFont_wght.ttf',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: "saidit",
@@ -29,7 +40,7 @@ export default async function RootLayout({
     <>
       <html lang="en" suppressHydrationWarning>
         <head />
-        <body className={robotoSlap.className} suppressHydrationWarning>
+        <body className={`${robotoSlap.className} ${robotoSlapLocal.className} ${inter.className}`} suppressHydrationWarning>
           <Navbar user={user} profile={profile} />
           {children}
           <Toaster position="top-center" />
