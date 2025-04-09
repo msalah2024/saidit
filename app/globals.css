@@ -17,6 +17,7 @@
     /* Primary colors */
     --primary: oklch(67.59% 0.1591 140.34);
     --primary-foreground: oklch(100% 0 0);
+    --primary-foreground-muted: oklch(0.85 0.01 240);
 
     /* Secondary colors */
     --secondary: oklch(55.49% 0.1745 253.63);
@@ -29,6 +30,9 @@
     /* Accent colors */
     --accent: oklch(59.97% 0.1495 259.75);
     --accent-foreground: oklch(100% 0 0);
+
+    /* Extra colors */
+    --reddit-gray: oklch(0.4 0.0176 224.91);
 
     /* Utility colors */
     --destructive: oklch(0.577 0.245 27.325);
@@ -65,6 +69,7 @@
     --color-popover-foreground: var(--popover-foreground);
     --color-primary: var(--primary);
     --color-primary-foreground: var(--primary-foreground);
+    --color-primary-foreground-muted: var(--primary-foreground-muted);
     --color-secondary: var(--secondary);
     --color-secondary-foreground: var(--secondary-foreground);
     --color-muted: var(--muted);
@@ -93,6 +98,7 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+    --color-reddit-gray: var(--reddit-gray);
 }
 
 @layer base {

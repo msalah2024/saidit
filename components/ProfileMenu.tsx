@@ -25,7 +25,9 @@ export default function ProfileMenu({ profile }: { profile: Profile | null }) {
             <DropdownMenuTrigger className='hover:bg-muted p-2 rounded-full mr-2'>
                 <Avatar >
                     <AvatarImage src={profile?.avatar_url || undefined} />
-                    <AvatarFallback>SI</AvatarFallback>
+                    <AvatarFallback>
+                        {profile?.username.slice(0, 2).toUpperCase() || "SI"}
+                    </AvatarFallback>
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className='mr-2 mt-2'>

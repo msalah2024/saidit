@@ -227,7 +227,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
                 <div className='ml-2 mb-6'>
                   <div className='space-x-1'>
                     <small className="text-sm font-medium leading-none">Already a Saiditor?</small>
-                    <Link href="#" className='text-sm text-secondary' onClick={onSwitchToLogIn}>Log In</Link>
+                    <Link href="#" className='text-sm text-accent' onClick={onSwitchToLogIn}>Log In</Link>
                   </div>
                 </div>
                 <Button type='submit' disabled={!emailForm.formState.isValid || isChecking} className='p-6 w-full rounded-3xl mt-3'>
