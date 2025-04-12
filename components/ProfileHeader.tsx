@@ -8,9 +8,9 @@ export default function ProfileHeader() {
     const { profile } = useProfile();
 
     return (
-        <div className='flex flex-col gap-4 p-4'>
+        <div className='flex flex-col gap-4 m-4'>
             <div className='flex items-center gap-4'>
-                <Avatar className="w-24 h-24">
+                <Avatar className="w-16 h-16">
                     <AvatarImage draggable={false} src={profile.avatar_url || undefined} />
                     <AvatarFallback>
                         {profile.username.slice(0, 2).toUpperCase()}
@@ -23,7 +23,7 @@ export default function ProfileHeader() {
                     <p className='text-muted-foreground'>u/{profile.username}</p>
                 </div>
             </div>
-            <div>
+            <div className='mt-2'>
                 <Tabs defaultValue="overview">
                     <TabsList className='h-fit bg-background gap-4 flex-wrap'>
                         <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'

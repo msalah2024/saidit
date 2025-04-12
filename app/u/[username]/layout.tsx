@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import ProfileHeader from "@/components/ProfileHeader";
+import ProfileRightSide from "@/components/ProfileRightSide";
 import { fetchProfile } from '@/app/actions'
 import UserNotFound from "@/components/UserNotFound";
 import { ProfileProvider } from "@/app/context/ProfileContext";
@@ -19,8 +20,13 @@ export default async function Layout({ children, params }: LayoutProps) {
 
     return (
         <ProfileProvider profile={profile.data}>
-            <ProfileHeader />
-            {children}
+            <div className="flex">
+                <div className="w-[80%]">
+                    <ProfileHeader />
+                    {children}
+                </div>
+                <ProfileRightSide />
+            </div>
         </ProfileProvider>
     );
 }
