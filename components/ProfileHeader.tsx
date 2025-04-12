@@ -3,6 +3,13 @@ import React from 'react'
 import { useProfile } from "@/app/context/ProfileContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 export default function ProfileHeader() {
     const { profile, isOwner } = useProfile();
@@ -23,7 +30,7 @@ export default function ProfileHeader() {
                     <p className='text-muted-foreground'>u/{profile.username}</p>
                 </div>
             </div>
-            <div className='mt-2'>
+            <div className='my-2 hidden lg:block'>
                 <Tabs defaultValue="overview">
                     <TabsList className='h-fit bg-background gap-4 flex-wrap'>
                         <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'
@@ -48,9 +55,29 @@ export default function ProfileHeader() {
                         }
 
                     </TabsList>
-                    <TabsContent value="account">Make changes to your account here.</TabsContent>
-                    <TabsContent value="password">Change your password here.</TabsContent>
                 </Tabs>
+            </div>
+            <div className='lg:hidden flex my-2'>
+                <Select>
+                    <SelectTrigger className="w-[180px] data-[placeholder]:text-foreground">
+                        <SelectValue placeholder="Overview" defaultValue="overview" defaultChecked/>
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="overview">Overview</SelectItem>
+                        <SelectItem value="posts">Posts</SelectItem>
+                        <SelectItem value="comments">Comments</SelectItem>
+                        {
+                            isOwner && (
+                                <>
+                                    <SelectItem value="saved">Saved</SelectItem>
+                                    <SelectItem value="hidden">Hidden</SelectItem>
+                                    <SelectItem value="upvoted">Upvoted</SelectItem>
+                                    <SelectItem value="downvoted">Downvoted</SelectItem>
+                                </>
+                            )
+                        }
+                    </SelectContent>
+                </Select>
 
             </div>
         </div>
