@@ -5,10 +5,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function ProfileHeader() {
-    const { profile } = useProfile();
+    const { profile, isOwner } = useProfile();
 
     return (
-        <div className='flex flex-col gap-4 m-4'>
+        <div className='flex flex-col mt-4 gap-4'>
             <div className='flex items-center gap-4'>
                 <Avatar className="w-16 h-16">
                     <AvatarImage draggable={false} src={profile.avatar_url || undefined} />
@@ -32,14 +32,21 @@ export default function ProfileHeader() {
                             value="posts">Posts</TabsTrigger>
                         <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'
                             value="comments">Comments</TabsTrigger>
-                        <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'
-                            value="saved">Saved</TabsTrigger>
-                        <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'
-                            value="hidden">Hidden</TabsTrigger>
-                        <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'
-                            value="upvoted">Upvoted</TabsTrigger>
-                        <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'
-                            value="downvoted">Downvoted</TabsTrigger>
+                        {
+                            isOwner && (
+                                <>
+                                    <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'
+                                        value="saved">Saved</TabsTrigger>
+                                    <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'
+                                        value="hidden">Hidden</TabsTrigger>
+                                    <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'
+                                        value="upvoted">Upvoted</TabsTrigger>
+                                    <TabsTrigger className='px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground'
+                                        value="downvoted">Downvoted</TabsTrigger>
+                                </>
+                            )
+                        }
+
                     </TabsList>
                     <TabsContent value="account">Make changes to your account here.</TabsContent>
                     <TabsContent value="password">Change your password here.</TabsContent>

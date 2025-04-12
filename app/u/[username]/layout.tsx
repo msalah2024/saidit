@@ -4,6 +4,7 @@ import ProfileRightSide from "@/components/ProfileRightSide";
 import { fetchProfile } from '@/app/actions'
 import UserNotFound from "@/components/UserNotFound";
 import { ProfileProvider } from "@/app/context/ProfileContext";
+import { createClient } from "@/utils/supabase/server";
 
 interface LayoutProps {
     children: ReactNode;
@@ -11,17 +12,22 @@ interface LayoutProps {
 }
 
 export default async function Layout({ children, params }: LayoutProps) {
-    const { username } = await params
-    const profile = await fetchProfile(username)
+    const supabase = await createClient();
+    const { username } = params
+
+    const [profile, user] = await Promise.all([
+        fetchProfile(username),
+        supabase.auth.getUser()
+    ])
 
     if (!profile.success) {
         return <UserNotFound />
     }
 
     return (
-        <ProfileProvider profile={profile.data}>
-            <div className="flex">
-                <div className="w-[80%]">
+        <ProfileProvider profile={profile.data} currentUser={user.data.user}>
+            <div className="flex justify-between mx-8">
+                <div>
                     <ProfileHeader />
                     {children}
                 </div>
