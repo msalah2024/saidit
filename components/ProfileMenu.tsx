@@ -42,7 +42,7 @@ export default function ProfileMenu({ profile }: { profile: Profile | null }) {
                     </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem className='py-2 focus:bg-card mr-10'><UserPen className='text-foreground' /> Edit Avatar</DropdownMenuItem>
-                <DropdownMenuItem className='py-2 focus:bg-card mr-10'><Settings className='text-foreground' /> Settings</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/protected/settings')} className='py-2 focus:bg-card mr-10'><Settings className='text-foreground' /> Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className='py-2 focus:bg-card mr-10' onClick={SignOut}><LogOut className='text-foreground' />Log Out</DropdownMenuItem>
             </DropdownMenuContent>

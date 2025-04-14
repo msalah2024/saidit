@@ -59,8 +59,8 @@ export default function ProfileHeader() {
             </div>
             <div className='lg:hidden flex my-2'>
                 <Select>
-                    <SelectTrigger className="w-[180px] data-[placeholder]:text-foreground">
-                        <SelectValue placeholder="Overview" defaultValue="overview" defaultChecked/>
+                    <SelectTrigger className="w-full data-[placeholder]:text-foreground">
+                        <SelectValue placeholder="Overview" defaultValue="overview" defaultChecked />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="overview">Overview</SelectItem>
@@ -78,7 +78,6 @@ export default function ProfileHeader() {
                         }
                     </SelectContent>
                 </Select>
-
             </div>
         </div>
 

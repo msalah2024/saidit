@@ -13,7 +13,7 @@ interface LayoutProps {
 
 export default async function Layout({ children, params }: LayoutProps) {
     const supabase = await createClient();
-    const { username } = params
+    const { username } = await params
 
     const [profile, user] = await Promise.all([
         fetchProfile(username),
@@ -26,12 +26,14 @@ export default async function Layout({ children, params }: LayoutProps) {
 
     return (
         <ProfileProvider profile={profile.data} currentUser={user.data.user}>
-            <div className="flex justify-between mx-8">
-                <div>
+            <div className="flex mx-8">
+                <div className="w-full">
                     <ProfileHeader />
                     {children}
                 </div>
-                <ProfileRightSide />
+                <div className="w-80 hidden lg:flex">
+                    <ProfileRightSide />
+                </div>
             </div>
         </ProfileProvider>
     );

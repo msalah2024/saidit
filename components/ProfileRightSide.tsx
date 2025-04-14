@@ -82,16 +82,18 @@ export default function ProfileRightSide() {
                     isOwner && (
                         <div className='space-y-2 border-b py-2'>
                             <small className="text-sm font-medium text-muted-foreground leading-none">SETTINGS</small>
-                            <div className='flex gap-2 items-center mt-4'>
-                                <Avatar>
-                                    <AvatarImage src={profile.avatar_url || undefined} alt="avatar" />
-                                    <AvatarFallback>
-                                        {profile.username.slice(0, 2).toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className='flex flex-col gap-1'>
-                                    <small className="text-sm font-medium leading-none">Profile</small>
-                                    <small className="text-sm font-medium text-muted-foreground leading-none">Customize your profile</small>
+                            <div className='flex gap-2 items-center justify-between mt-4'>
+                                <div className='flex gap-2 items-center'>
+                                    <Avatar>
+                                        <AvatarImage draggable="false" src={profile.avatar_url || undefined} alt="avatar" />
+                                        <AvatarFallback>
+                                            {profile.username.slice(0, 2).toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className='flex flex-col gap-1'>
+                                        <small className="text-sm font-medium leading-none">Profile</small>
+                                        <small className="text-sm font-medium text-muted-foreground leading-none">Customize your profile</small>
+                                    </div>
                                 </div>
                                 <Button variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'>Update</Button>
                             </div>
