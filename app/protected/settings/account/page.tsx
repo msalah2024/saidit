@@ -32,9 +32,11 @@ export default function Page() {
                     >
                         {category.name}
                         <div className='flex gap-2 items-center'>
-                            {category === accountSettingsCategories[0] && profile?.email && (
+                            {category === accountSettingsCategories[0] && profile?.email ? (
                                 <span className="ml-2 text-sm text-muted-foreground">{profile.email}</span>
-                            )}
+                            ) : (category === accountSettingsCategories[2] && profile?.gender && (
+                                <span className="ml-2 text-sm text-muted-foreground">{profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)}</span>
+                            ))}
                             <div className='p-2 rounded-full group-hover:bg-reddit-gray'>
                                 <ChevronRight />
                             </div>
