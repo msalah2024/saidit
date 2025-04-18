@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { ChevronRight } from 'lucide-react'
 
 export default function Page() {
-    const { profile } = useGeneralProfile()
+    const { profile, user } = useGeneralProfile()
     const [open, setOpen] = useState(false)
     const [category, setCategory] = useState(accountSettingsCategories[0])
 
@@ -63,7 +63,7 @@ export default function Page() {
                     </Button>
                 ))
             }
-            <AccountDialog profile={profile} open={open} onOpenChange={setOpen} selectedCategory={category} />
+            <AccountDialog profile={profile} user={user} open={open} onOpenChange={setOpen} selectedCategory={category} />
         </div>
     )
 }
