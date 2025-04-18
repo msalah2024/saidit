@@ -368,3 +368,38 @@ export async function fetchProfile(username: string) {
   }
 
 }
+
+export async function updateEmail(formData: z.infer<typeof EmailStepSchema>, user: User) {
+  const supabase = await createClient()
+  const email = formData.email.toLowerCase()
+  const account_id = user.id
+
+  try {
+    
+    const { error } = await supabase.auth.updateUser({ email: email })
+
+    if (error) {
+      console.error("Email Update Error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    const { error: emailError } = await supabase.from("users").update({ email }).eq("account_id", account_id)
+
+    if (emailError) {
+      console.error("Email Update Error", emailError.message)
+      throw new Error(emailError.message || "An error occurred")
+    }
+
+    return {
+      success: true,
+      message: "Email updated successfully",
+    }
+
+  } catch (error) {
+    console.error("Email Update Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
+}

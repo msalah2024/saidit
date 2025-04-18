@@ -11,15 +11,17 @@ import {
 import { Tables } from '@/database.types'
 import { accountSettingsCategories } from '@/lib/settings-data'
 import ChangeEmail from './account-setting-forms/change-email'
+import { User } from '@supabase/supabase-js'
 
 interface AccountDialogProps {
     profile: Tables<'users'> | null
+    user: User | null
     open: boolean
     onOpenChange: (open: boolean) => void
     selectedCategory: (typeof accountSettingsCategories)[0]
 }
 
-export default function AccountDialog({ profile, open, onOpenChange, selectedCategory }: AccountDialogProps) {
+export default function AccountDialog({ profile, user, open, onOpenChange, selectedCategory }: AccountDialogProps) {
     const [currentCategory, setCurrentCategory] = useState(selectedCategory)
 
     useEffect(() => {
@@ -31,7 +33,7 @@ export default function AccountDialog({ profile, open, onOpenChange, selectedCat
     const renderSettingsForm = () => {
         switch (currentCategory.id) {
             case "Email address":
-                return <ChangeEmail />
+                return <ChangeEmail user={user} setOpen={onOpenChange}/>
             case "Password":
                 return <div>Change Password Form</div>
         }

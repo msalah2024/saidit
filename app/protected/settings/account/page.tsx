@@ -30,10 +30,15 @@ export default function Page() {
                         className="w-full text-primary-foreground-muted p-6 justify-between hover:bg-background group"
                         onClick={() => handleOpenSettings(category)}
                     >
-                        {category.name}
+                        <div className='flex flex-col items-start'>
+                            {category.name}
+                            {user?.new_email && category.id === "Email address" && (
+                                <span className="text-sm text-muted-foreground">Pending verification</span>
+                            )}
+                        </div>
                         <div className='flex gap-2 items-center'>
                             {category === accountSettingsCategories[0] && profile?.email ? (
-                                <span className="ml-2 text-sm text-muted-foreground">{profile.email}</span>
+                                <span className={`ml-2 text-sm text-muted-foreground ${user?.new_email && `text-red-400`}`}>{profile.email}</span>
                             ) : (category === accountSettingsCategories[2] && profile?.gender && (
                                 <span className="ml-2 text-sm text-muted-foreground">{profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)}</span>
                             ))}

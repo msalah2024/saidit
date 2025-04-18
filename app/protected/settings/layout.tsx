@@ -7,11 +7,10 @@ export default async function Layout({ children }: { children: React.ReactNode }
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-
     let profile = null
 
     if (user?.email) {
-        const { data } = await supabase.from('users').select("*").eq("email", user?.email).single()
+        const { data } = await supabase.from('users').select("*").eq("account_id", user?.id).single()
         profile = data
     }
 
