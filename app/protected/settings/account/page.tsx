@@ -27,7 +27,7 @@ export default function Page() {
                     <Button
                         key={category.name}
                         variant="ghost"
-                        className="w-full text-primary-foreground-muted p-6 justify-between hover:bg-background"
+                        className="w-full text-primary-foreground-muted p-6 justify-between hover:bg-background group"
                         onClick={() => handleOpenSettings(category)}
                     >
                         {category.name}
@@ -35,7 +35,7 @@ export default function Page() {
                             {category === accountSettingsCategories[0] && profile?.email && (
                                 <span className="ml-2 text-sm text-muted-foreground">{profile.email}</span>
                             )}
-                            <div className='p-2 rounded-full'>
+                            <div className='p-2 rounded-full group-hover:bg-reddit-gray'>
                                 <ChevronRight />
                             </div>
                         </div>
@@ -51,10 +51,13 @@ export default function Page() {
                     <Button
                         key={category.name}
                         variant="ghost"
-                        className="w-full text-primary-foreground-muted p-6 justify-start hover:bg-background"
+                        className="w-full text-primary-foreground-muted p-6 justify-between hover:bg-background group"
                         onClick={() => handleOpenSettings(category)}
                     >
                         {category.name}
+                        <div className='p-2 rounded-full group-hover:bg-reddit-gray'>
+                            <ChevronRight />
+                        </div>
                     </Button>
                 ))
             }

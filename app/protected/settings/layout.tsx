@@ -7,6 +7,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
+
     let profile = null
 
     if (user?.email) {

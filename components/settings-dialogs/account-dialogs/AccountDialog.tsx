@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import {
     Dialog,
@@ -19,15 +19,22 @@ interface AccountDialogProps {
 }
 
 export default function AccountDialog({ profile, open, onOpenChange, selectedCategory }: AccountDialogProps) {
+    const [currentCategory, setCurrentCategory] = useState(selectedCategory)
+
+    useEffect(() => {
+        if (selectedCategory) {
+            setCurrentCategory(selectedCategory)
+        }
+    }, [selectedCategory])
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogTrigger></DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogTitle>{currentCategory.name}</DialogTitle>
                     <DialogDescription>
-                        This action cannot be undone. This will permanently delete your account
-                        and remove your data from our servers.
+                        {currentCategory.description}
                     </DialogDescription>
                 </DialogHeader>
             </DialogContent>
