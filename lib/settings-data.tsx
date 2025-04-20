@@ -1,8 +1,16 @@
-export const accountSettingsCategories = [
+import React from "react"
+
+interface AccountSettingsCategory {
+    id: string
+    name: string
+    description?: string | React.ReactNode
+}
+
+export const accountSettingsCategories: AccountSettingsCategory[] = [
     {
         id: "Email address",
         name: "Email address",
-        description: "We'll send a verification email to the email address you provide and to your original email to confirm that it's really you.",
+        description: "We'll send a verification email to the email address you provide to confirm that it's really you.",
     },
     {
         id: "Password",
@@ -11,7 +19,7 @@ export const accountSettingsCategories = [
     {
         id: "Gender",
         name: "Gender",
-        description: "This information may be used to improve your recommendations and ads."
+        description: "This information may be used to improve your recommendations and ads.",
     },
     {
         id: "Delete account",

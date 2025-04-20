@@ -17,13 +17,14 @@ import { DialogClose } from '@/components/ui/dialog'
 import { User } from '@supabase/supabase-js'
 import { updateEmail } from '@/app/actions'
 import { Loader2 } from 'lucide-react'
+import { accountSettingsCategories } from '@/lib/settings-data'
 
 interface ChangeEmailProps {
     user: User | null
-    setOpen: (open: boolean) => void
+    setCurrentCategory: React.Dispatch<React.SetStateAction<(typeof accountSettingsCategories)[0]>>
 }
 
-export default function ChangeEmail({ user, setOpen }: ChangeEmailProps) {
+export default function ChangeEmail({ user, setCurrentCategory }: ChangeEmailProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const form = useForm<z.infer<typeof EmailStepSchema>>({
@@ -48,7 +49,17 @@ export default function ChangeEmail({ user, setOpen }: ChangeEmailProps) {
             const result = await updateEmail(values, user)
 
             if (result.success) {
-                setOpen(false)
+                setCurrentCategory(
+                    {
+                        id: "Success",
+                        name: "Check your email",
+                        description:
+                            <>
+                                Saidit sent a confirmation email to {values.email}.<br />
+                                Click the verify link in the email to secure your Saidit account.
+                            </>
+                    }
+                )
             }
 
             else {
