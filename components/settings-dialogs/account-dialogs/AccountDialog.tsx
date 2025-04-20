@@ -36,7 +36,7 @@ export default function AccountDialog({ profile, user, open, onOpenChange, selec
             case "Email address":
                 return <ChangeEmail user={user} setCurrentCategory={setCurrentCategory} />
             case "Password":
-                return <ChangePassword />
+                return <ChangePassword setCurrentCategory={setCurrentCategory} />
         }
     }
 

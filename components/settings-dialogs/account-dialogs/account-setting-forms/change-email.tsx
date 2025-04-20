@@ -101,7 +101,7 @@ export default function ChangeEmail({ user, setCurrentCategory }: ChangeEmailPro
                             </Button>
                         </DialogClose>
                         <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full'>{isSubmitting ? <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...
+                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
                         </> : 'Save'}</Button>
                     </div>
                 </form>
