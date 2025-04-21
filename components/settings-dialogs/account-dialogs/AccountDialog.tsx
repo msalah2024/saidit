@@ -50,7 +50,17 @@ export default function AccountDialog({ profile, user, open, onOpenChange, selec
                 <DialogHeader>
                     <DialogTitle>{currentCategory.name}</DialogTitle>
                     <DialogDescription>
-                        {currentCategory.description}
+                        {currentCategory.name === "Email address" && user?.new_email ?
+                            (
+
+                                <span className="text-sm text-muted-foreground">
+                                    {currentCategory.description}
+                                    <br />
+                                    <span className='sm:hidden'>
+                                        Pending verification on <span className='text-red-400'>{user.new_email}</span>
+                                    </span>
+                                </span>) : (currentCategory.description)
+                        }
                     </DialogDescription>
                 </DialogHeader>
                 {renderSettingsForm()}
