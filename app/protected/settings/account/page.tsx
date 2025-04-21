@@ -38,7 +38,7 @@ export default function Page() {
                         </div>
                         <div className='flex gap-2 items-center'>
                             {category === accountSettingsCategories[0] && profile?.email ? (
-                                <span className={`ml-2 text-sm text-muted-foreground ${user?.new_email && `text-red-400`}`}>{profile.email}</span>
+                                <span className={`ml-2 text-sm hidden sm:block text-muted-foreground ${user?.new_email && `text-red-400`}`}>{profile.email}</span>
                             ) : (category === accountSettingsCategories[2] && profile?.gender && (
                                 <span className="ml-2 text-sm text-muted-foreground">{profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)}</span>
                             ))}
