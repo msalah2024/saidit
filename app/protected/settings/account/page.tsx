@@ -27,7 +27,7 @@ export default function Page() {
                     <Button
                         key={category.name}
                         variant="ghost"
-                        className="w-full text-primary-foreground-muted p-6 justify-between hover:bg-background group"
+                        className="w-full text-primary-foreground-muted py-6 px-0 sm:px-4 justify-between hover:bg-background group"
                         onClick={() => handleOpenSettings(category)}
                     >
                         <div className='flex flex-col items-start'>
@@ -38,9 +38,18 @@ export default function Page() {
                         </div>
                         <div className='flex gap-2 items-center'>
                             {category === accountSettingsCategories[0] && profile?.email ? (
-                                <span className={`ml-2 text-sm hidden sm:block text-muted-foreground ${user?.new_email && `text-red-400`}`}>{profile.email}</span>
+                                <span className={`ml-2 text-sm text-muted-foreground ${user?.new_email && `text-red-400`}`}>
+                                    <span className="hidden sm:inline">
+                                        {profile.email}
+                                    </span>
+                                    <span className="inline sm:hidden">
+                                        {profile.email.length > 20 ? `${profile.email.slice(0, 20)}...` : profile.email}
+                                    </span>
+                                </span>
                             ) : (category === accountSettingsCategories[2] && profile?.gender && (
-                                <span className="ml-2 text-sm text-muted-foreground">{profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)}</span>
+                                <span className="ml-2 text-sm text-muted-foreground">
+                                    {profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)}
+                                </span>
                             ))}
                             <div className='p-2 rounded-full group-hover:bg-reddit-gray'>
                                 <ChevronRight />
@@ -58,7 +67,7 @@ export default function Page() {
                     <Button
                         key={category.name}
                         variant="ghost"
-                        className="w-full text-primary-foreground-muted p-6 justify-between hover:bg-background group"
+                        className="w-full text-primary-foreground-muted py-6 px-0 sm:px-4 justify-between hover:bg-background group"
                         onClick={() => handleOpenSettings(category)}
                     >
                         {category.name}
