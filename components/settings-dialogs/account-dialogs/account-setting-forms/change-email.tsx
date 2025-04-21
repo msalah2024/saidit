@@ -81,7 +81,7 @@ export default function ChangeEmail({ user, setCurrentCategory }: ChangeEmailPro
     return (
         <div>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
                         control={form.control}
                         name="email"
@@ -94,7 +94,7 @@ export default function ChangeEmail({ user, setCurrentCategory }: ChangeEmailPro
                             </FormItem>
                         )}
                     />
-                    <div className='flex gap-2 justify-end'>
+                    <div className='flex gap-2 justify-end mt-8'>
                         <DialogClose asChild>
                             <Button type="button" variant="redditGray">
                                 Cancel

@@ -8,10 +8,12 @@ import { redirect } from "next/navigation";
 import {
   EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema,
   ResetPasswordIdentifierSchema, ResetPasswordSchema, CreateProfileUserNameSchema,
-  CreateProfileSchema
+  CreateProfileSchema,
+  GenderStepSchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
+import { Tables } from "@/database.types";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
   const email = formData.email.toLowerCase()
@@ -375,7 +377,7 @@ export async function updateEmail(formData: z.infer<typeof EmailStepSchema>, use
   const account_id = user.id
 
   try {
-    
+
     const { error } = await supabase.auth.updateUser({ email: email })
 
     if (error) {
@@ -397,6 +399,33 @@ export async function updateEmail(formData: z.infer<typeof EmailStepSchema>, use
 
   } catch (error) {
     console.error("Email Update Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
+}
+
+
+export async function updateGender(formData: z.infer<typeof GenderStepSchema>, profile: Tables<'users'>) {
+  const supabase = await createClient()
+  const gender = formData.gender
+  const id = profile.id
+
+  try {
+    const { error } = await supabase.from("users").update({ gender: gender }).eq("id", id)
+
+    if (error) {
+      console.error("Error updating gender", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    return {
+      success: true,
+    }
+
+  } catch (error) {
+    console.error("Error updating gender", error)
     return {
       success: false,
       message: error instanceof Error ? error.message : "An error occurred"

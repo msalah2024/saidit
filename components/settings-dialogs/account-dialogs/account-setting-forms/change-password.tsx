@@ -54,9 +54,11 @@ export default function ChangePassword({ setCurrentCategory }: ChangePasswordPro
             else {
                 form.setError('password', {
                     type: 'manual',
+                    message: result.message
                 })
                 form.setError('confirmPassword', {
                     type: 'manual',
+                    message: result.message
                 })
             }
 
@@ -95,7 +97,7 @@ export default function ChangePassword({ setCurrentCategory }: ChangePasswordPro
                             </FormItem>
                         )}
                     />
-                    <div className='flex gap-2 justify-end'>
+                    <div className='flex gap-2 justify-end mt-8'>
                         <DialogClose asChild>
                             <Button type="button" variant="redditGray">
                                 Cancel

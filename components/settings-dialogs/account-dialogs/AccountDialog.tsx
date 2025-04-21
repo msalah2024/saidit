@@ -12,6 +12,7 @@ import { Tables } from '@/database.types'
 import { accountSettingsCategories } from '@/lib/settings-data'
 import ChangeEmail from './account-setting-forms/change-email'
 import ChangePassword from './account-setting-forms/change-password'
+import ChangeGender from './account-setting-forms/change-gender'
 import { User } from '@supabase/supabase-js'
 
 interface AccountDialogProps {
@@ -37,6 +38,8 @@ export default function AccountDialog({ profile, user, open, onOpenChange, selec
                 return <ChangeEmail user={user} setCurrentCategory={setCurrentCategory} />
             case "Password":
                 return <ChangePassword setCurrentCategory={setCurrentCategory} />
+            case "Gender":
+                return <ChangeGender profile={profile} onOpenChange={onOpenChange} />
         }
     }
 
