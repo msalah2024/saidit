@@ -17,12 +17,14 @@ import { updatePassword } from '@/app/actions'
 import { Loader2 } from 'lucide-react'
 import { DialogClose } from '@/components/ui/dialog'
 import { accountSettingsCategories } from '@/lib/settings-data'
+import { DrawerClose } from '@/components/ui/drawer'
 
 interface ChangePasswordProps {
     setCurrentCategory: React.Dispatch<React.SetStateAction<(typeof accountSettingsCategories)[0]>>
+    isDesktop: boolean
 }
 
-export default function ChangePassword({ setCurrentCategory }: ChangePasswordProps) {
+export default function ChangePassword({ setCurrentCategory, isDesktop }: ChangePasswordProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const form = useForm<z.infer<typeof ResetPasswordSchema>>({
@@ -97,16 +99,29 @@ export default function ChangePassword({ setCurrentCategory }: ChangePasswordPro
                             </FormItem>
                         )}
                     />
-                    <div className='flex gap-2 justify-end mt-8'>
-                        <DialogClose asChild>
-                            <Button type="button" variant="redditGray">
-                                Cancel
-                            </Button>
-                        </DialogClose>
-                        <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full'>{isSubmitting ? <>
-                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
-                        </> : 'Save'}</Button>
-                    </div>
+                    {
+                        isDesktop ? (
+                            <div className='flex gap-2 justify-end mt-8'>
+                                <DialogClose asChild>
+                                    <Button type="button" variant="redditGray">
+                                        Cancel
+                                    </Button>
+                                </DialogClose>
+                                <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full px-6'>{isSubmitting ? <>
+                                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
+                                </> : 'Save'}</Button>
+                            </div>) :
+                            (<div className='flex flex-col gap-2 justify-end my-4'>
+                                <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full'>{isSubmitting ? <>
+                                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
+                                </> : 'Save'}</Button>
+                                <DrawerClose asChild>
+                                    <Button type="button" variant="redditGray">
+                                        Cancel
+                                    </Button>
+                                </DrawerClose>
+                            </div>)
+                    }
                 </form>
             </Form>
         </div>

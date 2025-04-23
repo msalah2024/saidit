@@ -19,13 +19,15 @@ import { DialogClose } from '@/components/ui/dialog'
 import { Loader2 } from 'lucide-react'
 import { updateGender } from '@/app/actions'
 import { useRouter } from 'next/navigation'
+import { DrawerClose } from '@/components/ui/drawer'
 
 interface ChangeGenderProps {
     profile: Tables<'users'> | null
     onOpenChange: (open: boolean) => void
+    isDesktop: boolean
 }
 
-export default function ChangeGender({ profile, onOpenChange }: ChangeGenderProps) {
+export default function ChangeGender({ profile, onOpenChange, isDesktop }: ChangeGenderProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const router = useRouter()
 
@@ -63,17 +65,17 @@ export default function ChangeGender({ profile, onOpenChange }: ChangeGenderProp
     return (
         <div>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
                         control={form.control}
                         name="gender"
                         render={({ field }) => (
-                            <FormItem className="space-y-3">
+                            <FormItem>
                                 <FormControl>
                                     <RadioGroup
                                         onValueChange={field.onChange}
                                         defaultValue={profile?.gender}
-                                        className="flex flex-col space-y-1"
+                                        className="flex flex-col"
                                     >
                                         <FormItem>
                                             <FormLabel className="font-normal p-4 border w-full rounded-full cursor-pointer">
@@ -97,16 +99,30 @@ export default function ChangeGender({ profile, onOpenChange }: ChangeGenderProp
                             </FormItem>
                         )}
                     />
-                    <div className='flex gap-2 justify-end mt-8'>
-                        <DialogClose asChild>
-                            <Button type="button" variant="redditGray">
-                                Cancel
-                            </Button>
-                        </DialogClose>
-                        <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full'>{isSubmitting ? <>
-                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
-                        </> : 'Save'}</Button>
-                    </div>
+                    {
+                        isDesktop ?
+                            (<div className='flex gap-2 justify-end mt-8'>
+                                <DialogClose asChild>
+                                    <Button type="button" variant="redditGray">
+                                        Cancel
+                                    </Button>
+                                </DialogClose>
+                                <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full px-6'>{isSubmitting ? <>
+                                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
+                                </> : 'Save'}</Button>
+                            </div>) :
+                            (<div className='flex flex-col gap-2 justify-end my-4'>
+                                <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full'>{isSubmitting ? <>
+                                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
+                                </> : 'Save'}</Button>
+                                <DrawerClose asChild>
+                                    <Button type="button" variant="redditGray">
+                                        Cancel
+                                    </Button>
+                                </DrawerClose>
+                            </div>)
+                    }
+
                 </form>
             </Form>
         </div>
