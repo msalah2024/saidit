@@ -21,6 +21,7 @@ import { accountSettingsCategories } from '@/lib/settings-data'
 import ChangeEmail from './account-setting-forms/change-email'
 import ChangePassword from './account-setting-forms/change-password'
 import ChangeGender from './account-setting-forms/change-gender'
+import ManageDiscordIdentity from './account-setting-forms/manage-discord-identity'
 import { User } from '@supabase/supabase-js'
 
 interface AccountDialogProps {
@@ -29,9 +30,13 @@ interface AccountDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     selectedCategory: (typeof accountSettingsCategories)[0]
+    discordIdentity: boolean | undefined
+    googleIdentity: boolean | undefined
 }
 
-export default function AccountDialog({ profile, user, open, onOpenChange, selectedCategory }: AccountDialogProps) {
+export default function AccountDialog({ profile, user, open, onOpenChange,
+    selectedCategory, discordIdentity, googleIdentity }: AccountDialogProps) {
+
     const [currentCategory, setCurrentCategory] = useState(selectedCategory)
     const isDesktop = useMediaQuery("(min-width: 768px)")
 
@@ -41,6 +46,16 @@ export default function AccountDialog({ profile, user, open, onOpenChange, selec
         }
     }, [selectedCategory])
 
+    useEffect(() => {
+        if (discordIdentity && currentCategory.id === "Connect discord") {
+            setCurrentCategory({
+                id: "Disconnect discord",
+                name: "Disconnect discord",
+                description: "To continue, confirm your password",
+            })
+        }
+    }, [discordIdentity, currentCategory.id])
+
     const renderSettingsForm = () => {
         switch (currentCategory.id) {
             case "Email address":
@@ -49,6 +64,10 @@ export default function AccountDialog({ profile, user, open, onOpenChange, selec
                 return <ChangePassword setCurrentCategory={setCurrentCategory} isDesktop={isDesktop} />
             case "Gender":
                 return <ChangeGender profile={profile} onOpenChange={onOpenChange} isDesktop={isDesktop} />
+            case "Connect discord":
+                return <ManageDiscordIdentity discordIdentity={discordIdentity} isDesktop={isDesktop} user={user} onOpenChange={onOpenChange} />
+            case "Disconnect discord":
+                return <ManageDiscordIdentity discordIdentity={discordIdentity} isDesktop={isDesktop} user={user} onOpenChange={onOpenChange}/>
         }
     }
 

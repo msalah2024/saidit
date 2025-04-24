@@ -1,4 +1,3 @@
-import React from "react"
 
 interface AccountSettingsCategory {
     id: string
@@ -20,6 +19,16 @@ export const accountSettingsCategories: AccountSettingsCategory[] = [
         id: "Gender",
         name: "Gender",
         description: "This information may be used to improve your recommendations and ads.",
+    },
+    {
+        id: "Connect discord",
+        name: "Connect Discord",
+        description: "To continue, confirm your password"
+    },
+    {
+        id: "Connect Google",
+        name: "Connect Google",
+        description: "To continue, confirm your password"
     },
     {
         id: "Delete account",

@@ -9,7 +9,8 @@ import {
   EmailStepSchema, CredentialsStepSchema, LoginSchema, RegisterSchema,
   ResetPasswordIdentifierSchema, ResetPasswordSchema, CreateProfileUserNameSchema,
   CreateProfileSchema,
-  GenderStepSchema
+  GenderStepSchema,
+  PasswordSchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
@@ -426,6 +427,74 @@ export async function updateGender(formData: z.infer<typeof GenderStepSchema>, p
 
   } catch (error) {
     console.error("Error updating gender", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
+}
+
+export async function manageDiscordIdentity(formData: z.infer<typeof PasswordSchema>, discordIdentity: boolean | undefined, userEmail: string | undefined) {
+  const supabase = await createClient()
+  const password = formData.password
+  const email = userEmail?.toLowerCase()
+
+  try {
+
+    if (!email) {
+      throw new Error("User email not found")
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    })
+
+    if (error) {
+      console.error("Use Authentication Error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      if (!discordIdentity) {
+        const { data, error } = await supabase.auth.linkIdentity({
+          provider: 'discord',
+          options: {
+            redirectTo: 'http://localhost:3000/protected/settings/account',
+          },
+        })
+        if (error) {
+          console.error("Discord Identity Error", error.message)
+          throw new Error(error.message || "An error occurred")
+        }
+        return {
+          success: true,
+          message: "Discord identity linked successfully",
+          url: data.url,
+        }
+      }
+
+      else {
+        const { data: identities, error: identitiesError } = await supabase.auth.getUserIdentities()
+        if (!identitiesError) {
+          const discordIdentity = identities.identities.find((identity) => identity.provider === 'discord')
+          if (discordIdentity) {
+            const { error } = await supabase.auth.unlinkIdentity(discordIdentity)
+            if (error) {
+              console.error("Discord Identity Error", error.message)
+              throw new Error(error.message || "An error occurred")
+            }
+            return {
+              success: true,
+              message: "Discord identity unlinked successfully",
+            }
+          }
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error("Discord Identity Error", error)
     return {
       success: false,
       message: error instanceof Error ? error.message : "An error occurred"

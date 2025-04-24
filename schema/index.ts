@@ -106,3 +106,9 @@ export const CreateProfileGenderSchema = z.object({
 })
 
 export const CreateProfileSchema = z.object({}).merge(CreateProfileUserNameSchema).merge(CreateProfileGenderSchema)
+
+export const PasswordSchema = z.object({
+    password: z.string().min(8, {
+        message: "Please enter a valid password."
+    })
+})
