@@ -91,7 +91,7 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
                 <DialogTrigger></DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>{currentCategory.name}</DialogTitle>
+                        <DialogTitle>{currentCategory.id}</DialogTitle>
                         <DialogDescription>
                             {currentCategory.description}
                         </DialogDescription>
@@ -107,7 +107,7 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
             <DrawerTrigger></DrawerTrigger>
             <DrawerContent>
                 <DrawerHeader className="text-left">
-                    <DrawerTitle>{currentCategory.name}</DrawerTitle>
+                    <DrawerTitle>{currentCategory.id}</DrawerTitle>
                     <DrawerDescription>
                         {currentCategory.description}
                     </DrawerDescription>

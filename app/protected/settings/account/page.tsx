@@ -5,6 +5,9 @@ import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { accountSettingsCategories } from '@/lib/settings-data'
 import { Button } from '@/components/ui/button'
 import { ChevronRight } from 'lucide-react'
+import Image from 'next/image'
+import discordLogo from "@/public/assets/images/discordIcon.svg"
+import googleLogo from "@/public/assets/images/googleIcon.svg"
 
 export default function Page() {
     const { profile, user } = useGeneralProfile()
@@ -81,7 +84,18 @@ export default function Page() {
                             className="w-full text-primary-foreground-muted py-6 px-0 sm:px-4 justify-between hover:bg-background group"
                             onClick={() => handleOpenSettings(category)}
                         >
-                            {category.name}
+                            <div className='flex flex-col items-start'>
+                                <div className='flex gap-2'>
+                                    <Image src={discordLogo} width={16} height={16} alt='discord logo' />
+                                    {category.name}
+                                </div>
+                                <div>
+                                    {
+                                        !googleIdentity &&
+                                        <span className='text-sm hidden sm:block text-muted-foreground'>Connect to log in to Saidit with your Discord account</span>
+                                    }
+                                </div>
+                            </div>
                             {
                                 discordIdentity ? (
                                     <div className='border border-input bg-background shadow-xs group-hover:bg-accent group-hover:text-accent-foreground rounded-full px-4 py-2'>
@@ -100,7 +114,18 @@ export default function Page() {
                             className="w-full text-primary-foreground-muted py-6 px-0 sm:px-4 justify-between hover:bg-background group"
                             onClick={() => handleOpenSettings(category)}
                         >
-                            {category.name}
+                            <div className='flex flex-col items-start'>
+                                <div className='flex gap-2'>
+                                    <Image src={googleLogo} width={16} height={16} alt='google logo' />
+                                    {category.name}
+                                </div>
+                                <div>
+                                    {
+                                        !googleIdentity &&
+                                        <span className='text-sm hidden sm:block text-muted-foreground'>Connect to log in to Saidit with your Google account</span>
+                                    }
+                                </div>
+                            </div>
                             {
                                 googleIdentity ? (
                                     <div className='border border-input bg-background shadow-xs group-hover:bg-accent group-hover:text-accent-foreground rounded-full px-4 py-2'>

@@ -22,12 +22,12 @@ export const accountSettingsCategories: AccountSettingsCategory[] = [
     },
     {
         id: "Connect discord",
-        name: "Connect Discord",
+        name: "Discord",
         description: "To continue, confirm your password"
     },
     {
         id: "Connect google",
-        name: "Connect Google",
+        name: "Google",
         description: "To continue, confirm your password"
     },
     {
