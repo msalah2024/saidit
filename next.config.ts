@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-images: {
+  images: {
     remotePatterns: [
       {
         protocol: 'https',
@@ -9,6 +9,10 @@ images: {
         // Optionally, you can restrict to specific pathnames:
         // pathname: '/avatars/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      }
     ],
   },
 };

@@ -288,7 +288,7 @@ export async function signInWithGoogle() {
   })
 
   if (error) {
-    console.error("Discord Sign In Error", error)
+    console.error("Google Sign In Error", error)
     throw new Error(error.message || "An error occurred")
   }
 
@@ -495,6 +495,73 @@ export async function manageDiscordIdentity(formData: z.infer<typeof PasswordSch
 
   } catch (error) {
     console.error("Discord Identity Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
+}
+
+export async function manageGoogleIdentity(formData: z.infer<typeof PasswordSchema>, googleIdentity: boolean | undefined, userEmail: string | undefined) {
+  const supabase = await createClient()
+  const password = formData.password
+  const email = userEmail?.toLowerCase()
+
+  try {
+
+    if (!email) {
+      throw new Error("User email not found")
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    })
+
+    if (error) {
+      console.error("Use Authentication Error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      if (!googleIdentity) {
+        const { data, error } = await supabase.auth.linkIdentity({
+          provider: 'google',
+          options: {
+            redirectTo: 'http://localhost:3000/protected/settings/account',
+          },
+        })
+        if (error) {
+          console.error("Google Identity Error", error.message)
+          throw new Error(error.message || "An error occurred")
+        }
+        return {
+          success: true,
+          message: "Google identity linked successfully",
+          url: data.url,
+        }
+      }
+
+      else {
+        const { data: identities, error: identitiesError } = await supabase.auth.getUserIdentities()
+        if (!identitiesError) {
+          const googleIdentity = identities.identities.find((identity) => identity.provider === 'google')
+          if (googleIdentity) {
+            const { error } = await supabase.auth.unlinkIdentity(googleIdentity)
+            if (error) {
+              console.error("Google Identity Error", error.message)
+              throw new Error(error.message || "An error occurred")
+            }
+            return {
+              success: true,
+              message: "Google identity unlinked successfully",
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Google Identity Error", error)
     return {
       success: false,
       message: error instanceof Error ? error.message : "An error occurred"

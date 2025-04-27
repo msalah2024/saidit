@@ -26,7 +26,7 @@ export const accountSettingsCategories: AccountSettingsCategory[] = [
         description: "To continue, confirm your password"
     },
     {
-        id: "Connect Google",
+        id: "Connect google",
         name: "Connect Google",
         description: "To continue, confirm your password"
     },

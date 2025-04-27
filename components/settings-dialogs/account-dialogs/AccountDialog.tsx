@@ -22,6 +22,7 @@ import ChangeEmail from './account-setting-forms/change-email'
 import ChangePassword from './account-setting-forms/change-password'
 import ChangeGender from './account-setting-forms/change-gender'
 import ManageDiscordIdentity from './account-setting-forms/manage-discord-identity'
+import ManageGoogleIdentity from './account-setting-forms/manage-google-identitiy'
 import { User } from '@supabase/supabase-js'
 
 interface AccountDialogProps {
@@ -54,7 +55,16 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
                 description: "To continue, confirm your password",
             })
         }
-    }, [discordIdentity, currentCategory.id])
+
+        if (googleIdentity && currentCategory.id === "Connect google") {
+            setCurrentCategory({
+                id: "Disconnect google",
+                name: "Disconnect google",
+                description: "To continue, confirm your password",
+            })
+        }
+
+    }, [discordIdentity, googleIdentity, currentCategory.id])
 
     const renderSettingsForm = () => {
         switch (currentCategory.id) {
@@ -67,7 +77,11 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
             case "Connect discord":
                 return <ManageDiscordIdentity discordIdentity={discordIdentity} isDesktop={isDesktop} user={user} onOpenChange={onOpenChange} />
             case "Disconnect discord":
-                return <ManageDiscordIdentity discordIdentity={discordIdentity} isDesktop={isDesktop} user={user} onOpenChange={onOpenChange}/>
+                return <ManageDiscordIdentity discordIdentity={discordIdentity} isDesktop={isDesktop} user={user} onOpenChange={onOpenChange} />
+            case "Connect google":
+                return <ManageGoogleIdentity googleIdentity={googleIdentity} isDesktop={isDesktop} user={user} onOpenChange={onOpenChange} />
+            case "Disconnect google":
+                return <ManageGoogleIdentity googleIdentity={googleIdentity} isDesktop={isDesktop} user={user} onOpenChange={onOpenChange} />
         }
     }
 
