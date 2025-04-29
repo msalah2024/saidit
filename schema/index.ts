@@ -112,3 +112,5 @@ export const PasswordSchema = z.object({
         message: "Please enter a valid password."
     })
 })
+
+export const UpdateEmailSchema = z.object({}).merge(PasswordSchema).merge(EmailStepSchema)

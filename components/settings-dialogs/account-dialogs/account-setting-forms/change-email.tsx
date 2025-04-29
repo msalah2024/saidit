@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { EmailStepSchema } from '@/schema'
+import { UpdateEmailSchema } from '@/schema'
 import {
     Form,
     FormControl,
@@ -29,14 +29,15 @@ interface ChangeEmailProps {
 export default function ChangeEmail({ user, setCurrentCategory, isDesktop }: ChangeEmailProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const form = useForm<z.infer<typeof EmailStepSchema>>({
-        resolver: zodResolver(EmailStepSchema),
+    const form = useForm<z.infer<typeof UpdateEmailSchema>>({
+        resolver: zodResolver(UpdateEmailSchema),
         defaultValues: {
             email: "",
+            password: ""
         },
     })
 
-    async function onSubmit(values: z.infer<typeof EmailStepSchema>) {
+    async function onSubmit(values: z.infer<typeof UpdateEmailSchema>) {
         try {
             setIsSubmitting(true)
 
@@ -63,13 +64,21 @@ export default function ChangeEmail({ user, setCurrentCategory, isDesktop }: Cha
                     }
                 )
             }
-
             else {
-                form.setError("email", {
-                    type: "custom",
-                    message: "An error occurred while updating your email",
-                })
-                return
+                if (result.message === "Invalid password") {
+                    form.setError("password", {
+                        type: "custom",
+                        message: result.message,
+                    })
+                    return
+                }
+                else {
+                    form.setError("email", {
+                        type: "custom",
+                        message: result.message,
+                    })
+                    return
+                }
             }
 
         } catch (error) {
@@ -83,7 +92,19 @@ export default function ChangeEmail({ user, setCurrentCategory, isDesktop }: Cha
     return (
         <div>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-3'>
+                    <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <Input placeholder="Current password" type='password' className='p-6' {...field} />
+                                </FormControl>
+                                <FormMessage className='ml-2' />
+                            </FormItem>
+                        )}
+                    />
                     <FormField
                         control={form.control}
                         name="email"
@@ -92,7 +113,7 @@ export default function ChangeEmail({ user, setCurrentCategory, isDesktop }: Cha
                                 <FormControl>
                                     <Input placeholder="New email" type='email' autoComplete='email' className='p-6' {...field} />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className='ml-2' />
                             </FormItem>
                         )}
                     />
@@ -113,7 +134,7 @@ export default function ChangeEmail({ user, setCurrentCategory, isDesktop }: Cha
                                     <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full'>{isSubmitting ? <>
                                         <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
                                     </> : 'Save'}</Button>
-                                    <DrawerClose  asChild>
+                                    <DrawerClose asChild>
                                         <Button type="button" variant="redditGray">
                                             Cancel
                                         </Button>

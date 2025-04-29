@@ -10,7 +10,8 @@ import {
   ResetPasswordIdentifierSchema, ResetPasswordSchema, CreateProfileUserNameSchema,
   CreateProfileSchema,
   GenderStepSchema,
-  PasswordSchema
+  PasswordSchema,
+  UpdateEmailSchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
@@ -381,30 +382,54 @@ export async function fetchProfile(username: string) {
 
 }
 
-export async function updateEmail(formData: z.infer<typeof EmailStepSchema>, user: User) {
+export async function updateEmail(formData: z.infer<typeof UpdateEmailSchema>, user: User) {
   const supabase = await createClient()
   const email = formData.email.toLowerCase()
   const account_id = user.id
 
   try {
 
-    const { error } = await supabase.auth.updateUser({ email: email })
-
-    if (error) {
-      console.error("Email Update Error", error.message)
-      throw new Error(error.message || "An error occurred")
+    if (!user.email) {
+      return {
+        success: false,
+        message: "An Error occurred"
+      }
     }
 
-    const { error: emailError } = await supabase.from("users").update({ email }).eq("account_id", account_id)
+    const { error: userAuthError } = await supabase.auth.signInWithPassword({
+      email: user?.email,
+      password: formData.password
+    })
 
-    if (emailError) {
-      console.error("Email Update Error", emailError.message)
-      throw new Error(emailError.message || "An error occurred")
+    if (userAuthError) {
+      console.error("User Auth Error", userAuthError.message)
+      if (userAuthError.message === "Invalid login credentials") {
+        throw new Error("Invalid password")
+      }
+      else {
+        throw new Error(userAuthError.message || "An error occurred")
+      }
     }
 
-    return {
-      success: true,
-      message: "Email updated successfully",
+    else {
+      const { error } = await supabase.auth.updateUser({ email: email })
+
+      if (error) {
+        console.error("Email Update Error", error.message)
+        throw new Error(error.message || "An error occurred")
+      }
+
+      const { error: emailError } = await supabase.from("users").update({ email }).eq("account_id", account_id)
+
+      if (emailError) {
+        console.error("Email Update Error", emailError.message)
+        throw new Error(emailError.message || "An error occurred")
+      }
+
+      return {
+        success: true,
+        message: "Email updated successfully",
+      }
     }
 
   } catch (error) {
