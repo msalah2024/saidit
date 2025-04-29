@@ -243,6 +243,15 @@ export async function updatePassword(formData: z.infer<typeof ResetPasswordSchem
   try {
     await supabase.auth.updateUser({ password: password })
 
+    const { error } = await supabase.auth.updateUser({
+      data: { hasPassword: true }
+    })
+
+    if (error) {
+      console.error("Error updating metadata", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
     return {
       success: true,
       message: "Password updated successfully",
@@ -567,4 +576,31 @@ export async function manageGoogleIdentity(formData: z.infer<typeof PasswordSche
       message: error instanceof Error ? error.message : "An error occurred"
     }
   }
+}
+
+export async function hasPassword() {
+  const supabase = await createClient()
+  try {
+    const { error } = await supabase.auth.updateUser({
+      data: { hasPassword: true }
+    })
+
+    if (error) {
+      console.error("Error updating metadata", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    return {
+      success: true,
+      message: "Metadata updated successfully"
+    }
+
+  } catch (error) {
+    console.error("Error updating metadata", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
+
 }

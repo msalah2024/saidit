@@ -23,6 +23,7 @@ import ChangePassword from './account-setting-forms/change-password'
 import ChangeGender from './account-setting-forms/change-gender'
 import ManageDiscordIdentity from './account-setting-forms/manage-discord-identity'
 import ManageGoogleIdentity from './account-setting-forms/manage-google-identitiy'
+import CreatePassword from './account-setting-forms/create-password'
 import { User } from '@supabase/supabase-js'
 
 interface AccountDialogProps {
@@ -33,10 +34,11 @@ interface AccountDialogProps {
     selectedCategory: (typeof accountSettingsCategories)[0]
     discordIdentity: boolean | undefined
     googleIdentity: boolean | undefined
+    hidePasswordButton: boolean | undefined
 }
 
 export default function AccountDialog({ profile, user, open, onOpenChange,
-    selectedCategory, discordIdentity, googleIdentity }: AccountDialogProps) {
+    selectedCategory, discordIdentity, googleIdentity, hidePasswordButton }: AccountDialogProps) {
 
     const [currentCategory, setCurrentCategory] = useState(selectedCategory)
     const isDesktop = useMediaQuery("(min-width: 768px)")
@@ -48,23 +50,48 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
     }, [selectedCategory])
 
     useEffect(() => {
-        if (discordIdentity && currentCategory.id === "Connect discord") {
-            setCurrentCategory({
-                id: "Disconnect discord",
-                name: "Disconnect discord",
-                description: "To continue, confirm your password",
-            })
+        if (hidePasswordButton) {
+            if (currentCategory.id === "Email address") {
+                setCurrentCategory({
+                    id: "Create password",
+                    name: "Change your email address",
+                    description: "To change your email address, you need to create a Saidit password firs. We'll walk you through it.",
+                })
+            }
+            if (currentCategory.id === "Connect discord" || currentCategory.id === "Disconnect discord") {
+                setCurrentCategory({
+                    id: "Create password",
+                    name: "Manage discord identity",
+                    description: "To manage your discord identity, you need to create a Saidit password firs. We'll walk you through it.",
+                })
+            }
+            if (currentCategory.id === "Connect google" || currentCategory.id === "Disconnect google") {
+                setCurrentCategory({
+                    id: "Create password",
+                    name: "Manage google identity",
+                    description: "To manage your google identity, you need to create a Saidit password firs. We'll walk you through it.",
+                })
+            }
         }
 
-        if (googleIdentity && currentCategory.id === "Connect google") {
-            setCurrentCategory({
-                id: "Disconnect google",
-                name: "Disconnect google",
-                description: "To continue, confirm your password",
-            })
-        }
+        else {
+            if (discordIdentity && currentCategory.id === "Connect discord") {
+                setCurrentCategory({
+                    id: "Disconnect discord",
+                    name: "Disconnect discord",
+                    description: "To continue, confirm your password",
+                })
+            }
 
-    }, [discordIdentity, googleIdentity, currentCategory.id])
+            if (googleIdentity && currentCategory.id === "Connect google") {
+                setCurrentCategory({
+                    id: "Disconnect google",
+                    name: "Disconnect google",
+                    description: "To continue, confirm your password",
+                })
+            }
+        }
+    }, [discordIdentity, googleIdentity, hidePasswordButton, currentCategory.id])
 
     const renderSettingsForm = () => {
         switch (currentCategory.id) {
@@ -82,6 +109,8 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
                 return <ManageGoogleIdentity googleIdentity={googleIdentity} isDesktop={isDesktop} user={user} onOpenChange={onOpenChange} />
             case "Disconnect google":
                 return <ManageGoogleIdentity googleIdentity={googleIdentity} isDesktop={isDesktop} user={user} onOpenChange={onOpenChange} />
+            case "Create password":
+                return <CreatePassword user={user} setCurrentCategory={setCurrentCategory} isDesktop={isDesktop} />
         }
     }
 
@@ -91,7 +120,7 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
                 <DialogTrigger></DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>{currentCategory.id}</DialogTitle>
+                        <DialogTitle>{currentCategory.name}</DialogTitle>
                         <DialogDescription>
                             {currentCategory.description}
                         </DialogDescription>
@@ -107,7 +136,7 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
             <DrawerTrigger></DrawerTrigger>
             <DrawerContent>
                 <DrawerHeader className="text-left">
-                    <DrawerTitle>{currentCategory.id}</DrawerTitle>
+                    <DrawerTitle>{currentCategory.name}</DrawerTitle>
                     <DrawerDescription>
                         {currentCategory.description}
                     </DrawerDescription>

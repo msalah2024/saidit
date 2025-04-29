@@ -18,7 +18,8 @@ export default function Page() {
     const googleIdentity = user?.identities?.some((identity) => identity.provider === "google")
     const socialIdentities = discordIdentity || googleIdentity
     const emailIdentity = user?.identities?.some((identity) => identity.provider === "email")
-    const hidePasswordButton = socialIdentities && !emailIdentity
+    const noPassword = !user?.user_metadata.hasPassword
+    const hidePasswordButton = socialIdentities && !emailIdentity && noPassword
 
     const handleOpenSettings = (category: (typeof accountSettingsCategories)[0]) => {
         setCategory(category)
@@ -33,7 +34,7 @@ export default function Page() {
 
             <div className="flex flex-col gap-2">
                 {accountSettingsCategories.slice(0, 3).map((category) => {
-                    // if (category.id === "Password" && hidePasswordButton) return null;
+                    if (category.id === "Password" && hidePasswordButton) return null;
                     return (
                         <Button
                             key={category.name}
@@ -159,7 +160,7 @@ export default function Page() {
                 ))
             }
             <AccountDialog profile={profile} user={user} open={open} onOpenChange={setOpen} selectedCategory={category}
-                googleIdentity={googleIdentity} discordIdentity={discordIdentity}
+                googleIdentity={googleIdentity} discordIdentity={discordIdentity} hidePasswordButton={hidePasswordButton}
             />
         </div>
     )
