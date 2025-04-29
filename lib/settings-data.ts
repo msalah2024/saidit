@@ -5,6 +5,13 @@ interface AccountSettingsCategory {
     description?: string | React.ReactNode
 }
 
+interface ProfileSettingsCategory {
+    id: string
+    name: string
+    description?: string | React.ReactNode
+    buttonDescription?: string
+}
+
 export const accountSettingsCategories: AccountSettingsCategory[] = [
     {
         id: "Email address",
@@ -35,5 +42,34 @@ export const accountSettingsCategories: AccountSettingsCategory[] = [
         id: "Delete account",
         name: "Delete account",
         description: "Once you delete your account, your profile and username are permanently removed from Saidit and your posts, comments, and messages are deleted from your account",
+    }
+]
+
+export const profileSettingsCategories: ProfileSettingsCategory[] = [
+    {
+        id: "Display name",
+        name: "Display name",
+        description: "Changing your display name won't change your username",
+        buttonDescription: "Changing your display name won't change your username"
+    },
+    {
+        id: "About description",
+        name: "About description",
+        description: "Give a brief description of yourself"
+    },
+    {
+        id: "Avatar",
+        name: "Avatar",
+        buttonDescription: "Upload an image as your avatar"
+    },
+    {
+        id: "Banner",
+        name: "Banner",
+        buttonDescription: "Upload a profile background image"
+    },
+    {
+        id: "Social links",
+        name: "Social links",
+        description: "Add up to five links to display on your profile."
     }
 ]

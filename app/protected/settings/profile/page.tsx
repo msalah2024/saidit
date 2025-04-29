@@ -1,7 +1,49 @@
-import React from 'react'
+"use client"
+import React, { useState } from 'react'
+import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
+import { profileSettingsCategories } from '@/lib/settings-data'
+import { Button } from '@/components/ui/button'
+import { ChevronRight } from 'lucide-react'
 
-export default function page() {
+export default function Page() {
+    const { profile, user } = useGeneralProfile()
+    const [open, setOpen] = useState(false)
+    const [category, setCategory] = useState(profileSettingsCategories[0])
+
+    const handleOpenSettings = (category: (typeof profileSettingsCategories)[0]) => {
+        setCategory(category)
+        setOpen(true)
+    }
+
     return (
-        <div>Profile Page</div>
+        <div className='space-y-4'>
+            <h3 className="scroll-m-20 text-2xl text-primary-foreground-muted font-semibold tracking-tight">
+                General
+            </h3>
+
+            <div className="flex flex-col gap-2">
+                {
+                    profileSettingsCategories.map((category) => (
+                        <Button
+                            key={category.name}
+                            variant="ghost"
+                            className="w-full text-primary-foreground-muted py-6 px-0 sm:px-4 justify-between hover:bg-background group"
+                            onClick={() => handleOpenSettings(category)}
+                        >
+                            <div className='flex flex-col items-start'>
+                                {category.name}
+                                {
+                                    category.buttonDescription &&
+                                    <span className="text-sm text-muted-foreground">{category.buttonDescription}</span>
+                                }
+                            </div>
+                            <div className='p-2 rounded-full group-hover:bg-reddit-gray'>
+                                <ChevronRight />
+                            </div>
+                        </Button>
+                    ))
+                }
+            </div>
+        </div>
     )
 }
