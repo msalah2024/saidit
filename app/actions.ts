@@ -107,8 +107,17 @@ export async function signUp(formData: z.infer<typeof RegisterSchema>) {
     })
 
     if (profileError) {
-      console.error("Profile Error", profileError.message)
-      throw new Error(profileError.message || "An error occurred")
+      if (profileError?.code === '23503') {
+        console.error("An account with a similar email already exists. Please use a different email or try logging in.")
+        return {
+          success: false,
+          message: "An account with a similar email already exists. Please use a different email or try logging in."
+        }
+      }
+      else {
+        console.error("Profile Error", profileError.message)
+        throw new Error(profileError.message || "An error occurred")
+      }
     }
 
     return {

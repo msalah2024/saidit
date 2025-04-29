@@ -168,7 +168,7 @@ export default function SignUpForm({ onSwitchToLogIn }: SignUpFormProps) {
       else {
         genderForm.setError('gender', {
           type: 'manual',
-          message: "An error occurred"
+          message: result.message
         })
         return
       }
