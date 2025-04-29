@@ -13,12 +13,12 @@ import {
   PasswordSchema,
   UpdateEmailSchema,
   UpdatePasswordSchema,
-  DisplayNameSchema
+  DisplayNameSchema,
+  DescriptionSchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { Tables } from "@/database.types";
-import { fromTheme } from "tailwind-merge";
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
   const email = formData.email.toLowerCase()
@@ -722,6 +722,36 @@ export async function updateDisplayName(formData: z.infer<typeof DisplayNameSche
     return {
       success: false,
       message: "Display name update error"
+    }
+  }
+
+}
+
+export async function updateDescription(formData: z.infer<typeof DescriptionSchema>, profileID: string) {
+  const supabase = await createClient()
+  const description = formData.description
+
+  try {
+    const { error } = await supabase.from('users').update({
+      description: description
+    }).eq('id', profileID)
+
+    if (error) {
+      console.error("Update description error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+    else {
+      return {
+        success: true,
+        message: "Description updated successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Update description error", error)
+    return {
+      success: false,
+      message: "Update description error"
     }
   }
 

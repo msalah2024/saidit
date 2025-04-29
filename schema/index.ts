@@ -147,3 +147,9 @@ export const UpdatePasswordSchema = z.object({
 export const DisplayNameSchema = z.object({
     displayName: z.string()
 })
+
+export const DescriptionSchema = z.object({
+    description: z.string().max(200, {
+        message: "Description must not be longer than 200 characters."
+    })
+})

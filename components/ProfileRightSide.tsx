@@ -53,7 +53,10 @@ export default function ProfileRightSide() {
                             )
                         }
                     </div>
-                    <small className="text-sm border-b font-medium text-muted-foreground leading-none">{"it's never easy"}</small>
+                    {
+                        profile.description &&
+                        <small className="text-sm border-b font-medium text-muted-foreground leading-none">{profile.description}</small>
+                    }
                     <div className='grid grid-cols-2 gap-4 mt-3'>
                         <div className='space-y-4'>
                             <div>

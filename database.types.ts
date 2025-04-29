@@ -15,6 +15,7 @@ export type Database = {
           avatar_url: string | null
           banner_url: string | null
           created_at: string
+          description: string | null
           display_name: string | null
           email: string
           gender: Database["public"]["Enums"]["Gender"]
@@ -27,6 +28,7 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           created_at?: string
+          description?: string | null
           display_name?: string | null
           email: string
           gender: Database["public"]["Enums"]["Gender"]
@@ -39,6 +41,7 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           created_at?: string
+          description?: string | null
           display_name?: string | null
           email?: string
           gender?: Database["public"]["Enums"]["Gender"]
