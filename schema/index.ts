@@ -114,3 +114,32 @@ export const PasswordSchema = z.object({
 })
 
 export const UpdateEmailSchema = z.object({}).merge(PasswordSchema).merge(EmailStepSchema)
+
+export const UpdatePasswordSchema = z.object({
+    currentPassword: z.string().min(8, {
+        message: "Current password must be at least 8 characters."
+    }),
+    password: z.string()
+        .min(8, {
+            message: "Password must be at least 8 characters."
+        })
+        .regex(/[a-z]/)
+        .regex(/[A-Z]/)
+        .regex(/[0-9]/)
+        .regex(/[^a-zA-Z0-9]/),
+    confirmPassword: z.string().min(8, {
+        message: "Password must be at least 8 characters."
+    })
+})
+    .refine(data => data.password === data.confirmPassword, {
+        message: "New passwords don't match",
+        path: ["confirmPassword"]
+    })
+    .refine(data => data.currentPassword !== data.password, {
+        message: "New password must differ from current password",
+        path: ["password"]
+    })
+    .refine(data => data.currentPassword !== data.confirmPassword, {
+        message: "Confirmation must differ from current password",
+        path: ["confirmPassword"]
+    });

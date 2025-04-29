@@ -98,7 +98,7 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
             case "Email address":
                 return <ChangeEmail user={user} setCurrentCategory={setCurrentCategory} isDesktop={isDesktop} />
             case "Password":
-                return <ChangePassword setCurrentCategory={setCurrentCategory} isDesktop={isDesktop} />
+                return <ChangePassword setCurrentCategory={setCurrentCategory} isDesktop={isDesktop} user={user} />
             case "Gender":
                 return <ChangeGender profile={profile} onOpenChange={onOpenChange} isDesktop={isDesktop} />
             case "Connect discord":

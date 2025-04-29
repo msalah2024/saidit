@@ -11,7 +11,8 @@ import {
   CreateProfileSchema,
   GenderStepSchema,
   PasswordSchema,
-  UpdateEmailSchema
+  UpdateEmailSchema,
+  UpdatePasswordSchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
@@ -628,4 +629,58 @@ export async function hasPassword() {
     }
   }
 
+}
+
+
+export async function updatePasswordInSettings(formData: z.infer<typeof UpdatePasswordSchema>, user: User) {
+  const supabase = await createClient()
+  const password = formData.password
+
+  try {
+
+    if (!user.email) {
+      return {
+        success: false,
+        message: "An Error occurred"
+      }
+    }
+
+    const { error: userAuthError } = await supabase.auth.signInWithPassword({
+      email: user?.email,
+      password: formData.currentPassword
+    })
+
+    if (userAuthError) {
+      console.error("User Auth Error", userAuthError.message)
+      if (userAuthError.message === "Invalid login credentials") {
+        throw new Error("Invalid password")
+      }
+      else {
+        throw new Error(userAuthError.message || "An error occurred")
+      }
+    }
+    else {
+      await supabase.auth.updateUser({ password: password })
+
+      const { error } = await supabase.auth.updateUser({
+        data: { hasPassword: true }
+      })
+
+      if (error) {
+        console.error("Error updating metadata", error.message)
+        throw new Error(error.message || "An error occurred")
+      }
+
+      return {
+        success: true,
+        message: "Password updated successfully",
+      }
+    }
+  } catch (error) {
+    console.error("Update Password Error", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred"
+    }
+  }
 }

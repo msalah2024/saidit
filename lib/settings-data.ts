@@ -14,6 +14,7 @@ export const accountSettingsCategories: AccountSettingsCategory[] = [
     {
         id: "Password",
         name: "Password",
+        description: "To continue, confirm your password"
     },
     {
         id: "Gender",
