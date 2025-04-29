@@ -24,8 +24,9 @@ export default function ProfileHeader() {
                     </AvatarFallback>
                 </Avatar>
                 <div className='flex flex-col'>
-                    <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0 text-primary-foreground-muted">
+                    <h2 className="scroll-m-20 text-3xl break-all font-semibold tracking-tight first:mt-0 text-primary-foreground-muted">
                         {profile.display_name || profile.username}
+
                     </h2>
                     <p className='text-muted-foreground'>u/{profile.username}</p>
                 </div>

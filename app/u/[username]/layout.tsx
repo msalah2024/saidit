@@ -26,7 +26,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 
     return (
         <ProfileProvider profile={profile.data} currentUser={user.data.user}>
-            <div className="flex mx-8">
+            <div className="flex gap-x-4 mx-8">
                 <div className="w-full">
                     <ProfileHeader />
                     {children}

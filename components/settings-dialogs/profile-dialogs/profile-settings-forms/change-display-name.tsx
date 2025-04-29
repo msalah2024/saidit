@@ -63,6 +63,7 @@ export default function ChangeDisplayName({ isDesktop, profile, onOpenChange }: 
                 })
                 return
             }
+
         } catch (error) {
             console.error(error)
         } finally {
@@ -79,8 +80,13 @@ export default function ChangeDisplayName({ isDesktop, profile, onOpenChange }: 
                     render={({ field }) => (
                         <FormItem>
                             <FormControl>
-                                <Input placeholder="Display name" className='p-6' {...field} />
+                                <Input placeholder="Display name" className='p-6' maxLength={90} {...field} />
                             </FormControl>
+                            {
+                                <p className={`text-sm text-end mx-2 font-medium ${field.value.length > 90 ? "text-destructive" : "text-muted-foreground"} `}>
+                                    {field.value.length}/90
+                                </p>
+                            }
                             <FormMessage className='ml-2' />
                         </FormItem>
                     )}
@@ -93,13 +99,13 @@ export default function ChangeDisplayName({ isDesktop, profile, onOpenChange }: 
                                     Cancel
                                 </Button>
                             </DialogClose>
-                            <Button type="submit" disabled={isSubmitting} className='rounded-full px-6'>{isSubmitting ? <>
+                            <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full px-6'>{isSubmitting ? <>
                                 <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
                             </> : 'Save'}</Button>
                         </div>) :
                         (
                             <div className='flex flex-col gap-2 justify-end my-4'>
-                                <Button type="submit" disabled={isSubmitting} className='rounded-full'>{isSubmitting ? <>
+                                <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full'>{isSubmitting ? <>
                                     <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
                                 </> : 'Save'}</Button>
                                 <DrawerClose asChild>
