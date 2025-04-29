@@ -143,3 +143,7 @@ export const UpdatePasswordSchema = z.object({
         message: "Confirmation must differ from current password",
         path: ["confirmPassword"]
     });
+
+export const DisplayNameSchema = z.object({
+    displayName: z.string()
+})

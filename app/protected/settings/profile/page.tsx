@@ -4,6 +4,7 @@ import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { profileSettingsCategories } from '@/lib/settings-data'
 import { Button } from '@/components/ui/button'
 import { ChevronRight } from 'lucide-react'
+import ProfileDialog from '@/components/settings-dialogs/profile-dialogs/ProfileDialog'
 
 export default function Page() {
     const { profile, user } = useGeneralProfile()
@@ -34,7 +35,7 @@ export default function Page() {
                                 {category.name}
                                 {
                                     category.buttonDescription &&
-                                    <span className="text-sm text-muted-foreground">{category.buttonDescription}</span>
+                                    <span className="text-sm text-muted-foreground text-wrap text-start">{category.buttonDescription}</span>
                                 }
                             </div>
                             <div className='p-2 rounded-full group-hover:bg-reddit-gray'>
@@ -44,6 +45,7 @@ export default function Page() {
                     ))
                 }
             </div>
+                <ProfileDialog profile={profile} user={user} open={open} onOpenChange={setOpen} selectedCategory={category}/>
         </div>
     )
 }
