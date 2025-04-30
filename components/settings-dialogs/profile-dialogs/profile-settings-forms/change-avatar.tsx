@@ -1,3 +1,4 @@
+"use client"
 import React, { useRef, useState } from 'react'
 import {
     Avatar,
@@ -20,24 +21,70 @@ interface ChangeAvatarProps {
 
 export default function ChangeAvatar({ isDesktop, profile, onOpenChange }: ChangeAvatarProps) {
     const router = useRouter()
+    const [avatar, setAvatar] = useState<string | null>(null)
     const [step, setStep] = useState(0)
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const fileInputRef = useRef(null)
+    const [isDragging, setIsDragging] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                setAvatar(e.target?.result as string)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const triggerFileInput = () => {
+        fileInputRef.current?.click()
+    }
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault()
+        setIsDragging(true)
+    }
+
+    const handleDragLeave = () => {
+        setIsDragging(false)
+    }
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault()
+        setIsDragging(false)
+
+        const file = e.dataTransfer.files?.[0]
+        if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                setAvatar(e.target?.result as string)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
 
     return (
         <div className='flex flex-col items-center w-full'>
             <Avatar className="w-20 h-20 select-none mb-4">
-                <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" className='rounded-full' draggable={false} />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarImage src={avatar || ""} alt="Avatar" className='rounded-full' draggable={false} />
+                <AvatarFallback>?</AvatarFallback>
             </Avatar>
-            <div className='flex flex-col items-center w-full rounded-lg border-2 border-dashed p-6'>
+
+            <div className={`flex flex-col items-center w-full rounded-lg border-2 border-dashed p-6 
+            ${isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/20"}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+            >
                 <CloudUpload size={40} className='text-muted-foreground' />
                 <div className='space-y-1 text-center'>
                     <p className="text-sm font-medium">Drag and drop your image here</p>
                     <p className="text-xs text-muted-foreground">PNG, JPG or GIF (max. 2MB)</p>
                 </div>
-                <Button variant='outline' className='mt-3 rounded-full'>Select Image</Button>
-                <Input ref={fileInputRef} type='file' className='hidden' accept='image/*'></Input>
+                <Button variant='outline' className='mt-3 rounded-full' onClick={triggerFileInput}>Select Image</Button>
+                <Input ref={fileInputRef} onChange={handleFileChange} type='file' className='hidden' accept='image/*'></Input>
             </div>
             {
                 isDesktop ?
