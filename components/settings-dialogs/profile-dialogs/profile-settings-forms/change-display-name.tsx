@@ -80,7 +80,7 @@ export default function ChangeDisplayName({ isDesktop, profile, onOpenChange }: 
                     render={({ field }) => (
                         <FormItem>
                             <FormControl>
-                                <Input placeholder="Display name" className='p-6' maxLength={90} {...field} />
+                                <Input placeholder="Display name" className='p-6' {...field} />
                             </FormControl>
                             {
                                 <p className={`text-sm text-end mx-2 font-medium ${field.value.length > 90 ? "text-destructive" : "text-muted-foreground"} `}>

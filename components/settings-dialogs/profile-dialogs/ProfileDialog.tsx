@@ -21,6 +21,7 @@ import { User } from '@supabase/supabase-js'
 import { profileSettingsCategories } from '@/lib/settings-data'
 import ChangeDisplayName from './profile-settings-forms/change-display-name'
 import ChangeDescription from './profile-settings-forms/change-description'
+import ChangeAvatar from './profile-settings-forms/change-avatar'
 
 interface ProfileDialogProps {
     profile: Tables<'users'> | null
@@ -46,7 +47,9 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
             case "Display name":
                 return <ChangeDisplayName isDesktop={isDesktop} profile={profile} onOpenChange={onOpenChange} />
             case "About description":
-                return <ChangeDescription isDesktop={isDesktop} profile={profile} onOpenChange={onOpenChange}/>
+                return <ChangeDescription isDesktop={isDesktop} profile={profile} onOpenChange={onOpenChange} />
+            case "Avatar":
+                return <ChangeAvatar isDesktop={isDesktop} profile={profile} onOpenChange={onOpenChange}/>
         }
     }
 
