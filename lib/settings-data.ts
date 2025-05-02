@@ -45,6 +45,7 @@ export const accountSettingsCategories: AccountSettingsCategory[] = [
     }
 ]
 
+
 export const profileSettingsCategories: ProfileSettingsCategory[] = [
     {
         id: "Display name",
