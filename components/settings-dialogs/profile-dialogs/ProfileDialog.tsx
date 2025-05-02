@@ -34,6 +34,8 @@ interface ProfileDialogProps {
 export default function ProfileDialog({ profile, user, open, onOpenChange, selectedCategory }: ProfileDialogProps) {
 
     const [currentCategory, setCurrentCategory] = useState(selectedCategory)
+    const [dismissible, setDismissible] = useState(true)
+    const [shouldScaleBackground, setShouldScaleBackground] = useState(true)
     const isDesktop = useMediaQuery("(min-width: 768px)")
 
     useEffect(() => {
@@ -49,7 +51,8 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
             case "About description":
                 return <ChangeDescription isDesktop={isDesktop} profile={profile} onOpenChange={onOpenChange} />
             case "Avatar":
-                return <ChangeAvatar isDesktop={isDesktop} profile={profile} onOpenChange={onOpenChange}/>
+                return <ChangeAvatar isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange}
+                    setDismissible={setDismissible} setShouldScaleBackground={setShouldScaleBackground} />
         }
     }
 
@@ -71,7 +74,7 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
     }
 
     return (
-        <Drawer open={open} onOpenChange={onOpenChange}>
+        <Drawer open={open} onOpenChange={onOpenChange} dismissible={dismissible} shouldScaleBackground={shouldScaleBackground}>
             <DrawerTrigger></DrawerTrigger>
             <DrawerContent>
                 <DrawerHeader className="text-left">

@@ -26,6 +26,7 @@ interface ChangeEmailProps {
     isDesktop: boolean
 }
 
+
 export default function ChangeEmail({ user, setCurrentCategory, isDesktop }: ChangeEmailProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
 

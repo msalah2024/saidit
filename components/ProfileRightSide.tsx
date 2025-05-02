@@ -88,7 +88,7 @@ export default function ProfileRightSide() {
                             <div className='flex gap-2 items-center justify-between mt-4'>
                                 <div className='flex gap-2 items-center'>
                                     <Avatar>
-                                        <AvatarImage draggable="false" src={profile.avatar_url || undefined} alt="avatar" />
+                                        <AvatarImage draggable="false" src={profile.avatar_url || undefined} alt="avatar" className='rounded-full' />
                                         <AvatarFallback>
                                             {profile.username.slice(0, 2).toUpperCase()}
                                         </AvatarFallback>

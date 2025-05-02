@@ -24,7 +24,7 @@ export default function ProfileMenu({ profile }: { profile: Profile | null }) {
         <DropdownMenu>
             <DropdownMenuTrigger className='hover:bg-muted p-2 rounded-full mr-2'>
                 <Avatar >
-                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <AvatarImage src={profile?.avatar_url || undefined} className='rounded-full aspect-square' />
                     <AvatarFallback>
                         {profile?.username.slice(0, 2).toUpperCase() || "SI"}
                     </AvatarFallback>
@@ -33,7 +33,7 @@ export default function ProfileMenu({ profile }: { profile: Profile | null }) {
             <DropdownMenuContent className='mr-2 mt-2'>
                 <DropdownMenuItem onClick={() => router.push(`/u/${profile?.username}`)} className='py-4 focus:bg-card mr-10'>
                     <Avatar className='size-10'>
-                        <AvatarImage src={profile?.avatar_url || undefined} />
+                        <AvatarImage src={profile?.avatar_url || undefined} className='rounded-full' />
                         <AvatarFallback>SI</AvatarFallback>
                     </Avatar>
                     <div>

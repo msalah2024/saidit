@@ -18,7 +18,7 @@ export default function ProfileHeader() {
         <div className='flex flex-col mt-4 gap-4'>
             <div className='flex items-center gap-4'>
                 <Avatar className="w-16 h-16">
-                    <AvatarImage draggable={false} src={profile.avatar_url || undefined} />
+                    <AvatarImage draggable={false} src={profile.avatar_url || undefined} className='rounded-full'/>
                     <AvatarFallback>
                         {profile.username.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
