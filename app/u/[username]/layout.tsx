@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React from 'react'
 import ProfileHeader from "@/components/ProfileHeader";
 import ProfileRightSide from "@/components/ProfileRightSide";
 import { fetchProfile } from '@/app/actions'
@@ -6,14 +6,10 @@ import UserNotFound from "@/components/UserNotFound";
 import { ProfileProvider } from "@/app/context/ProfileContext";
 import { createClient } from "@/utils/supabase/server";
 
-interface LayoutProps {
-    children: ReactNode;
-    params: { username: string };
-}
-
-export default async function Layout({ children, params }: LayoutProps) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function Layout({ children, params }: any) {
     const supabase = await createClient();
-    const { username } = await params
+    const username = params.username
 
     const [profile, user] = await Promise.all([
         fetchProfile(username),

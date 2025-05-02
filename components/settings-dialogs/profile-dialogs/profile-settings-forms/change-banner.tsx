@@ -141,7 +141,7 @@ export default function ChangeBanner({ isDesktop, profile, user, onOpenChange, s
             })
 
         }
-    }, [originalImage, croppedAreaPixels, toast])
+    }, [originalImage, croppedAreaPixels])
 
     const goToNextStep = () => {
         setStep((prev) => Math.min(prev + 1, 2))

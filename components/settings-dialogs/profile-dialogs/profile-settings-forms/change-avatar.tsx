@@ -41,7 +41,6 @@ export default function ChangeAvatar({ isDesktop, profile, user, onOpenChange, s
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
     const [zoom, setZoom] = useState(1)
     const [rotation, setRotation] = useState(0)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isGif, setIsGif] = useState(false)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
