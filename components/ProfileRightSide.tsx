@@ -14,17 +14,23 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useRouter } from 'next/navigation';
 
 
 export default function ProfileRightSide() {
     const { profile, isOwner } = useProfile();
+    const router = useRouter()
 
     return (
         <div className='w-80 bg-black mt-4 pb-2 rounded-2xl hidden lg:flex lg:flex-col'>
-            <div className='flex justify-end h-28 bg-primary rounded-t-2xl'>
+            <div className="flex justify-end h-28 rounded-t-2xl bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${profile.banner_url})` }}>
                 {
                     isOwner && (
-                        <Button variant="outline" size="icon" className='self-end m-4 hover:bg-muted rounded-full'>
+                        <Button variant="outline" size="icon" className='self-end m-4 hover:bg-muted rounded-full'
+                            onClick={() => {
+                                router.push('/protected/settings/profile')
+                            }}
+                        >
                             <Camera />
                         </Button>
                     )
@@ -98,7 +104,11 @@ export default function ProfileRightSide() {
                                         <small className="text-sm font-medium text-muted-foreground leading-none">Customize your profile</small>
                                     </div>
                                 </div>
-                                <Button variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'>Update</Button>
+                                <Button variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
+                                    onClick={() => {
+                                        router.push('/protected/settings/profile')
+                                    }}
+                                >Update</Button>
                             </div>
                         </div>
                     )
@@ -108,7 +118,11 @@ export default function ProfileRightSide() {
                         <div className='space-y-2 border-b py-2'>
                             <small className="text-sm font-medium text-muted-foreground leading-none">LINKS</small>
                             <div className='mt-4'>
-                                <Button variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'>
+                                <Button variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
+                                    onClick={() => {
+                                        router.push('/protected/settings/profile')
+                                    }}
+                                >
                                     <Plus />
                                     Add social link
                                 </Button>

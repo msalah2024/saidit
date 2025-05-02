@@ -22,6 +22,7 @@ import { profileSettingsCategories } from '@/lib/settings-data'
 import ChangeDisplayName from './profile-settings-forms/change-display-name'
 import ChangeDescription from './profile-settings-forms/change-description'
 import ChangeAvatar from './profile-settings-forms/change-avatar'
+import ChangeBanner from './profile-settings-forms/change-banner'
 
 interface ProfileDialogProps {
     profile: Tables<'users'> | null
@@ -53,6 +54,9 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
             case "Avatar":
                 return <ChangeAvatar isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange}
                     setDismissible={setDismissible} setShouldScaleBackground={setShouldScaleBackground} />
+            case "Banner": return <ChangeBanner isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange}
+                setDismissible={setDismissible} setShouldScaleBackground={setShouldScaleBackground}
+            />
         }
     }
 
