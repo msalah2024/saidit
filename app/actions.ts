@@ -285,7 +285,7 @@ export async function signInWithDiscord() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'discord',
     options: {
-      redirectTo: 'http://localhost:3000/auth/callback',
+      redirectTo: `${process.env.NEXT_PUBLIC_DOMAIN}/auth/callback`,
     },
   })
 
@@ -305,7 +305,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: 'http://localhost:3000/auth/callback',
+      redirectTo: `${process.env.NEXT_PUBLIC_DOMAIN}/auth/callback`,
     },
   })
 
@@ -506,7 +506,7 @@ export async function manageDiscordIdentity(formData: z.infer<typeof PasswordSch
         const { data, error } = await supabase.auth.linkIdentity({
           provider: 'discord',
           options: {
-            redirectTo: 'http://localhost:3000/protected/settings/account',
+            redirectTo: `${process.env.NEXT_PUBLIC_DOMAIN}/protected/settings/account`,
           },
         })
         if (error) {
@@ -574,7 +574,7 @@ export async function manageGoogleIdentity(formData: z.infer<typeof PasswordSche
         const { data, error } = await supabase.auth.linkIdentity({
           provider: 'google',
           options: {
-            redirectTo: 'http://localhost:3000/protected/settings/account',
+            redirectTo: `${process.env.NEXT_PUBLIC_DOMAIN}/protected/settings/account`,
           },
         })
         if (error) {
