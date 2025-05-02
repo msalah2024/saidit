@@ -23,18 +23,23 @@ export default function ProfileRightSide() {
 
     return (
         <div className='w-80 bg-black mt-4 pb-2 rounded-2xl hidden lg:flex lg:flex-col'>
-            <div className="flex justify-end h-28 rounded-t-2xl bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${profile.banner_url})` }}>
-                {
-                    isOwner && (
-                        <Button variant="outline" size="icon" className='self-end m-4 hover:bg-muted rounded-full'
-                            onClick={() => {
-                                router.push('/protected/settings/profile')
-                            }}
-                        >
-                            <Camera />
-                        </Button>
-                    )
-                }
+            <div
+                className={`flex justify-end h-28 rounded-t-2xl bg-cover bg-center bg-no-repeat ${!profile.banner_url
+                    ? "bg-[#5BAE4A] bg-[linear-gradient(0deg,#000_0%,rgba(0,0,0,0.00)_111.72%)]"
+                    : ""
+                    }`}
+                style={profile.banner_url ? { backgroundImage: `url(${profile.banner_url})` } : {}}
+            >
+                {isOwner && (
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className='self-end m-4 hover:bg-muted rounded-full'
+                        onClick={() => router.push('/protected/settings/profile')}
+                    >
+                        <Camera />
+                    </Button>
+                )}
             </div>
             <div className='py-2 px-4 gap-2'>
                 <div className='space-y-2 border-b pb-2'>
