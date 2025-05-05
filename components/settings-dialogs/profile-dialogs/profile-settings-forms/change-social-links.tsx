@@ -271,7 +271,7 @@ export default function ChangeSocialLinks({
                 );
             case 1:
                 return (
-                    <div >
+                    <div>
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)}>
                                 <FormField
@@ -405,5 +405,5 @@ export default function ChangeSocialLinks({
         }
     };
 
-    return <div className="flex flex-col">{renderStep()}</div>;
+    return <div className="flex flex-col max-h-[70vh]">{renderStep()}</div>;
 }
