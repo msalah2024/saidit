@@ -123,7 +123,7 @@ export default function ProfileRightSide() {
                     isOwner && (
                         <div className='space-y-2 border-b py-2'>
                             <small className="text-sm font-medium text-muted-foreground leading-none">LINKS</small>
-                            <div className='flex flex-wrap gap-1 mt-4'>
+                            <div className='flex flex-wrap gap-2 mt-4'>
                                 {
                                     socialLinks?.map((link) => {
                                         const platform = socialPlatforms.find(

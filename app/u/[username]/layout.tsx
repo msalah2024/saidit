@@ -26,7 +26,7 @@ export default async function Layout({ children, params }: any) {
 
     return (
         <ProfileProvider profile={profile.data} currentUser={user} socialLinks={socialLinks}>
-            <div className="flex gap-x-4 mx-8">
+            <div className="flex gap-x-4 mx-4 sm:mx-8">
                 <div className="w-full">
                     <ProfileHeader />
                     {children}

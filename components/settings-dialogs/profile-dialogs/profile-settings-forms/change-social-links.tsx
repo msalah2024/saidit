@@ -237,7 +237,7 @@ export default function ChangeSocialLinks({
                             </div>
                         </ScrollArea>
                         {isDesktop ? (
-                            <div className="flex gap-2 justify-end mt-8">
+                            <div className="flex gap-4 justify-end mt-8">
                                 <DialogClose asChild>
                                     <Button type="button" variant="redditGray">
                                         Cancel
@@ -256,13 +256,13 @@ export default function ChangeSocialLinks({
                             <div className="flex flex-col gap-2 justify-end my-4">
                                 <DialogClose asChild>
                                     <Button
-                                        className="rounded-full px-6"
+                                        className="rounded-full p-6"
                                     >
                                         Save
                                     </Button>
                                 </DialogClose>
                                 <DrawerClose asChild>
-                                    <Button type="button" variant="redditGray">
+                                    <Button type="button" className="p-6" variant="redditGray">
                                         Cancel
                                     </Button>
                                 </DrawerClose>
@@ -356,7 +356,7 @@ export default function ChangeSocialLinks({
                                                     type="button"
                                                     variant="destructive"
                                                     disabled={isDeleting}
-                                                    className="rounded-full w-full bg-[#ce2627] hover:bg-[#ce2627]/80"
+                                                    className="rounded-full w-full p-6 bg-[#ce2627] hover:bg-[#ce2627]/80"
                                                     onClick={handleDelete}
                                                 >
                                                     {isDeleting ? (
@@ -375,7 +375,7 @@ export default function ChangeSocialLinks({
                                             disabled={
                                                 isSubmitting
                                             }
-                                            className="rounded-full"
+                                            className="rounded-full p-6"
                                         >
                                             {isSubmitting ? (
                                                 <>
@@ -389,6 +389,7 @@ export default function ChangeSocialLinks({
                                         <Button
                                             type="button"
                                             variant="redditGray"
+                                            className="p-6"
                                             onClick={() => {
                                                 setStep(0)
                                                 form.clearErrors()

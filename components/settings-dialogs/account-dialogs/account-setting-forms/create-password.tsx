@@ -77,11 +77,11 @@ export default function CreatePassword({ user, setCurrentCategory, isDesktop }: 
                     </div>) :
                     (
                         <div className='flex flex-col gap-2 justify-end my-4'>
-                            <Button disabled={isSubmitting} onClick={onSubmit} className='rounded-full'>{isSubmitting ? <>
+                            <Button disabled={isSubmitting} onClick={onSubmit} className='rounded-full p-6'>{isSubmitting ? <>
                                 <Loader2 className="mr-1 h-4 w-4 animate-spin" />Continue...
                             </> : 'Continue'}</Button>
                             <DrawerClose asChild>
-                                <Button type="button" variant="redditGray">
+                                <Button type="button" variant="redditGray" className='p-6'>
                                     Cancel
                                 </Button>
                             </DrawerClose>

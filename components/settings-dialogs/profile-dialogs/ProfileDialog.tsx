@@ -41,7 +41,9 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
     const [currentCategory, setCurrentCategory] = useState(selectedCategory)
     const [dismissible, setDismissible] = useState(true)
     const [shouldScaleBackground, setShouldScaleBackground] = useState(true)
-    const isDesktop = useMediaQuery("(min-width: 768px)")
+    const isBigScreen = useMediaQuery("(min-width: 768px)")
+    const isSmallMobile = useMediaQuery("(max-width: 413px)")
+    const isDesktop = isBigScreen || isSmallMobile
 
     useEffect(() => {
         if (selectedCategory) {
@@ -68,13 +70,13 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
         }
     }
 
-    if (isDesktop) {
+    if (isDesktop || isSmallMobile) {
         return (
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogTrigger></DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>{currentCategory.name}</DialogTitle>
+                        <DialogTitle className='text-xl'>{currentCategory.name}</DialogTitle>
                         <DialogDescription>
                             {currentCategory.description}
                         </DialogDescription>
@@ -90,7 +92,7 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
             <DrawerTrigger></DrawerTrigger>
             <DrawerContent>
                 <DrawerHeader className="text-left">
-                    <DrawerTitle>{currentCategory.name}</DrawerTitle>
+                    <DrawerTitle className='text-xl'>{currentCategory.name}</DrawerTitle>
                     <DrawerDescription>
                         {currentCategory.description}
                     </DrawerDescription>

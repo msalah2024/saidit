@@ -427,7 +427,7 @@ export default function ChangeAvatar({ isDesktop, profile, user, onOpenChange, s
             ) : (
                 step > 0 &&
                 <div className='flex w-full flex-col gap-2 justify-end my-4'>
-                    <Button disabled={isSubmitting} className='rounded-full px-6' onClick={step === 1 ? createCroppedImage : step === 2 ? handleFileUpload : undefined}>
+                    <Button disabled={isSubmitting} className='rounded-full p-6' onClick={step === 1 ? createCroppedImage : step === 2 ? handleFileUpload : undefined}>
                         {
                             step < 2 ? <div className='flex items-center gap-1'>Next</div>
                                 : <div className="flex items-center gap-1">
@@ -445,7 +445,7 @@ export default function ChangeAvatar({ isDesktop, profile, user, onOpenChange, s
                                 </div>
                         }
                     </Button>
-                    <Button type="button" variant="redditGray" onClick={() => {
+                    <Button type="button" variant="redditGray" className='p-6' onClick={() => {
                         if (isGif && step === 2) {
                             setStep(0)
                         } else {

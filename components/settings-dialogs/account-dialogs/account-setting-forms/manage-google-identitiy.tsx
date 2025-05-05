@@ -164,11 +164,11 @@ export default function ManageDiscordIdentity({ googleIdentity, isDesktop, user,
               </div>) :
               (
                 <div className='flex flex-col gap-2 justify-end my-4'>
-                  <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full'>{isSubmitting ? <>
+                  <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full p-6'>{isSubmitting ? <>
                     <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
                   </> : 'Save'}</Button>
                   <DrawerClose asChild>
-                    <Button type="button" variant="redditGray">
+                    <Button type="button" variant="redditGray" className='p-6'>
                       Cancel
                     </Button>
                   </DrawerClose>

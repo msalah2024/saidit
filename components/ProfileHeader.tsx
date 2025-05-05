@@ -60,20 +60,20 @@ export default function ProfileHeader() {
             </div>
             <div className='lg:hidden flex my-2'>
                 <Select>
-                    <SelectTrigger className="w-full data-[placeholder]:text-foreground">
+                    <SelectTrigger className="w-full p-6 data-[placeholder]:text-foreground">
                         <SelectValue placeholder="Overview" defaultValue="overview" defaultChecked />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="overview">Overview</SelectItem>
-                        <SelectItem value="posts">Posts</SelectItem>
-                        <SelectItem value="comments">Comments</SelectItem>
+                        <SelectItem value="overview" className='p-2'>Overview</SelectItem>
+                        <SelectItem value="posts" className='p-2'>Posts</SelectItem>
+                        <SelectItem value="comments" className='p-2'>Comments</SelectItem>
                         {
                             isOwner && (
                                 <>
-                                    <SelectItem value="saved">Saved</SelectItem>
-                                    <SelectItem value="hidden">Hidden</SelectItem>
-                                    <SelectItem value="upvoted">Upvoted</SelectItem>
-                                    <SelectItem value="downvoted">Downvoted</SelectItem>
+                                    <SelectItem value="saved" className='p-2'>Saved</SelectItem>
+                                    <SelectItem value="hidden" className='p-2'>Hidden</SelectItem>
+                                    <SelectItem value="upvoted" className='p-2'>Upvoted</SelectItem>
+                                    <SelectItem value="downvoted" className='p-2'>Downvoted</SelectItem>
                                 </>
                             )
                         }
