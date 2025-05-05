@@ -42,7 +42,7 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
 
     const [currentCategory, setCurrentCategory] = useState(selectedCategory)
     const isBigScreen = useMediaQuery("(min-width: 768px)")
-    const isSmallMobile = useMediaQuery("(max-width: 413px)")
+    const isSmallMobile = useMediaQuery("(max-height: 667px)")
     const isDesktop = isBigScreen || isSmallMobile
 
     useEffect(() => {

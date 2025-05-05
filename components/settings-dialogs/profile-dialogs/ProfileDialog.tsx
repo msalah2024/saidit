@@ -42,7 +42,7 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
     const [dismissible, setDismissible] = useState(true)
     const [shouldScaleBackground, setShouldScaleBackground] = useState(true)
     const isBigScreen = useMediaQuery("(min-width: 768px)")
-    const isSmallMobile = useMediaQuery("(max-width: 413px)")
+    const isSmallMobile = useMediaQuery("(max-height: 667px)")
     const isDesktop = isBigScreen || isSmallMobile
 
     useEffect(() => {
