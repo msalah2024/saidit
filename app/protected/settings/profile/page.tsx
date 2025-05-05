@@ -1,20 +1,42 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { profileSettingsCategories } from '@/lib/settings-data'
 import { Button } from '@/components/ui/button'
 import { ChevronRight } from 'lucide-react'
 import ProfileDialog from '@/components/settings-dialogs/profile-dialogs/ProfileDialog'
+import { getSocialLinks } from '@/app/actions'
+import { toast } from 'sonner'
+import { Tables } from '@/database.types'
 
 export default function Page() {
     const { profile, user } = useGeneralProfile()
     const [open, setOpen] = useState(false)
     const [category, setCategory] = useState(profileSettingsCategories[0])
+    const [syncedPlatforms, setSyncedPlatforms] = useState<Tables<'social_links'>[] | undefined>([])
 
     const handleOpenSettings = (category: (typeof profileSettingsCategories)[0]) => {
         setCategory(category)
         setOpen(true)
     }
+
+    const fetchLinks = useCallback(async () => {
+        if (!user) return;
+        try {
+            const links = await getSocialLinks(user?.id);
+            if (links.success) {
+                setSyncedPlatforms(links?.data);
+            } else {
+                toast.error("Error fetching social links");
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        fetchLinks();
+    }, [fetchLinks]);
 
     return (
         <div className='space-y-4'>
@@ -45,7 +67,9 @@ export default function Page() {
                     ))
                 }
             </div>
-                <ProfileDialog profile={profile} user={user} open={open} onOpenChange={setOpen} selectedCategory={category}/>
+            <ProfileDialog profile={profile} user={user} open={open} onOpenChange={setOpen} selectedCategory={category}
+            fetchLinks={fetchLinks} syncedPlatforms={syncedPlatforms}
+            />
         </div>
     )
 }

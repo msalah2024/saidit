@@ -756,3 +756,90 @@ export async function updateDescription(formData: z.infer<typeof DescriptionSche
   }
 
 }
+
+export async function upsertSocialLink(name: string, userID: string, url: string, username: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from("social_links").upsert({
+      social_name: name,
+      link: url,
+      account_id: userID,
+      username: username
+    }).eq('account_id', userID)
+
+    if (error) {
+      console.error("Sync social link error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Social link synced"
+      }
+    }
+
+  } catch (error) {
+    console.error("Sync social link error", error)
+    return {
+      success: false,
+      message: "Sync social link error"
+    }
+  }
+
+}
+
+export async function getSocialLinks(userID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data: socialLinks, error } = await supabase.from('social_links').select().eq('account_id', userID)
+
+    if (error) {
+      console.error("Fetch links error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Fetch links successful",
+        data: socialLinks
+      }
+    }
+
+  } catch (error) {
+    console.error("Fetch links error", error)
+    return {
+      success: false,
+      message: "Fetch links error"
+    }
+  }
+}
+
+export async function deleteSocialLink(socialID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('social_links').delete().eq('id', socialID)
+    if (error) {
+      console.error("Delete link error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Delete link successful"
+      }
+    }
+
+  } catch (error) {
+    console.error("Delete link error", error)
+    return {
+      success: false,
+      message: "Delete link error"
+    }
+  }
+}

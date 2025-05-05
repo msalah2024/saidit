@@ -15,10 +15,11 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from 'next/navigation';
-
+import { socialPlatforms } from '@/lib/social-platforms-data';
+import Image from 'next/image';
 
 export default function ProfileRightSide() {
-    const { profile, isOwner } = useProfile();
+    const { profile, isOwner, socialLinks } = useProfile();
     const router = useRouter()
 
     return (
@@ -122,7 +123,34 @@ export default function ProfileRightSide() {
                     isOwner && (
                         <div className='space-y-2 border-b py-2'>
                             <small className="text-sm font-medium text-muted-foreground leading-none">LINKS</small>
-                            <div className='mt-4'>
+                            <div className='flex flex-wrap gap-1 mt-4'>
+                                {
+                                    socialLinks?.map((link) => {
+                                        const platform = socialPlatforms.find(
+                                            (sp) => sp.name.toLowerCase() === link.social_name.toLowerCase()
+                                        );
+                                        const icon = platform?.icon;
+                                        return (
+                                            <Button key={link.id}
+                                                variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
+                                                onClick={() => {
+                                                    router.push(link.link)
+                                                }}
+                                            >
+                                                {
+                                                    icon &&
+                                                    <Image
+                                                        src={icon}
+                                                        alt={link.social_name + " icon"}
+                                                        width={20}
+                                                        height={20}
+                                                    />
+                                                }
+                                                {link.username}
+                                            </Button>
+                                        )
+                                    })
+                                }
                                 <Button variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
                                     onClick={() => {
                                         router.push('/protected/settings/profile')

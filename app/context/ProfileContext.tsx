@@ -8,6 +8,7 @@ interface ProfileContextType {
     profile: Tables<'users'>;
     currentUser: User | null;
     isOwner: boolean;
+    socialLinks: Tables<'social_links'>[] | undefined
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -23,17 +24,19 @@ export function useProfile() {
 export function ProfileProvider({
     children,
     profile,
-    currentUser
+    currentUser,
+    socialLinks
 }: {
     children: React.ReactNode;
     profile: Tables<'users'>;
     currentUser: User | null;
+    socialLinks: Tables<'social_links'>[] | undefined
 }) {
 
     const isOwner = currentUser?.id === profile.account_id;
 
     return (
-        <ProfileContext.Provider value={{ profile, currentUser, isOwner }}>
+        <ProfileContext.Provider value={{ profile, currentUser, isOwner, socialLinks }}>
             {children}
         </ProfileContext.Provider>
     );

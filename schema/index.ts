@@ -155,3 +155,9 @@ export const DescriptionSchema = z.object({
         message: "Description must not be longer than 200 characters."
     })
 })
+
+export const SocialLinkSchema = z.object({
+    text: z.string().min(1, {
+        message: "Your value must be at least 1 character long"
+    })
+})

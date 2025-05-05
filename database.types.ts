@@ -9,6 +9,44 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      social_links: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          link: string
+          social_name: string
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          link: string
+          social_name: string
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          link?: string
+          social_name?: string
+          updated_at?: string | null
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_links_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
       users: {
         Row: {
           account_id: string
