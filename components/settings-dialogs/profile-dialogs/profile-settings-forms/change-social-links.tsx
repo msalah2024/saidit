@@ -271,7 +271,7 @@ export default function ChangeSocialLinks({
                 );
             case 1:
                 return (
-                    <div className="h-72">
+                    <div>
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)}>
                                 <FormField
