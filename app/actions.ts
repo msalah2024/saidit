@@ -55,7 +55,7 @@ export async function isUserNameAvailable(formData: z.infer<typeof CredentialsSt
   const supabase = await createClient()
 
   try {
-    const { error: usernameError } = await supabase.from("users").select("username").eq("username", username).single()
+    const { error: usernameError } = await supabase.from("users").select("username").ilike("username", username).single()
 
     if (usernameError && usernameError.code === 'PGRST116') {
       return {
@@ -164,7 +164,7 @@ export async function logIn(formData: z.infer<typeof LoginSchema>) {
 
     }
     else {
-      const { data: userEmail, error: emailError } = await supabase.from("users").select("email").eq("username", identifier).single()
+      const { data: userEmail, error: emailError } = await supabase.from("users").select("email").ilike("username", identifier).single()
 
       if (emailError) {
         console.error("Email Error", emailError.message)
@@ -220,7 +220,7 @@ export async function resetPassword(formData: z.infer<typeof ResetPasswordIdenti
       }
     }
     else {
-      const { data: userEmail, error: userEmailError } = await supabase.from("users").select("email").eq("username", identifier).single()
+      const { data: userEmail, error: userEmailError } = await supabase.from("users").select("email").ilike("username", identifier).single()
 
       if (userEmailError) {
         console.error("User Email Error", userEmailError.message)
@@ -361,8 +361,9 @@ export async function createProfile(formData: z.infer<typeof CreateProfileSchema
 
 export async function fetchProfile(username: string) {
   const supabase = await createClient()
+
   try {
-    const { data: profile, error } = await supabase.from("users").select("*").eq("username", username).single()
+    const { data: profile, error } = await supabase.from("users").select("*").ilike("username", username).single()
 
     if (error && error.code === 'PGRST116') {
       return {
