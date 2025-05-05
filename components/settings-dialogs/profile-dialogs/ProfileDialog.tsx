@@ -68,7 +68,6 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
         }
     }
 
-    if (isDesktop) {
         return (
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogTrigger></DialogTrigger>
@@ -84,22 +83,3 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
             </Dialog>
         )
     }
-
-    return (
-        <Drawer open={open} onOpenChange={onOpenChange} dismissible={dismissible} shouldScaleBackground={shouldScaleBackground}>
-            <DrawerTrigger></DrawerTrigger>
-            <DrawerContent>
-                <DrawerHeader className="text-left">
-                    <DrawerTitle className='text-xl'>{currentCategory.name}</DrawerTitle>
-                    <DrawerDescription>
-                        {currentCategory.description}
-                    </DrawerDescription>
-                </DrawerHeader>
-                <div className='px-4'>
-                    {renderSettingsForm()}
-                </div>
-            </DrawerContent>
-        </Drawer>
-
-    )
-}
