@@ -41,9 +41,7 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
     const [currentCategory, setCurrentCategory] = useState(selectedCategory)
     const [dismissible, setDismissible] = useState(true)
     const [shouldScaleBackground, setShouldScaleBackground] = useState(true)
-    const isBigScreen = useMediaQuery("(min-width: 768px)")
-    const isSmallMobile = useMediaQuery("(max-height: 667px)")
-    const isDesktop = isBigScreen || isSmallMobile
+    const isDesktop = useMediaQuery("(min-width: 768px)")
 
     useEffect(() => {
         if (selectedCategory) {
@@ -70,7 +68,7 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
         }
     }
 
-    if (isDesktop || isSmallMobile) {
+    if (isDesktop) {
         return (
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogTrigger></DialogTrigger>
