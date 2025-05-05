@@ -41,7 +41,9 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
     selectedCategory, discordIdentity, googleIdentity, hidePasswordButton }: AccountDialogProps) {
 
     const [currentCategory, setCurrentCategory] = useState(selectedCategory)
-    const isDesktop = useMediaQuery("(min-width: 768px)")
+    const isBigScreen = useMediaQuery("(min-width: 768px)")
+    const isSmallMobile = useMediaQuery("(max-width: 413px)")
+    const isDesktop = isBigScreen || isSmallMobile
 
     useEffect(() => {
         if (selectedCategory) {
