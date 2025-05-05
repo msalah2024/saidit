@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { socialPlatforms } from "@/lib/social-platforms-data";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { User } from "@supabase/supabase-js";
 import { Check, Loader2, Search } from "lucide-react";
@@ -178,8 +179,9 @@ export default function ChangeSocialLinks({
             case 0:
                 return (
                     <div className="flex flex-col">
-
-                        <div className="overflow-y-scroll max-h-96">
+                        <ScrollArea
+                            className={`${isDesktop ? "max-h-96" : "h-72"} pr-4`}
+                        >
                             <div className="relative mb-4 m-1">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
@@ -232,8 +234,7 @@ export default function ChangeSocialLinks({
                                     );
                                 })}
                             </div>
-
-                        </div>
+                        </ScrollArea>
                         {isDesktop ? (
                             <div className="flex gap-4 justify-end mt-8">
                                 <DialogClose asChild>
@@ -270,7 +271,7 @@ export default function ChangeSocialLinks({
                 );
             case 1:
                 return (
-                    <div>
+                    <div >
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)}>
                                 <FormField
