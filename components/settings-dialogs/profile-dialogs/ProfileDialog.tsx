@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react'
 import {
     Dialog,
@@ -8,6 +7,14 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Tables } from '@/database.types'
 import { User } from '@supabase/supabase-js'
@@ -61,12 +68,13 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
         }
     }
 
+    if (isDesktop) {
         return (
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogTrigger></DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle className='text-xl'>{currentCategory.name}</DialogTitle>
+                        <DialogTitle>{currentCategory.name}</DialogTitle>
                         <DialogDescription>
                             {currentCategory.description}
                         </DialogDescription>
@@ -76,3 +84,22 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
             </Dialog>
         )
     }
+
+    return (
+        <Drawer open={open} onOpenChange={onOpenChange} dismissible={dismissible} shouldScaleBackground={shouldScaleBackground}>
+            <DrawerTrigger></DrawerTrigger>
+            <DrawerContent>
+                <DrawerHeader className="text-left">
+                    <DrawerTitle>{currentCategory.name}</DrawerTitle>
+                    <DrawerDescription>
+                        {currentCategory.description}
+                    </DrawerDescription>
+                </DrawerHeader>
+                <div className='px-4'>
+                    {renderSettingsForm()}
+                </div>
+            </DrawerContent>
+        </Drawer>
+
+    )
+}

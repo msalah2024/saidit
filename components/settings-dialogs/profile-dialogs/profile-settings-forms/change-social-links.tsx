@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { User } from "@supabase/supabase-js";
 import { Check, Loader2, Search } from "lucide-react";
 import { DialogClose } from "@/components/ui/dialog";
+import { DrawerClose } from "@/components/ui/drawer";
 import Image from "next/image";
 import { SocialPlatform } from "@/lib/social-platforms-data";
 import {
@@ -43,6 +44,7 @@ type SocialPlatformExtended = SocialPlatform & {
 
 export default function ChangeSocialLinks({
     user,
+    isDesktop,
     syncedPlatforms,
     fetchLinks
 }: ChangeSocialLinksProps) {
@@ -178,7 +180,7 @@ export default function ChangeSocialLinks({
                 return (
                     <div className="flex flex-col">
                         <ScrollArea
-                            className="max-h-96 pr-4"
+                            className={`${isDesktop ? "max-h-96" : "h-72"} pr-4`}
                         >
                             <div className="relative mb-4 m-1">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -233,21 +235,38 @@ export default function ChangeSocialLinks({
                                 })}
                             </div>
                         </ScrollArea>
-                        <div className="flex gap-4 justify-end mt-8">
-                            <DialogClose asChild>
-                                <Button type="button" variant="redditGray">
-                                    Cancel
-                                </Button>
-                            </DialogClose>
+                        {isDesktop ? (
+                            <div className="flex gap-4 justify-end mt-8">
+                                <DialogClose asChild>
+                                    <Button type="button" variant="redditGray">
+                                        Cancel
+                                    </Button>
+                                </DialogClose>
 
-                            <DialogClose asChild>
-                                <Button
-                                    className="rounded-full px-6"
-                                >
-                                    Save
-                                </Button>
-                            </DialogClose>
-                        </div>
+                                <DialogClose asChild>
+                                    <Button
+                                        className="rounded-full px-6"
+                                    >
+                                        Save
+                                    </Button>
+                                </DialogClose>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-2 justify-end my-4">
+                                <DialogClose asChild>
+                                    <Button
+                                        className="rounded-full p-6"
+                                    >
+                                        Save
+                                    </Button>
+                                </DialogClose>
+                                <DrawerClose asChild>
+                                    <Button type="button" className="p-6" variant="redditGray">
+                                        Cancel
+                                    </Button>
+                                </DrawerClose>
+                            </div>
+                        )}
                     </div>
                 );
             case 1:
@@ -274,46 +293,88 @@ export default function ChangeSocialLinks({
                                         </FormItem>
                                     )}
                                 />
-                                <div className={`flex ${showDeleteButton ? "justify-between" : "justify-end"} mt-8`}>
-                                    {
-                                        showDeleteButton &&
-                                        <div>
+                                {isDesktop ? (
+                                    <div className={`flex ${showDeleteButton ? "justify-between" : "justify-end"} mt-8`}>
+                                        {
+                                            showDeleteButton &&
+                                            <div>
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    disabled={isDeleting}
+                                                    className="rounded-full bg-[#ce2627] hover:bg-[#ce2627]/80"
+                                                    onClick={handleDelete}
+                                                >
+                                                    {isDeleting ? (
+                                                        <>
+                                                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                                                            Deleting...
+                                                        </>
+                                                    ) : (
+                                                        "Delete link"
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        }
+
+                                        <div className="flex gap-2">
                                             <Button
                                                 type="button"
-                                                variant="destructive"
-                                                disabled={isDeleting}
-                                                className="rounded-full bg-[#ce2627] hover:bg-[#ce2627]/80"
-                                                onClick={handleDelete}
+                                                variant="redditGray"
+                                                onClick={() => {
+                                                    setStep(0)
+                                                    form.clearErrors()
+                                                }}
                                             >
-                                                {isDeleting ? (
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                type="submit"
+                                                disabled={
+                                                    isSubmitting
+                                                }
+                                                className="rounded-full px-6"
+                                            >
+                                                {isSubmitting ? (
                                                     <>
                                                         <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                                                        Deleting...
+                                                        Saving...
                                                     </>
                                                 ) : (
-                                                    "Delete link"
+                                                    "Save"
                                                 )}
                                             </Button>
                                         </div>
-                                    }
-
-                                    <div className="flex gap-2">
-                                        <Button
-                                            type="button"
-                                            variant="redditGray"
-                                            onClick={() => {
-                                                setStep(0)
-                                                form.clearErrors()
-                                            }}
-                                        >
-                                            Cancel
-                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-2 justify-end my-4">
+                                        {
+                                            showDeleteButton &&
+                                            <div>
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    disabled={isDeleting}
+                                                    className="rounded-full w-full p-6 bg-[#ce2627] hover:bg-[#ce2627]/80"
+                                                    onClick={handleDelete}
+                                                >
+                                                    {isDeleting ? (
+                                                        <>
+                                                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                                                            Deleting...
+                                                        </>
+                                                    ) : (
+                                                        "Delete link"
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        }
                                         <Button
                                             type="submit"
                                             disabled={
                                                 isSubmitting
                                             }
-                                            className="rounded-full px-6"
+                                            className="rounded-full p-6"
                                         >
                                             {isSubmitting ? (
                                                 <>
@@ -324,9 +385,19 @@ export default function ChangeSocialLinks({
                                                 "Save"
                                             )}
                                         </Button>
+                                        <Button
+                                            type="button"
+                                            variant="redditGray"
+                                            className="p-6"
+                                            onClick={() => {
+                                                setStep(0)
+                                                form.clearErrors()
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
                                     </div>
-                                </div>
-
+                                )}
                             </form>
                         </Form>
                     </div>
