@@ -180,8 +180,9 @@ export default function ChangeSocialLinks({
                 return (
                     <div className="flex flex-col">
                         <ScrollArea
-                            className={`${isDesktop ? "max-h-96" : "h-72"
-                                } pr-4`}
+                            // className={`${isDesktop ? "max-h-96" : "h-72"
+                            //     } pr-4`}
+                            className="h-72"
                         >
                             <div className="relative mb-4 m-1">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
