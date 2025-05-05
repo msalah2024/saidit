@@ -272,7 +272,7 @@ export default function ChangeSocialLinks({
                 );
             case 1:
                 return (
-                    <div>
+                    <div className="h-fit">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)}>
                                 <FormField
