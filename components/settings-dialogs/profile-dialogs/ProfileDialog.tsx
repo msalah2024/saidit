@@ -88,7 +88,7 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
     return (
         <Drawer open={open} onOpenChange={onOpenChange} dismissible={dismissible} shouldScaleBackground={shouldScaleBackground}>
             <DrawerTrigger></DrawerTrigger>
-            <DrawerContent className='max-h-dvh'>
+            <DrawerContent className='max-h-[100vh]'>
                 <DrawerHeader className="text-left">
                     <DrawerTitle>{currentCategory.name}</DrawerTitle>
                     <DrawerDescription>
