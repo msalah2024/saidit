@@ -16,7 +16,7 @@ export default function UserNameStep({ form }: UserNameStepProps) {
             render={({ field }) => (
                 <FormItem>
                     <FormControl>
-                        <Input placeholder="Username" autoComplete='username' type='text' {...field} className='p-6' />
+                        <Input placeholder="Username" type='text' {...field} className='p-6' />
                     </FormControl>
                     <FormDescription className='ml-2'>This will be your public name on Saidit</FormDescription>
                     <FormMessage className='ml-2' />

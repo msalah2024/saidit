@@ -109,7 +109,11 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogTrigger></DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px]"
+                onOpenAutoFocus={(e) => {
+                    e.preventDefault()
+                }}
+            >
                 <DialogHeader>
                     <DialogTitle className='text-xl'>{currentCategory.name}</DialogTitle>
                     <DialogDescription>

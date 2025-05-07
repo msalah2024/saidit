@@ -33,7 +33,7 @@ export default function ChangeDisplayName({ isDesktop, profile, onOpenChange }: 
         resolver: zodResolver(DisplayNameSchema),
         defaultValues: {
             displayName: profile?.display_name || "",
-        },
+        },  
     })
 
     async function onSubmit(values: z.infer<typeof DisplayNameSchema>) {

@@ -29,8 +29,8 @@ export default function GenderStep({ form }: GenderStepProps) {
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            <SelectItem value="male" className='p-2'>male</SelectItem>
-                            <SelectItem value="female" className='p-2'>female</SelectItem>
+                            <SelectItem value="male" className='p-2'>Male</SelectItem>
+                            <SelectItem value="female" className='p-2'>Female</SelectItem>
                         </SelectContent>
                     </Select>
                     <FormMessage className='ml-2' />

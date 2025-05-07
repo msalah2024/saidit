@@ -46,8 +46,8 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
             case "About description":
                 return <ChangeDescription isDesktop={isDesktop} profile={profile} onOpenChange={onOpenChange} />
             case "Avatar":
-                return <ChangeAvatar isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange}/>
-            case "Banner": return <ChangeBanner isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange}/>
+                return <ChangeAvatar isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange} />
+            case "Banner": return <ChangeBanner isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange} />
             case "Social links":
                 return <ChangeSocialLinks isDesktop={isDesktop} user={user}
                     fetchLinks={fetchLinks} syncedPlatforms={syncedPlatforms}
@@ -55,18 +55,22 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
         }
     }
 
-        return (
-            <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogTrigger></DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>{currentCategory.name}</DialogTitle>
-                        <DialogDescription>
-                            {currentCategory.description}
-                        </DialogDescription>
-                    </DialogHeader>
-                    {renderSettingsForm()}
-                </DialogContent>
-            </Dialog>
-        )
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogTrigger></DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]"
+                onOpenAutoFocus={(e) => {
+                    e.preventDefault()
+                }}
+            >
+                <DialogHeader>
+                    <DialogTitle>{currentCategory.name}</DialogTitle>
+                    <DialogDescription>
+                        {currentCategory.description}
+                    </DialogDescription>
+                </DialogHeader>
+                {renderSettingsForm()}
+            </DialogContent>
+        </Dialog>
+    )
 }
