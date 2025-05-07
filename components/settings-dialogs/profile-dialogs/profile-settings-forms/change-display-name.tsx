@@ -15,7 +15,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { DialogClose } from '@/components/ui/dialog'
 import { Loader2 } from 'lucide-react'
-import { DrawerClose } from '@/components/ui/drawer'
 import { Tables } from '@/database.types'
 import { updateDisplayName } from '@/app/actions'
 import { useRouter } from 'next/navigation'
@@ -73,7 +72,7 @@ export default function ChangeDisplayName({ isDesktop, profile, onOpenChange }: 
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                 <FormField
                     control={form.control}
                     name="displayName"
@@ -108,11 +107,11 @@ export default function ChangeDisplayName({ isDesktop, profile, onOpenChange }: 
                                 <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full p-6'>{isSubmitting ? <>
                                     <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
                                 </> : 'Save'}</Button>
-                                <DrawerClose asChild>
+                                <DialogClose asChild>
                                     <Button type="button" variant="redditGray" className='p-6'>
                                         Cancel
                                     </Button>
-                                </DrawerClose>
+                                </DialogClose>
                             </div>
                         )
                 }

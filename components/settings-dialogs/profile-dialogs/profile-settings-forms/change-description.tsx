@@ -15,7 +15,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { DescriptionSchema } from '@/schema'
 import { DialogClose } from '@/components/ui/dialog'
 import { Loader2 } from 'lucide-react'
-import { DrawerClose } from '@/components/ui/drawer'
 import { Tables } from '@/database.types'
 import { updateDescription } from '@/app/actions'
 import { useRouter } from 'next/navigation'
@@ -73,7 +72,7 @@ export default function ChangeDescription({ isDesktop, profile, onOpenChange }: 
 
     return (
         <div><Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-3'>
                 <FormField
                     control={form.control}
                     name="description"
@@ -112,11 +111,11 @@ export default function ChangeDescription({ isDesktop, profile, onOpenChange }: 
                                 <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full p-6'>{isSubmitting ? <>
                                     <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
                                 </> : 'Save'}</Button>
-                                <DrawerClose asChild>
+                                <DialogClose asChild>
                                     <Button type="button" variant="redditGray" className='p-6'>
                                         Cancel
                                     </Button>
-                                </DrawerClose>
+                                </DialogClose>
                             </div>
                         )
                 }

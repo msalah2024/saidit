@@ -1,5 +1,5 @@
 "use client"
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import {
     Avatar,
     AvatarFallback,
@@ -22,11 +22,9 @@ interface ChangeAvatarProps {
     profile: Tables<'users'> | null
     user: User | null
     onOpenChange: (open: boolean) => void
-    setDismissible: React.Dispatch<React.SetStateAction<boolean>>
-    setShouldScaleBackground: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function ChangeAvatar({ isDesktop, profile, user, onOpenChange, setDismissible, setShouldScaleBackground }: ChangeAvatarProps) {
+export default function ChangeAvatar({ isDesktop, profile, user, onOpenChange}: ChangeAvatarProps) {
     const router = useRouter()
     const supabase = createClient()
     const [avatar, setAvatar] = useState<string | null>(null)
@@ -44,7 +42,6 @@ export default function ChangeAvatar({ isDesktop, profile, user, onOpenChange, s
     const [isGif, setIsGif] = useState(false)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const copperDivRef = useRef<HTMLDivElement>(null)
 
     const totalSteps = 3;
     const stepArray = Array.from({ length: totalSteps }, (_, i) => i);
@@ -136,7 +133,6 @@ export default function ChangeAvatar({ isDesktop, profile, user, onOpenChange, s
         }
     }
 
-
     const goToNextStep = () => {
         setStep((prev) => Math.min(prev + 1, 2))
     }
@@ -227,48 +223,6 @@ export default function ChangeAvatar({ isDesktop, profile, user, onOpenChange, s
         }
     }
 
-    useEffect(() => {
-        const handleStart = (e: Event) => {
-            if (!copperDivRef.current) { return }
-            if (copperDivRef.current.contains(e.target as Node)) {
-                setDismissible(false)
-                setShouldScaleBackground(false)
-            }
-            else {
-                setDismissible(true)
-                setShouldScaleBackground(true)
-            }
-        }
-
-        const handleEnd = (e: Event) => {
-            if (!copperDivRef.current) { return }
-            if (!copperDivRef.current.contains(e.target as Node)) {
-                setDismissible(true)
-                setShouldScaleBackground(true)
-            }
-        }
-
-        window.addEventListener("touchstart", handleStart);
-        window.addEventListener("touchend", handleEnd);
-        window.addEventListener("mousedown", handleStart);
-        window.addEventListener("mouseup", handleEnd);
-
-        return () => {
-            window.removeEventListener("touchstart", handleStart);
-            window.removeEventListener("touchend", handleEnd)
-            window.removeEventListener("mousedown", handleStart);
-            window.removeEventListener("mouseup", handleEnd);
-        }
-
-    }, [setDismissible, setShouldScaleBackground])
-
-    useEffect(() => {
-        if (step === 1) {
-            setDismissible(false)
-            setShouldScaleBackground(false)
-        }
-    }, [step, setDismissible, setShouldScaleBackground])
-
     const renderStepContent = () => {
         switch (step) {
             case 0:
@@ -291,7 +245,7 @@ export default function ChangeAvatar({ isDesktop, profile, user, onOpenChange, s
                 )
             case 1:
                 return (
-                    <div className={`w-full ${isDesktop ? "space-y-6" : "space-y-4"}`} ref={copperDivRef}>
+                    <div className={`w-full ${isDesktop ? "space-y-6" : "space-y-4"}`}>
                         <div className="relative h-[300px] w-full">
                             {originalImage && (
                                 <Cropper

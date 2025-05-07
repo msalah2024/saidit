@@ -7,14 +7,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-    Drawer,
-    DrawerContent,
-    DrawerDescription,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger,
-} from "@/components/fixed-drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Tables } from '@/database.types'
 import { accountSettingsCategories } from '@/lib/settings-data'
@@ -114,38 +106,18 @@ export default function AccountDialog({ profile, user, open, onOpenChange,
         }
     }
 
-    if (isDesktop) {
-        return (
-            <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogTrigger></DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle className='text-xl'>{currentCategory.name}</DialogTitle>
-                        <DialogDescription>
-                            {currentCategory.description}
-                        </DialogDescription>
-                    </DialogHeader>
-                    {renderSettingsForm()}
-                </DialogContent>
-            </Dialog>
-        )
-    }
-
     return (
-        <Drawer open={open} onOpenChange={onOpenChange}>
-            <DrawerTrigger></DrawerTrigger>
-            <DrawerContent>
-                <DrawerHeader className="text-left">
-                    <DrawerTitle className='text-xl'>{currentCategory.name}</DrawerTitle>
-                    <DrawerDescription>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogTrigger></DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle className='text-xl'>{currentCategory.name}</DialogTitle>
+                    <DialogDescription>
                         {currentCategory.description}
-                    </DrawerDescription>
-                </DrawerHeader>
-                <div className='px-4'>
-                    {renderSettingsForm()}
-                </div>
-            </DrawerContent>
-        </Drawer>
-
+                    </DialogDescription>
+                </DialogHeader>
+                {renderSettingsForm()}
+            </DialogContent>
+        </Dialog>
     )
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { Tables } from '@/database.types'
 import { toast } from "sonner"
 import { Input } from '@/components/ui/input'
@@ -15,11 +15,9 @@ interface ChangeBannerProps {
     profile: Tables<'users'> | null
     user: User | null
     onOpenChange: (open: boolean) => void
-    setDismissible: React.Dispatch<React.SetStateAction<boolean>>
-    setShouldScaleBackground: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function ChangeBanner({ isDesktop, profile, user, onOpenChange, setDismissible, setShouldScaleBackground }: ChangeBannerProps) {
+export default function ChangeBanner({ isDesktop, profile, user, onOpenChange }: ChangeBannerProps) {
     const supabase = createClient()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [dragCounter, setDragCounter] = useState(0)
@@ -33,7 +31,6 @@ export default function ChangeBanner({ isDesktop, profile, user, onOpenChange, s
     const [isGif, setIsGif] = useState(false)
     const [step, setStep] = useState(0)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
-    const copperDivRef = useRef<HTMLDivElement>(null)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -151,48 +148,6 @@ export default function ChangeBanner({ isDesktop, profile, user, onOpenChange, s
         setStep((prev) => Math.max(prev - 1, 0))
     }
 
-    useEffect(() => {
-        const handleStart = (e: Event) => {
-            if (!copperDivRef.current) { return }
-            if (copperDivRef.current.contains(e.target as Node)) {
-                setDismissible(false)
-                setShouldScaleBackground(false)
-            }
-            else {
-                setDismissible(true)
-                setShouldScaleBackground(true)
-            }
-        }
-
-        const handleEnd = (e: Event) => {
-            if (!copperDivRef.current) { return }
-            if (!copperDivRef.current.contains(e.target as Node)) {
-                setDismissible(true)
-                setShouldScaleBackground(true)
-            }
-        }
-
-        window.addEventListener("touchstart", handleStart);
-        window.addEventListener("touchend", handleEnd);
-        window.addEventListener("mousedown", handleStart);
-        window.addEventListener("mouseup", handleEnd);
-
-        return () => {
-            window.removeEventListener("touchstart", handleStart);
-            window.removeEventListener("touchend", handleEnd)
-            window.removeEventListener("mousedown", handleStart);
-            window.removeEventListener("mouseup", handleEnd);
-        }
-
-    }, [setDismissible, setShouldScaleBackground])
-
-    useEffect(() => {
-        if (step === 1) {
-            setDismissible(false)
-            setShouldScaleBackground(false)
-        }
-    }, [step, setDismissible, setShouldScaleBackground])
-
     const handleFileUpload = async () => {
         if (!banner) { return }
 
@@ -282,7 +237,7 @@ export default function ChangeBanner({ isDesktop, profile, user, onOpenChange, s
                 )
 
             case 1: return (
-                <div className="w-full space-y-6" ref={copperDivRef}>
+                <div className="w-full space-y-6">
                     <div className="relative h-[300px] w-full">
                         {originalImage && (
                             <Cropper

@@ -9,7 +9,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from "@/components/ui/button"
 import { Loader2 } from 'lucide-react'
 import { DialogClose } from '@/components/ui/dialog'
-import { DrawerClose } from '@/components/ui/drawer'
 import { toast } from 'sonner'
 
 interface CreatePasswordProps {
@@ -80,11 +79,11 @@ export default function CreatePassword({ user, setCurrentCategory, isDesktop }: 
                             <Button disabled={isSubmitting} onClick={onSubmit} className='rounded-full p-6'>{isSubmitting ? <>
                                 <Loader2 className="mr-1 h-4 w-4 animate-spin" />Continue...
                             </> : 'Continue'}</Button>
-                            <DrawerClose asChild>
+                            <DialogClose asChild>
                                 <Button type="button" variant="redditGray" className='p-6'>
                                     Cancel
                                 </Button>
-                            </DrawerClose>
+                            </DialogClose>
                         </div>
                     )
             }

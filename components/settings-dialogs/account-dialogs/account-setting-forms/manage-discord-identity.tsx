@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { DialogClose } from '@/components/ui/dialog'
 import { Loader2 } from 'lucide-react'
-import { DrawerClose } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 import { User } from '@supabase/supabase-js'
 import Image from 'next/image'
@@ -120,11 +119,11 @@ export default function ManageDiscordIdentity({ discordIdentity, isDesktop, user
                     <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full p-6'>{isSubmitting ? <>
                       <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
                     </> : 'Save'}</Button>
-                    <DrawerClose asChild>
+                    <DialogClose asChild>
                       <Button type="button" variant="redditGray" className='p-6'>
                         Cancel
                       </Button>
-                    </DrawerClose>
+                    </DialogClose>
                   </div>
                 )
             }
@@ -167,11 +166,11 @@ export default function ManageDiscordIdentity({ discordIdentity, isDesktop, user
                   <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full p-6'>{isSubmitting ? <>
                     <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
                   </> : 'Save'}</Button>
-                  <DrawerClose asChild>
+                  <DialogClose asChild>
                     <Button type="button" variant="redditGray" className='p-6'>
                       Cancel
                     </Button>
-                  </DrawerClose>
+                  </DialogClose>
                 </div>
               )
           }

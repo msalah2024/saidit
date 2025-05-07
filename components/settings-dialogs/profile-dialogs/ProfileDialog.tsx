@@ -7,14 +7,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-    Drawer,
-    DrawerContent,
-    DrawerDescription,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger,
-} from "@/components/fixed-drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Tables } from '@/database.types'
 import { User } from '@supabase/supabase-js'
@@ -39,8 +31,6 @@ interface ProfileDialogProps {
 export default function ProfileDialog({ profile, user, open, onOpenChange, selectedCategory, syncedPlatforms, fetchLinks }: ProfileDialogProps) {
 
     const [currentCategory, setCurrentCategory] = useState(selectedCategory)
-    const [dismissible, setDismissible] = useState(true)
-    const [shouldScaleBackground, setShouldScaleBackground] = useState(true)
     const isDesktop = useMediaQuery("(min-width: 768px)")
 
     useEffect(() => {
@@ -56,11 +46,8 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
             case "About description":
                 return <ChangeDescription isDesktop={isDesktop} profile={profile} onOpenChange={onOpenChange} />
             case "Avatar":
-                return <ChangeAvatar isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange}
-                    setDismissible={setDismissible} setShouldScaleBackground={setShouldScaleBackground} />
-            case "Banner": return <ChangeBanner isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange}
-                setDismissible={setDismissible} setShouldScaleBackground={setShouldScaleBackground}
-            />
+                return <ChangeAvatar isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange}/>
+            case "Banner": return <ChangeBanner isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange}/>
             case "Social links":
                 return <ChangeSocialLinks isDesktop={isDesktop} user={user}
                     fetchLinks={fetchLinks} syncedPlatforms={syncedPlatforms}
@@ -68,7 +55,6 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
         }
     }
 
-    if (isDesktop) {
         return (
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogTrigger></DialogTrigger>
@@ -83,23 +69,4 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
                 </DialogContent>
             </Dialog>
         )
-    }
-
-    return (
-        <Drawer open={open} onOpenChange={onOpenChange} dismissible={dismissible} shouldScaleBackground={shouldScaleBackground}>
-            <DrawerTrigger></DrawerTrigger>
-            <DrawerContent>
-                <DrawerHeader className="text-left">
-                    <DrawerTitle className='text-xl'>{currentCategory.name}</DrawerTitle>
-                    <DrawerDescription>
-                        {currentCategory.description}
-                    </DrawerDescription>
-                </DrawerHeader>
-                <div className='px-4'>
-                    {renderSettingsForm()}
-                </div>
-            </DrawerContent>
-        </Drawer>
-
-    )
 }

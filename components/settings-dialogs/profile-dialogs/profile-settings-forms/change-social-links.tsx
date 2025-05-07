@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import type { User } from "@supabase/supabase-js"
 import { Check, Loader2, Search } from "lucide-react"
 import { DialogClose } from "@/components/ui/dialog"
-import { DrawerClose } from "@/components/ui/drawer"
 import Image from "next/image"
 import type { SocialPlatform } from "@/lib/social-platforms-data"
 import { upsertSocialLink, deleteSocialLink } from "@/app/actions"
@@ -155,7 +154,7 @@ export default function ChangeSocialLinks({ user, isDesktop, syncedPlatforms, fe
             case 0:
                 return (
                     <div className="flex flex-col justify-between h-full gap-4">
-                        <ScrollArea className={`${isDesktop ? "h-96" : 'h-80'} pr-4`}>
+                        <ScrollArea className= "h-96 pr-4">
                             <div className="relative mb-4 m-1">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
@@ -216,11 +215,11 @@ export default function ChangeSocialLinks({ user, isDesktop, syncedPlatforms, fe
                                 <DialogClose asChild>
                                     <Button className="rounded-full p-6">Save</Button>
                                 </DialogClose>
-                                <DrawerClose asChild>
+                                <DialogClose asChild>
                                     <Button type="button" className="p-6" variant="redditGray">
                                         Cancel
                                     </Button>
-                                </DrawerClose>
+                                </DialogClose>
                             </div>
                         )}
                     </div>
@@ -229,7 +228,7 @@ export default function ChangeSocialLinks({ user, isDesktop, syncedPlatforms, fe
                 return (
                     <div>
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                                 <FormField
                                     control={form.control}
                                     name="text"

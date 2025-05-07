@@ -18,7 +18,6 @@ import { User } from '@supabase/supabase-js'
 import { updateEmail } from '@/app/actions'
 import { Loader2 } from 'lucide-react'
 import { accountSettingsCategories } from '@/lib/settings-data'
-import { DrawerClose } from '@/components/ui/drawer'
 
 interface ChangeEmailProps {
     user: User | null
@@ -135,11 +134,11 @@ export default function ChangeEmail({ user, setCurrentCategory, isDesktop }: Cha
                                     <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className='rounded-full p-6'>{isSubmitting ? <>
                                         <Loader2 className="mr-1 h-4 w-4 animate-spin" />Saving...
                                     </> : 'Save'}</Button>
-                                    <DrawerClose asChild>
+                                    <DialogClose asChild>
                                         <Button type="button" variant="redditGray" className='p-6'>
                                             Cancel
                                         </Button>
-                                    </DrawerClose>
+                                    </DialogClose>
                                 </div>
                             )
                     }
