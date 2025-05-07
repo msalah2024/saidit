@@ -88,9 +88,9 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
     return (
         <Drawer open={open} onOpenChange={onOpenChange} dismissible={dismissible} shouldScaleBackground={shouldScaleBackground}>
             <DrawerTrigger></DrawerTrigger>
-            <DrawerContent>
+            <DrawerContent className="min-h-fit">
                 <DrawerHeader className="text-left">
-                    <DrawerTitle>{currentCategory.name}</DrawerTitle>
+                    <DrawerTitle className='text-xl'>{currentCategory.name}</DrawerTitle>
                     <DrawerDescription>
                         {currentCategory.description}
                     </DrawerDescription>
