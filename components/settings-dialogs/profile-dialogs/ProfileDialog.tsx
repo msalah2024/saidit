@@ -14,7 +14,7 @@ import {
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger,
-} from "@/components/ui/drawer"
+} from "@/components/fixed-drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Tables } from '@/database.types'
 import { User } from '@supabase/supabase-js'
@@ -88,7 +88,7 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
     return (
         <Drawer open={open} onOpenChange={onOpenChange} dismissible={dismissible} shouldScaleBackground={shouldScaleBackground}>
             <DrawerTrigger></DrawerTrigger>
-            <DrawerContent className="min-h-fit">
+            <DrawerContent>
                 <DrawerHeader className="text-left">
                     <DrawerTitle className='text-xl'>{currentCategory.name}</DrawerTitle>
                     <DrawerDescription>

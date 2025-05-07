@@ -134,7 +134,7 @@ export default function ProfileRightSide() {
                                             <Button key={link.id}
                                                 variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
                                                 onClick={() => {
-                                                    router.push(link.link)
+                                                    window.open(link.link, '_blank')
                                                 }}
                                             >
                                                 {
