@@ -52,7 +52,7 @@
 -   [x] Implement sign-up, login, and logout.
 -   [x] Add social login (Google, GitHub, etc.).
 -   [x] Create user profile pages.
--   [ ] Allow users to edit their profiles (bio, avatar, banner).
+-   [x] Allow users to edit their profiles (bio, avatar, banner).
 
 ## Communities
 
