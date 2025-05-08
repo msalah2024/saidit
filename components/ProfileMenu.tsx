@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,6 +11,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, Settings, UserPen } from 'lucide-react'
 import { SignOut } from '@/app/actions'
 import { useRouter } from 'next/navigation'
+import { useMediaQuery } from '@/hooks/use-media-query'
+import {
+    Drawer,
+    DrawerContent,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer"
+
 
 type Profile = {
     username: string
@@ -19,35 +28,93 @@ type Profile = {
 
 export default function ProfileMenu({ profile }: { profile: Profile | null }) {
     const router = useRouter()
+    const isDesktop = useMediaQuery("(min-width: 768px)")
+    const [open, setOpen] = useState(false)
+
+    if (isDesktop) {
+        return (
+            <DropdownMenu>
+                <DropdownMenuTrigger className='hover:bg-muted p-2 rounded-full mr-2 select-none'>
+                    <Avatar>
+                        <AvatarImage src={profile?.avatar_url || undefined} className='rounded-full aspect-square' draggable={false} />
+                        <AvatarFallback>
+                            {profile?.username.slice(0, 2).toUpperCase() || "SI"}
+                        </AvatarFallback>
+                    </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className='mr-2 mt-2'>
+                    <DropdownMenuItem onClick={() => router.push(`/u/${profile?.username}`)} className='py-4 focus:bg-reddit-gray/25 w-full mr-10'>
+                        <Avatar className='size-10'>
+                            <AvatarImage src={profile?.avatar_url || undefined} className='rounded-full' draggable={false} />
+                            <AvatarFallback>SI</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <p>View Profile</p>
+                            <small className="text-sm text-muted-foreground font-medium leading-none">u/{profile?.username}</small>
+                        </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push('/protected/settings/profile')} className='py-2 focus:bg-reddit-gray/25 mr-10 w-full'><UserPen className='text-foreground' /> Edit Avatar</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push('/protected/settings/account')} className='py-2 focus:bg-reddit-gray/25 mr-10 w-full'>
+                        <Settings className='text-foreground' /> Settings</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className='py-2 focus:bg-reddit-gray/25 mr-10 w-full' onClick={SignOut}>
+                        <LogOut className='text-foreground' />Log Out</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        )
+    }
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger className='hover:bg-muted p-2 rounded-full mr-2 select-none'>
+        <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerTrigger className='hover:bg-muted p-2 rounded-full mr-2 select-none'>
                 <Avatar>
                     <AvatarImage src={profile?.avatar_url || undefined} className='rounded-full aspect-square' draggable={false} />
                     <AvatarFallback>
                         {profile?.username.slice(0, 2).toUpperCase() || "SI"}
                     </AvatarFallback>
                 </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className='mr-2 mt-2'>
-                <DropdownMenuItem onClick={() => router.push(`/u/${profile?.username}`)} className='py-4 focus:bg-reddit-gray/25 w-full mr-10'>
-                    <Avatar className='size-10'>
-                        <AvatarImage src={profile?.avatar_url || undefined} className='rounded-full' draggable={false} />
-                        <AvatarFallback>SI</AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <p>View Profile</p>
-                        <small className="text-sm text-muted-foreground font-medium leading-none">u/{profile?.username}</small>
+            </DrawerTrigger>
+            <DrawerContent >
+                <DrawerHeader>
+                    <DrawerTitle>
+                        <div className='flex gap-2 w-full mt-2 mb-1' onClick={() => {
+                            router.push(`/u/${profile?.username}`)
+                            setOpen(false)
+                        }}>
+                            <Avatar className='size-10'>
+                                <AvatarImage src={profile?.avatar_url || undefined} className='rounded-full' draggable={false} />
+                                <AvatarFallback>SI</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p>View Profile</p>
+                                <small className="text-sm text-muted-foreground font-medium leading-none">u/{profile?.username}</small>
+                            </div>
+                        </div>
+                    </DrawerTitle>
+                </DrawerHeader>
+                <div className='flex flex-col mb-4 gap-1'>
+                    <div onClick={() => {
+                        router.push('/protected/settings/profile')
+                        setOpen(false)
+                    }}
+                        className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
+                        <UserPen className='text-foreground' /> Edit Avatar
                     </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem className='py-2 focus:bg-reddit-gray/25 mr-10 w-full'><UserPen className='text-foreground' /> Edit Avatar</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push('/protected/settings/account')} className='py-2 focus:bg-reddit-gray/25 mr-10 w-full'>
-                    <Settings className='text-foreground' /> Settings</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className='py-2 focus:bg-reddit-gray/25 mr-10 w-full' onClick={SignOut}>
-                    <LogOut className='text-foreground' />Log Out</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                    <div onClick={() => {
+                        router.push('/protected/settings/account')
+                        setOpen(false)
+                    }}
+                        className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
+                        <Settings className='text-foreground' /> Settings
+                    </div>
+                    <div onClick={SignOut}
+                        className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
+                        <LogOut className='text-foreground' />Log Out
+                    </div>
+                </div>
+            </DrawerContent>
+        </Drawer>
+
     )
+
 }
