@@ -101,8 +101,8 @@ export default function ProfileMenu({ profile }: { profile: Profile | null }) {
                         <UserPen className='text-foreground' /> Edit Avatar
                     </div>
                     <div onClick={() => {
-                        router.push('/protected/settings/account')
                         setOpen(false)
+                        router.push('/protected/settings/account')
                     }}
                         className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
                         <Settings className='text-foreground' /> Settings

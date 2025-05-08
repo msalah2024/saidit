@@ -21,6 +21,7 @@ import { toast } from "sonner"
 
 interface ChangeSocialLinksProps {
     user: User | null
+    profile: Tables<'users'> | null
     isDesktop: boolean
     syncedPlatforms: Tables<"social_links">[] | undefined
     fetchLinks: () => Promise<void>
@@ -34,7 +35,7 @@ type SocialPlatformExtended = SocialPlatform & {
     synced?: boolean
 }
 
-export default function ChangeSocialLinks({ user, isDesktop, syncedPlatforms, fetchLinks }: ChangeSocialLinksProps) {
+export default function ChangeSocialLinks({ user, profile, isDesktop, syncedPlatforms, fetchLinks }: ChangeSocialLinksProps) {
     const [searchQuery, setSearchQuery] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
@@ -130,8 +131,8 @@ export default function ChangeSocialLinks({ user, isDesktop, syncedPlatforms, fe
                 })
                 return
             }
-
-            const result = await upsertSocialLink(selectedPlatform?.name, user?.id, fullUrl, username)
+            if (!profile) { return }
+            const result = await upsertSocialLink(selectedPlatform?.name, user?.id, fullUrl, username, profile?.username)
             if (result.success) {
                 await fetchLinks?.()
                 setStep(0)
@@ -154,7 +155,7 @@ export default function ChangeSocialLinks({ user, isDesktop, syncedPlatforms, fe
             case 0:
                 return (
                     <div className="flex flex-col justify-between h-full gap-4">
-                        <ScrollArea className= "h-96 pr-4">
+                        <ScrollArea className="h-96 pr-4">
                             <div className="relative mb-4 m-1">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input

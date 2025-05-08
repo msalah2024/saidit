@@ -1,7 +1,7 @@
 import React from 'react'
 import ProfileHeader from "@/components/ProfileHeader";
 import ProfileRightSide from "@/components/ProfileRightSide";
-import { fetchProfile, getSocialLinks } from '@/app/actions'
+import { fetchProfile, getSocialLinksByUserName } from '@/app/actions'
 import UserNotFound from "@/components/UserNotFound";
 import { ProfileProvider } from "@/app/context/ProfileContext";
 import { createClient } from "@/utils/supabase/server";
@@ -16,9 +16,9 @@ export default async function Layout({ children, params }: any) {
     const userResult = await supabase.auth.getUser();
     const user = userResult.data.user;
 
-    const socialLinks = (await getSocialLinks(user?.id || "")).data;
-
     const profile = await profilePromise;
+
+    const socialLinks = (await getSocialLinksByUserName(profile.data.username)).data;
 
     if (!profile.success) {
         return <UserNotFound />
@@ -26,7 +26,7 @@ export default async function Layout({ children, params }: any) {
 
     return (
         <ProfileProvider profile={profile.data} currentUser={user} socialLinks={socialLinks}>
-            <div className="flex gap-x-4 mx-4 sm:mx-8">
+            <div className="flex gap-x-4 lg:mx-8">
                 <div className="w-full">
                     <ProfileHeader />
                     {children}

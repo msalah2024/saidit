@@ -19,7 +19,7 @@ import { socialPlatforms } from '@/lib/social-platforms-data';
 import Image from 'next/image';
 
 export default function ProfileRightSide() {
-    const { profile, isOwner, socialLinks } = useProfile();
+    const { profile, isOwner, socialLinks = [] } = useProfile();
     const router = useRouter()
 
     return (
@@ -120,12 +120,12 @@ export default function ProfileRightSide() {
                     )
                 }
                 {
-                    isOwner && (
+                    (socialLinks && socialLinks.length > 0) && (
                         <div className='space-y-2 border-b py-2'>
                             <small className="text-sm font-medium text-muted-foreground leading-none">LINKS</small>
                             <div className='flex flex-wrap gap-2 mt-4'>
                                 {
-                                    socialLinks?.map((link) => {
+                                    socialLinks.map((link) => {
                                         const platform = socialPlatforms.find(
                                             (sp) => sp.name.toLowerCase() === link.social_name.toLowerCase()
                                         );
@@ -137,32 +137,48 @@ export default function ProfileRightSide() {
                                                     window.open(link.link, '_blank')
                                                 }}
                                             >
-                                                {
-                                                    icon &&
+                                                {icon && (
                                                     <Image
                                                         src={icon}
                                                         alt={link.social_name + " icon"}
                                                         width={20}
                                                         height={20}
                                                     />
-                                                }
+                                                )}
                                                 {link.username}
                                             </Button>
                                         )
                                     })
                                 }
-                                <Button variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
-                                    onClick={() => {
-                                        router.push('/protected/settings/profile')
-                                    }}
-                                >
-                                    <Plus />
-                                    Add social link
-                                </Button>
+                                {isOwner && (
+                                    <Button variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
+                                        onClick={() => {
+                                            router.push('/protected/settings/profile')
+                                        }}
+                                    >
+                                        <Plus />
+                                        Add social link
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     )
                 }
+                {isOwner && (!socialLinks || socialLinks.length === 0) && (
+                    <div className='space-y-2 border-b py-2'>
+                        <small className="text-sm font-medium text-muted-foreground leading-none">LINKS</small>
+                        <div className='flex flex-wrap gap-2 mt-4'>
+                            <Button variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
+                                onClick={() => {
+                                    router.push('/protected/settings/profile')
+                                }}
+                            >
+                                <Plus />
+                                Add social link
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

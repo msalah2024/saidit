@@ -758,7 +758,7 @@ export async function updateDescription(formData: z.infer<typeof DescriptionSche
 
 }
 
-export async function upsertSocialLink(name: string, userID: string, url: string, username: string) {
+export async function upsertSocialLink(name: string, userID: string, url: string, username: string, account_username: string) {
   const supabase = await createClient()
 
   try {
@@ -766,7 +766,8 @@ export async function upsertSocialLink(name: string, userID: string, url: string
       social_name: name,
       link: url,
       account_id: userID,
-      username: username
+      username: username,
+      account_username: account_username
     }).eq('account_id', userID)
 
     if (error) {
@@ -796,6 +797,34 @@ export async function getSocialLinks(userID: string) {
 
   try {
     const { data: socialLinks, error } = await supabase.from('social_links').select().eq('account_id', userID)
+
+    if (error) {
+      console.error("Fetch links error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Fetch links successful",
+        data: socialLinks
+      }
+    }
+
+  } catch (error) {
+    console.error("Fetch links error", error)
+    return {
+      success: false,
+      message: "Fetch links error"
+    }
+  }
+}
+
+export async function getSocialLinksByUserName(username: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data: socialLinks, error } = await supabase.from('social_links').select().eq('account_username', username)
 
     if (error) {
       console.error("Fetch links error", error.message)

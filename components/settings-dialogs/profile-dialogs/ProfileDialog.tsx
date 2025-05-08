@@ -49,7 +49,7 @@ export default function ProfileDialog({ profile, user, open, onOpenChange, selec
                 return <ChangeAvatar isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange} />
             case "Banner": return <ChangeBanner isDesktop={isDesktop} profile={profile} user={user} onOpenChange={onOpenChange} />
             case "Social links":
-                return <ChangeSocialLinks isDesktop={isDesktop} user={user}
+                return <ChangeSocialLinks isDesktop={isDesktop} user={user} profile={profile}
                     fetchLinks={fetchLinks} syncedPlatforms={syncedPlatforms}
                 />
         }

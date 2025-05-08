@@ -12,6 +12,7 @@ export type Database = {
       social_links: {
         Row: {
           account_id: string
+          account_username: string
           created_at: string
           id: string
           link: string
@@ -21,6 +22,7 @@ export type Database = {
         }
         Insert: {
           account_id: string
+          account_username: string
           created_at?: string
           id?: string
           link: string
@@ -30,6 +32,7 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          account_username?: string
           created_at?: string
           id?: string
           link?: string
@@ -44,6 +47,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["account_id"]
+          },
+          {
+            foreignKeyName: "social_links_account_username_fkey"
+            columns: ["account_username"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["username"]
           },
         ]
       }
