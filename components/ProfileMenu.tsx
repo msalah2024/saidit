@@ -10,7 +10,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, Settings, UserPen } from 'lucide-react'
 import { SignOut } from '@/app/actions'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import {
     Drawer,

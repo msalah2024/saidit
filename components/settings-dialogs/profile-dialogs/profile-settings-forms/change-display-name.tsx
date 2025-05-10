@@ -17,7 +17,7 @@ import { DialogClose } from '@/components/ui/dialog'
 import { Loader2 } from 'lucide-react'
 import { Tables } from '@/database.types'
 import { updateDisplayName } from '@/app/actions'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 
 interface ChangeDisplayNameProps {
     isDesktop: boolean

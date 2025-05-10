@@ -14,7 +14,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import { socialPlatforms } from '@/lib/social-platforms-data';
 import Image from 'next/image';
 import { toast } from "sonner"

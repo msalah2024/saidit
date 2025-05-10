@@ -5,7 +5,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner"
 import { createClient } from '@/utils/supabase/server'
-import TopProgressBar from "@/components/navigation-progress";
+import NextTopLoader from 'nextjs-toploader';
 
 const robotoSlap = Roboto_Slab({
   variable: "--font-roboto-slab",
@@ -42,7 +42,11 @@ export default async function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <head />
         <body className={`${robotoSlap.className} ${robotoSlapLocal.className} ${inter.className}`} suppressHydrationWarning>
-          <TopProgressBar />
+          <NextTopLoader
+            color="#5BAE4A"
+            showSpinner={false}
+            easing="ease"
+          />
           <Navbar user={user} profile={profile} />
           {children}
           <Toaster position="top-center" />

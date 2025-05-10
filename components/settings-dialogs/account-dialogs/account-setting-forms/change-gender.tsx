@@ -18,7 +18,7 @@ import {
 import { DialogClose } from '@/components/ui/dialog'
 import { Loader2 } from 'lucide-react'
 import { updateGender } from '@/app/actions'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 
 interface ChangeGenderProps {
     profile: Tables<'users'> | null

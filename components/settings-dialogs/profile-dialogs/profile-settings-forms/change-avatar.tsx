@@ -8,7 +8,7 @@ import {
 import { ArrowLeft, Check, CloudUpload, Loader2, RotateCw, ZoomIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tables } from '@/database.types'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import { Input } from '@/components/ui/input'
 import { Slider } from "@/components/ui/slider"
 import Cropper from "react-easy-crop"
