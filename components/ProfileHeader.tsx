@@ -1,32 +1,107 @@
 "use client"
 import { useProfile } from "@/app/context/ProfileContext"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "./ui/button"
-import { Camera, Forward, Plus } from "lucide-react"
-import { useState } from "react"
+import { Camera, ChevronLeft, ChevronRight, Ellipsis, Forward, Mail, MessageCircleMore, Plus, UserX } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { socialPlatforms } from "@/lib/social-platforms-data"
+import { cn } from "@/lib/utils"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
+import {
+    Drawer,
+    DrawerContent,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer"
 
 export default function ProfileHeader() {
     const router = useRouter()
     const { profile, isOwner, socialLinks } = useProfile()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isCopied, setIsCopied] = useState(false)
+    const [activeTab, setActiveTab] = useState("overview")
+    const [showLeftScroll, setShowLeftScroll] = useState(false)
+    const [showRightScroll, setShowRightScroll] = useState(false)
+    const [open, setOpen] = useState(false)
+    const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-    const copyToClipboard = async () => {
-        try {
-            await navigator.clipboard.writeText(`https://www.saidit.app/u/${profile.username}`)
-            setIsCopied(true)
-            toast.success("Link copied!")
-            setTimeout(() => setIsCopied(false), 2000) 
-        } catch (err) {
-            console.error("Failed to copy: ", err)
+    const tabs = [
+        { id: "overview", label: "Overview" },
+        { id: "posts", label: "Posts" },
+        { id: "comments", label: "Comments" },
+        { id: "saved", label: "Saved", ownerOnly: true },
+        { id: "hidden", label: "Hidden", ownerOnly: true },
+        { id: "upvoted", label: "Upvoted", ownerOnly: true },
+        { id: "downvoted", label: "Downvoted", ownerOnly: true },]
+
+    const visibleTabs = tabs.filter((tab) => !tab.ownerOnly || isOwner)
+
+    const checkScroll = () => {
+        if (scrollContainerRef.current) {
+            const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
+            setShowLeftScroll(scrollLeft > 0)
+            setShowRightScroll(scrollLeft < scrollWidth - clientWidth - 1)
         }
     }
+
+    const scroll = (direction: "left" | "right") => {
+        if (scrollContainerRef.current) {
+            const scrollAmount = 200
+            const currentScroll = scrollContainerRef.current.scrollLeft
+            const newScroll = direction === "left" ? currentScroll - scrollAmount : currentScroll + scrollAmount
+
+            scrollContainerRef.current.scrollTo({
+                left: newScroll,
+                behavior: "smooth",
+            })
+        }
+    }
+
+    useEffect(() => {
+        checkScroll()
+        window.addEventListener("resize", checkScroll)
+        return () => window.removeEventListener("resize", checkScroll)
+    }, [isOwner])
+
+    useEffect(() => {
+        const scrollContainer = scrollContainerRef.current
+        if (scrollContainer) {
+            scrollContainer.addEventListener("scroll", checkScroll)
+            return () => scrollContainer.removeEventListener("scroll", checkScroll)
+        }
+    }, [])
+
+    const copyToClipboard = async () => {
+        const text = `https://www.saidit.app/u/${profile.username}`
+        if (!navigator.clipboard) {
+            // Fallback for older browsers
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        } else {
+            try {
+                await navigator.clipboard.writeText(text);
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                return;
+            }
+        }
+        setIsCopied(true);
+        toast.success("Link copied!")
+        setTimeout(() => setIsCopied(false), 2000);
+    };
 
     return (
         <div className="flex flex-col lg:mt-4 gap-4">
@@ -49,7 +124,7 @@ export default function ProfileHeader() {
                 )}
             </div>
             <div
-                className={`flex lg:flex-row flex-col mx-4 lg:items-center lg:gap-4 gap-2 lg:mt-0 ${profile.banner_url || isOwner ? "-mt-10" : "mt-4"}`}
+                className={`flex lg:flex-row flex-col mx-4 lg:mx-0 lg:items-center lg:gap-4 gap-2 lg:mt-0 ${profile.banner_url || isOwner ? "-mt-10" : "mt-4"}`}
             >
                 <div className="flex justify-between">
                     <div className="relative">
@@ -66,7 +141,8 @@ export default function ProfileHeader() {
                             >
                                 <Camera />
                             </Button>
-                        )}
+                        )
+                        }
                     </div>
                     <div className="mt-10 lg:hidden">
                         {isOwner ? (
@@ -74,7 +150,45 @@ export default function ProfileHeader() {
                                 <Forward strokeWidth={2} />
                             </Button>
                         ) : (
-                            <div></div>
+                            <div className="flex gap-2">
+                                <Button variant="secondary" className="rounded-full" disabled>
+                                    Follow
+                                </Button>
+                                <Button size="icon" variant="redditGray" className="bg-reddit-gray hover:bg-reddit-gray/80" disabled>
+                                    <MessageCircleMore />
+                                </Button>
+                                <Drawer open={open} onOpenChange={setOpen}>
+                                    <DrawerTrigger className="bg-reddit-gray hover:bg-reddit-gray/80 
+                                    flex justify-center items-center rounded-full size-9">
+                                        <Ellipsis />
+                                    </DrawerTrigger>
+                                    <DrawerContent>
+                                        <DrawerHeader className="border-b">
+                                            <DrawerTitle className="text-xl mx-2 text-primary-foreground-muted mt-2">Options</DrawerTitle>
+                                        </DrawerHeader>
+                                        <div className="flex flex-col gap-1 mb-4 py-1 text-primary-foreground-muted">
+                                            <div
+                                                onClick={() => {
+                                                    copyToClipboard()
+                                                    setOpen(false)
+                                                }}
+                                                className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
+                                                <Forward strokeWidth={2} />
+                                                Share
+                                            </div>
+                                            <div className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
+                                                <Mail /> Send a Message
+                                            </div>
+                                            <div
+                                                className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
+                                                <UserX /> Block
+                                            </div>
+
+                                        </div>
+                                    </DrawerContent>
+                                </Drawer>
+
+                            </div>
                         )}
                     </div>
                 </div>
@@ -121,6 +235,7 @@ export default function ProfileHeader() {
                     )}
                 </div>
             )}
+
             {isOwner && (!socialLinks || socialLinks.length === 0) && (
                 <Button
                     variant="link"
@@ -133,93 +248,111 @@ export default function ProfileHeader() {
                     Add social link
                 </Button>
             )}
+            {
+                profile.description &&
+                <small className="text-sm mx-4 text-primary-foreground-muted bg-black p-4 
+                lg:hidden rounded-2xl font-medium leading-none">{profile.description}</small>
+            }
 
-            <div className="my-2 hidden lg:block">
-                <Tabs defaultValue="overview">
-                    <TabsList className="h-fit bg-background gap-4 flex-wrap">
-                        <TabsTrigger
-                            className="px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground"
-                            value="overview"
-                        >
-                            Overview
-                        </TabsTrigger>
-                        <TabsTrigger
-                            className="px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground"
-                            value="posts"
-                        >
-                            Posts
-                        </TabsTrigger>
-                        <TabsTrigger
-                            className="px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground"
-                            value="comments"
-                        >
-                            Comments
-                        </TabsTrigger>
-                        {isOwner && (
-                            <>
-                                <TabsTrigger
-                                    className="px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground"
-                                    value="saved"
-                                >
-                                    Saved
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    className="px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground"
-                                    value="hidden"
-                                >
-                                    Hidden
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    className="px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground"
-                                    value="upvoted"
-                                >
-                                    Upvoted
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    className="px-3 py-2 text-primary-foreground-muted rounded-full data-[state=active]:bg-reddit-gray data-[state=active]:text-primary-foreground hover:underline hover:text-primary-foreground"
-                                    value="downvoted"
-                                >
-                                    Downvoted
-                                </TabsTrigger>
-                            </>
-                        )}
-                    </TabsList>
-                </Tabs>
-            </div>
+            <Accordion type="single" collapsible className="mx-4 bg-black rounded-2xl px-4 lg:hidden">
+                <AccordionItem value="item-1">
+                    <AccordionTrigger className="hover:no-underline text-primary-foreground-muted">About</AccordionTrigger>
+                    <AccordionContent>
+                        <div className='grid grid-cols-2 gap-4'>
+                            <div className='space-y-4'>
+                                <div>
+                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>83</p>
+                                    <small className="text-sm font-medium text-muted-foreground leading-none">Post karma</small>
+                                </div>
+                                <div>
+                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>3</p>
+                                    <small className="text-sm font-medium text-muted-foreground leading-none">Followers</small>
+                                </div>
+                            </div>
+                            <div className='space-y-4'>
+                                <div>
+                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>876</p>
+                                    <small className="text-sm font-medium text-muted-foreground leading-none">Comment karma</small>
+                                </div>
+                                <div>
+                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>May 21, 2019</p>
+                                    <small className="text-sm font-medium text-muted-foreground leading-none">Cake day</small>
+                                </div>
 
-            <div className="lg:hidden mx-4 flex my-2">
-                <Select>
-                    <SelectTrigger className="w-full p-6 data-[placeholder]:text-foreground">
-                        <SelectValue placeholder="Overview" defaultValue="overview" defaultChecked />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="overview" className="p-2">
-                            Overview
-                        </SelectItem>
-                        <SelectItem value="posts" className="p-2">
-                            Posts
-                        </SelectItem>
-                        <SelectItem value="comments" className="p-2">
-                            Comments
-                        </SelectItem>
-                        {isOwner && (
-                            <>
-                                <SelectItem value="saved" className="p-2">
-                                    Saved
-                                </SelectItem>
-                                <SelectItem value="hidden" className="p-2">
-                                    Hidden
-                                </SelectItem>
-                                <SelectItem value="upvoted" className="p-2">
-                                    Upvoted
-                                </SelectItem>
-                                <SelectItem value="downvoted" className="p-2">
-                                    Downvoted
-                                </SelectItem>
-                            </>
-                        )}
-                    </SelectContent>
-                </Select>
+                            </div>
+                        </div>
+                        {
+                            isOwner && (
+                                <div className='space-y-2 py-2 border-t mt-4'>
+                                    <small className="text-sm font-medium text-muted-foreground leading-none">SETTINGS</small>
+                                    <div className='flex gap-2 items-center justify-between mt-4'>
+                                        <div className='flex gap-2 items-center'>
+                                            <Avatar>
+                                                <AvatarImage draggable="false" src={profile.avatar_url || undefined} alt="avatar" className='rounded-full' />
+                                                <AvatarFallback>
+                                                    {profile.username.slice(0, 2).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className='flex flex-col gap-1'>
+                                                <small className="text-sm font-medium leading-none">Profile</small>
+                                                <small className="text-sm font-medium text-muted-foreground leading-none">Customize your profile</small>
+                                            </div>
+                                        </div>
+                                        <Button variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
+                                            onClick={() => {
+                                                router.push('/protected/settings/profile')
+                                            }}
+                                        >Update</Button>
+                                    </div>
+                                </div>
+                            )
+                        }
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+            <div className="w-full relative">
+                {showLeftScroll && (
+                    <button
+                        onClick={() => scroll("left")}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-muted ml-2 bg-opacity-90 p-1 rounded-full text-primary-foreground-muted
+                         hover:text-primary-foreground"
+                        aria-label="Scroll left"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+                )}
+
+                <div
+                    ref={scrollContainerRef}
+                    className="flex items-center space-x-1 overflow-x-auto scrollbar-hide mx-4 lg:mx-0"
+                    onScroll={checkScroll}
+                >
+                    {visibleTabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={cn(
+                                "px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap flex-shrink-0",
+                                activeTab === tab.id
+                                    ? "bg-reddit-gray text-primary-foreground"
+                                    : "text-primary-foreground-muted hover:text-primary-foreground",
+                            )}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {showRightScroll && (
+                    <button
+                        onClick={() => scroll("right")}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-muted mr-2 bg-opacity-90 p-1 rounded-full
+                         text-primary-foreground-muted hover:text-primary-foreground"
+                        aria-label="Scroll right"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
+                )}
             </div>
         </div>
     )

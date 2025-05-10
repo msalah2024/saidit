@@ -75,41 +75,41 @@ export default function ProfileMenu({ profile }: { profile: Profile | null }) {
                 </Avatar>
             </DrawerTrigger>
             <DrawerContent >
-                <DrawerHeader>
+                <DrawerHeader className='px-3'>
                     <DrawerTitle>
-                        <div className='flex gap-2 w-full mt-2 mb-1' onClick={() => {
-                            router.push(`/u/${profile?.username}`)
+                        <div className='flex items-center mt-2 rounded-2xl bg-black p-4 gap-2 w-full' onClick={() => {
                             setOpen(false)
+                            router.push(`/u/${profile?.username}`)
                         }}>
                             <Avatar className='size-10'>
                                 <AvatarImage src={profile?.avatar_url || undefined} className='rounded-full' draggable={false} />
                                 <AvatarFallback>SI</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p>View Profile</p>
+                                <p className='text-primary-foreground-muted'>View Profile</p>
                                 <small className="text-sm text-muted-foreground font-medium leading-none">u/{profile?.username}</small>
                             </div>
                         </div>
                     </DrawerTitle>
                 </DrawerHeader>
-                <div className='flex flex-col mb-4 gap-1'>
+                <div className='flex flex-col mb-4 gap-1 text-primary-foreground-muted border-t pt-2'>
                     <div onClick={() => {
-                        router.push('/protected/settings/profile')
                         setOpen(false)
+                        router.push('/protected/settings/profile')
                     }}
                         className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
-                        <UserPen className='text-foreground' /> Edit Avatar
+                        <UserPen /> Edit Avatar
                     </div>
                     <div onClick={() => {
                         setOpen(false)
                         router.push('/protected/settings/account')
                     }}
                         className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
-                        <Settings className='text-foreground' /> Settings
+                        <Settings /> Settings
                     </div>
                     <div onClick={SignOut}
                         className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
-                        <LogOut className='text-foreground' />Log Out
+                        <LogOut />Log Out
                     </div>
                 </div>
             </DrawerContent>

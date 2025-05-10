@@ -18,11 +18,11 @@ export default async function Layout({ children, params }: any) {
 
     const profile = await profilePromise;
 
-    const socialLinks = (await getSocialLinksByUserName(profile.data.username)).data;
-
     if (!profile.success) {
         return <UserNotFound />
     }
+
+    const socialLinks = (await getSocialLinksByUserName(profile.data.username)).data;
 
     return (
         <ProfileProvider profile={profile.data} currentUser={user} socialLinks={socialLinks}>
