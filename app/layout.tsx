@@ -6,6 +6,8 @@ import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner"
 import { createClient } from '@/utils/supabase/server'
 import NextTopLoader from 'nextjs-toploader';
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
 const robotoSlap = Roboto_Slab({
   variable: "--font-roboto-slab",
@@ -40,15 +42,23 @@ export default async function RootLayout({
   return (
     <>
       <html lang="en" suppressHydrationWarning>
-        <head />
         <body className={`${robotoSlap.className} ${robotoSlapLocal.className} ${inter.className}`} suppressHydrationWarning>
           <NextTopLoader
             color="#5BAE4A"
             showSpinner={false}
             easing="ease"
           />
-          <Navbar user={user} profile={profile} />
-          {children}
+          <SidebarProvider>
+            <Navbar user={user} profile={profile} />
+            <div className="flex w-full">
+              <AppSidebar />
+              <SidebarInset>
+                <div className="w-full mt-14">
+                  {children}
+                </div>
+              </SidebarInset>
+            </div>
+          </SidebarProvider>
           <Toaster position="top-center" />
         </body>
       </html>
