@@ -6,7 +6,7 @@ import { Tables } from '@/database.types'
 
 interface UserContextType {
     user: User | null
-    profile: Tables<'users'> | null
+    profile?: Tables<'users'> | null
 }
 
 const UserContext = createContext<UserContextType>({

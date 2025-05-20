@@ -161,3 +161,15 @@ export const SocialLinkSchema = z.object({
         message: "Your value must be at least 1 character long"
     })
 })
+
+export const CreateCommunitySchema = z.object({
+    name: z.string().min(3, { message: "Community name must be at least 3 characters" })
+        .max(21, { message: "Community name must be less than 21 characters" })
+        .regex(/^[a-zA-Z0-9_]+$/, { message: "Only letters, numbers, and underscores are allowed" }),
+    description: z.string().min(1, { message: "You must add a description" })
+        .max(500, { message: "Description must be less than 500 characters" }),
+    type: z.enum(["public", "restricted", "private"], {
+        required_error: "You need to select a community type",
+    }),
+    topics: z.array(z.string()).min(1, { message: "Add at least one topic" })
+})

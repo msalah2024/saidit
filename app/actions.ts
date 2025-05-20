@@ -14,7 +14,8 @@ import {
   UpdateEmailSchema,
   UpdatePasswordSchema,
   DisplayNameSchema,
-  DescriptionSchema
+  DescriptionSchema,
+  CreateCommunitySchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
@@ -870,6 +871,210 @@ export async function deleteSocialLink(socialID: string) {
     return {
       success: false,
       message: "Delete link error"
+    }
+  }
+}
+
+export async function createCommunity(creatorID: string, formData: z.infer<typeof CreateCommunitySchema>) {
+  const supabase = await createClient()
+
+  try {
+    const { data: community, error: createCommunityError } = await supabase.from('communities').insert({
+      creator_id: creatorID,
+      community_name: formData.name,
+      description: formData.description,
+      type: formData.type
+    }).select()
+
+    if (createCommunityError) {
+      console.error("Create community error", createCommunityError.message)
+      throw new Error(createCommunityError.message || "An error occurred")
+    }
+
+    else {
+      if (community && community.length > 0) {
+        const addModerator = await addCommunityModerator(creatorID, community[0].id)
+        if (addModerator.success) {
+          const createMembership = await createCommunityMembership(creatorID, community[0].id)
+          if (createMembership.success) {
+            return {
+              success: true,
+              message: "create community successful",
+              data: community[0]
+            }
+          }
+          else {
+            return {
+              success: false,
+              message: createMembership.message
+            }
+          }
+        }
+        else {
+          return {
+            success: false,
+            message: addModerator.message
+          }
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error("Create community error", error)
+    return {
+      success: false,
+      message: "Create community error"
+    }
+  }
+
+}
+
+export async function addCommunityModerator(userID: string, communityID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error: addCommunityModeratorError } = await supabase.from('community_moderators').insert({
+      community_id: communityID,
+      user_id: userID
+    })
+
+    if (addCommunityModeratorError) {
+      console.error("Add community moderato error", addCommunityModeratorError.message)
+      throw new Error(addCommunityModeratorError.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Add community moderator successful"
+      }
+    }
+
+  } catch (error) {
+    console.error("Add community moderator error", error)
+    return {
+      success: false,
+      message: "Add community moderator error"
+    }
+  }
+
+}
+
+export async function createCommunityMembership(userID: string, communityID: string) {
+  const supabase = await createClient()
+  try {
+    const { error: createCommunityMembershipError } = await supabase.from('community_memberships').insert({
+      user_id: userID,
+      community_id: communityID
+    })
+
+    if (createCommunityMembershipError) {
+      console.error("create community membership error", createCommunityMembershipError.message)
+      throw new Error(createCommunityMembershipError.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: 'create community membership successful'
+      }
+    }
+
+  } catch (error) {
+    console.error("create community membership error", error)
+    return {
+      success: false,
+      message: 'create community membership error'
+    }
+  }
+}
+
+export async function addCommunityBannerAndAvatar(communityID: string, avatarUrl: string | undefined, bannerUrl: string | undefined) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('communities').update({
+      image_url: avatarUrl,
+      banner_url: bannerUrl
+    }).eq('id', communityID)
+
+    if (error) {
+      console.error("Add community banner and avatar error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Community banner and avatar added successfully"
+      }
+    }
+
+  }
+
+  catch (error) {
+    console.error("Add community banner and avatar error", error)
+    return {
+      success: false,
+      message: 'Add community banner and avatar error'
+    }
+  }
+}
+
+export async function fetchCommunityByName(communityName: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from("communities").select("*").eq('community_name', communityName).single()
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message
+      }
+    }
+    else {
+      return {
+        success: true,
+        message: "Community fetched successfully",
+        data: data
+      }
+    }
+  }
+  catch (error) {
+    console.error("Fetch community error", error)
+    return {
+      success: false,
+      message: "Fetch community error"
+    }
+  }
+
+}
+
+export async function checkCommunityNameAvailability(name: string) {
+  if (name.length < 3) {
+    return { available: null, message: "" }
+  }
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from('communities').select('community_name').eq('community_name', name).maybeSingle()
+
+    if (error) {
+      console.error('Error checking username:', error);
+      return { available: null, message: 'Error checking username' };
+    }
+
+    return {
+      available: !data,
+      message: data ? 'Username is taken' : 'Username is available'
+    };
+
+  } catch (error) {
+    console.error("Fetch community name error", error)
+    return {
+      available: false,
+      message: "Fetch community name error"
     }
   }
 }

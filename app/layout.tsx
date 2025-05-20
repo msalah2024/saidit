@@ -8,6 +8,8 @@ import { createClient } from '@/utils/supabase/server'
 import NextTopLoader from 'nextjs-toploader';
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { GeneralProfileProvider } from "./context/GeneralProfileContext";
+import { cookies } from "next/headers";
 
 const robotoSlap = Roboto_Slab({
   variable: "--font-roboto-slab",
@@ -39,6 +41,10 @@ export default async function RootLayout({
   const { data: { user } } = await supabase.auth.getUser()
   const { data: profile } = await supabase.from('users').select("username, avatar_url").eq("account_id", user?.id).single()
 
+  const cookieStore = await cookies()
+  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
+
+
   return (
     <>
       <html lang="en" suppressHydrationWarning>
@@ -48,15 +54,17 @@ export default async function RootLayout({
             showSpinner={false}
             easing="ease"
           />
-          <SidebarProvider>
+          <SidebarProvider defaultOpen={defaultOpen}>
             <Navbar user={user} profile={profile} />
             <div className="flex w-full">
-              <AppSidebar />
-              <SidebarInset>
-                <div className="w-full mt-14">
-                  {children}
-                </div>
-              </SidebarInset>
+              <GeneralProfileProvider value={{ user }}>
+                <AppSidebar />
+                <SidebarInset>
+                  <div className="w-full mt-14">
+                    {children}
+                  </div>
+                </SidebarInset>
+              </GeneralProfileProvider>
             </div>
           </SidebarProvider>
           <Toaster position="top-center" />

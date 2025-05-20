@@ -67,7 +67,7 @@ export default function Page() {
                     ))
                 }
             </div>
-            <ProfileDialog profile={profile} user={user} open={open} onOpenChange={setOpen} selectedCategory={category}
+            <ProfileDialog profile={profile ?? null} user={user} open={open} onOpenChange={setOpen} selectedCategory={category}
                 fetchLinks={fetchLinks} syncedPlatforms={syncedPlatforms}
             />
         </div>

@@ -139,6 +139,10 @@ input:autofill {
     height: calc(100vh - 56px);
 }
 
+.sidebar-animation {
+  transition: all 0.23s cubic-bezier(0.5, 0.2, 0.3, 1);
+}
+
 .dark {
   --sidebar: hsl(240 5.9% 10%);
   --sidebar-foreground: hsl(240 4.8% 95.9%);

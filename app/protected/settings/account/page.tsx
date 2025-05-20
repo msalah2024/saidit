@@ -159,7 +159,7 @@ export default function Page() {
                     </Button>
                 ))
             }
-            <AccountDialog profile={profile} user={user} open={open} onOpenChange={setOpen} selectedCategory={category}
+            <AccountDialog profile={profile ?? null} user={user} open={open} onOpenChange={setOpen} selectedCategory={category}
                 googleIdentity={googleIdentity} discordIdentity={discordIdentity} hidePasswordButton={hidePasswordButton}
             />
         </div>

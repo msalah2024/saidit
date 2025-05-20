@@ -9,6 +9,125 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      communities: {
+        Row: {
+          banner_url: string | null
+          community_name: string
+          created_at: string
+          creator_id: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          type: Database["public"]["Enums"]["community_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          banner_url?: string | null
+          community_name: string
+          created_at?: string
+          creator_id?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          type: Database["public"]["Enums"]["community_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          banner_url?: string | null
+          community_name?: string
+          created_at?: string
+          creator_id?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          type?: Database["public"]["Enums"]["community_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communities_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
+      community_memberships: {
+        Row: {
+          community_id: string
+          id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          id?: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_memberships_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
+      community_moderators: {
+        Row: {
+          community_id: string
+          created_at: string
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_moderators_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_moderators_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
       social_links: {
         Row: {
           account_id: string
@@ -107,6 +226,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      community_type: "public" | "private" | "restricted"
       Gender: "male" | "female"
     }
     CompositeTypes: {
@@ -223,6 +343,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      community_type: ["public", "private", "restricted"],
       Gender: ["male", "female"],
     },
   },
