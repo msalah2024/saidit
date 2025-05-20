@@ -35,8 +35,8 @@ import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { addCommunityBannerAndAvatar, createCommunity } from '@/app/actions'
 import { toast } from "sonner"
 import { createClient } from '@/utils/supabase/client'
-import { useRouter } from 'next/navigation'
 import { debounce } from 'lodash'
+import { useRouter } from 'nextjs-toploader/app'
 
 type SidebarDialogContent = {
     title: string,

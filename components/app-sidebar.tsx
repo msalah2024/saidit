@@ -62,7 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             {mainItems.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-reddit-gray rounded-sm">
+                <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-reddit-gray rounded-sm cursor-pointer">
                   <div aria-disabled={item.title !== "Home"} className="select-none" onClick={() => {
                     router.push(item.url)
                   }}>
