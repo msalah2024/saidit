@@ -56,7 +56,7 @@ export async function isUserNameAvailable(formData: z.infer<typeof CredentialsSt
   const supabase = await createClient()
 
   try {
-    const { error: usernameError } = await supabase.from("users").select("username").ilike("username", username).single()
+    const { error: usernameError } = await supabase.from("users").select("username").eq("username_lower", username).single()
 
     if (usernameError && usernameError.code === 'PGRST116') {
       return {
@@ -84,6 +84,7 @@ export async function isUserNameAvailable(formData: z.infer<typeof CredentialsSt
 export async function signUp(formData: z.infer<typeof RegisterSchema>) {
   const supabase = await createClient()
   const username = formData.username
+  const username_lower = formData.username.toLowerCase()
   const email = formData.email.toLowerCase()
   const gender = formData.gender
   const password = formData.password
@@ -103,6 +104,7 @@ export async function signUp(formData: z.infer<typeof RegisterSchema>) {
 
     const { error: profileError } = await supabase.from("users").insert({
       username,
+      username_lower,
       email,
       gender,
       account_id: authData?.user?.id,
@@ -165,7 +167,7 @@ export async function logIn(formData: z.infer<typeof LoginSchema>) {
 
     }
     else {
-      const { data: userEmail, error: emailError } = await supabase.from("users").select("email").ilike("username", identifier).single()
+      const { data: userEmail, error: emailError } = await supabase.from("users").select("email").eq("username_lower", identifier.toLowerCase()).single()
 
       if (emailError) {
         console.error("Email Error", emailError.message)
@@ -221,7 +223,7 @@ export async function resetPassword(formData: z.infer<typeof ResetPasswordIdenti
       }
     }
     else {
-      const { data: userEmail, error: userEmailError } = await supabase.from("users").select("email").ilike("username", identifier).single()
+      const { data: userEmail, error: userEmailError } = await supabase.from("users").select("email").eq("username_lower", identifier.toLowerCase()).single()
 
       if (userEmailError) {
         console.error("User Email Error", userEmailError.message)
@@ -323,6 +325,7 @@ export async function signInWithGoogle() {
 export async function createProfile(formData: z.infer<typeof CreateProfileSchema>, user: User) {
   const supabase = await createClient()
   const username = formData.username
+  const username_lower = formData.username.toLowerCase()
   const gender = formData.gender
   const email = user.email?.toLowerCase()
   const account_id = user.id
@@ -332,6 +335,7 @@ export async function createProfile(formData: z.infer<typeof CreateProfileSchema
 
     const { error: profileError } = await supabase.from("users").insert({
       username,
+      username_lower,
       email,
       gender,
       account_id: account_id,
@@ -364,7 +368,7 @@ export async function fetchProfile(username: string) {
   const supabase = await createClient()
 
   try {
-    const { data: profile, error } = await supabase.from("users").select("*").ilike("username", username).single()
+    const { data: profile, error } = await supabase.from("users").select("*").eq("username_lower", username.toLowerCase()).single()
 
     if (error && error.code === 'PGRST116') {
       return {
@@ -768,7 +772,7 @@ export async function upsertSocialLink(name: string, userID: string, url: string
       link: url,
       account_id: userID,
       username: username,
-      account_username: account_username
+      account_username: account_username.toLowerCase()
     }).eq('account_id', userID)
 
     if (error) {
@@ -825,8 +829,7 @@ export async function getSocialLinksByUserName(username: string) {
   const supabase = await createClient()
 
   try {
-    const { data: socialLinks, error } = await supabase.from('social_links').select().eq('account_username', username)
-
+    const { data: socialLinks, error } = await supabase.from('social_links').select().eq('account_username', username.toLowerCase())
     if (error) {
       console.error("Fetch links error", error.message)
       throw new Error(error.message || "An error occurred")
