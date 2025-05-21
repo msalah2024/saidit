@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           banner_url: string | null
           community_name: string
+          community_name_lower: string
           created_at: string
           creator_id: string | null
           description: string | null
@@ -24,6 +25,7 @@ export type Database = {
         Insert: {
           banner_url?: string | null
           community_name: string
+          community_name_lower: string
           created_at?: string
           creator_id?: string | null
           description?: string | null
@@ -35,6 +37,7 @@ export type Database = {
         Update: {
           banner_url?: string | null
           community_name?: string
+          community_name_lower?: string
           created_at?: string
           creator_id?: string | null
           description?: string | null

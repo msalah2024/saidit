@@ -64,14 +64,13 @@ const CommunityNameField = memo(({ form, available, setAvailable }: { form: any,
         const { data, error } = await supabase
             .from('communities')
             .select('community_name')
-            .eq('community_name', name.toLocaleLowerCase())
+            .eq('community_name_lower', name.toLowerCase())
             .maybeSingle()
         if (error) {
             console.error(error)
         }
         setAvailable(!data)
         setChecking(false)
-
 
     }, 500)
 
@@ -109,11 +108,11 @@ const CommunityNameField = memo(({ form, available, setAvailable }: { form: any,
                                             checking &&
                                             <Loader2 className="mr-2 h-5 w-5 animate-spin absolute right-1 top-4" />
                                         }
-                                        {available && !checking && form.watch('name').trim(0) !== "" ? (
+                                        {available && !checking && form.watch('name').trim(0) !== "" && !form.formState.errors.name ? (
                                             <div className="mr-2 text-primary absolute right-1 top-4 h-5 w-5">
                                                 <Check />
                                             </div>
-                                        ) : available === false && !checking ? (
+                                        ) : available === false && !checking || !checking && form.formState.errors.name ? (
                                             <div className="text-destructive">
                                                 <AlertCircle className=" mr-2 h-5 w-5 absolute right-1 top-4" />
                                             </div>
@@ -310,6 +309,7 @@ export default function CreateCommunity({ dialogContent, setOpen, onUnsavedChang
             type: "public",
             topics: []
         },
+        mode: 'onChange'
     })
 
     useEffect(() => {

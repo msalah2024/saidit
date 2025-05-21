@@ -73,7 +73,7 @@ export default function SidebarDialog({ open, setOpen, dialogContent }: SidebarD
                     dialogContent?.title === 'Create a Community' &&
                     <DialogContent showCloseButton={false}
                         onOpenAutoFocus={(e) => e.preventDefault()}
-                        className="w-screen h-screen! max-w-none! m-0 p-0 lg:rounded-none flex focus:outline-none">
+                        className="lg:w-screen! lg:h-screen! h-[99%] w-[99%] max-w-none! m-0 p-0 lg:rounded-none flex focus:outline-none transition-none">
                         <CreateCommunity
                             dialogContent={dialogContent}
                             setOpen={setOpen}

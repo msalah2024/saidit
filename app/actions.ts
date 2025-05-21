@@ -882,6 +882,7 @@ export async function createCommunity(creatorID: string, formData: z.infer<typeo
     const { data: community, error: createCommunityError } = await supabase.from('communities').insert({
       creator_id: creatorID,
       community_name: formData.name,
+      community_name_lower: formData.name.toLowerCase(),
       description: formData.description,
       type: formData.type
     }).select()
@@ -1025,7 +1026,7 @@ export async function fetchCommunityByName(communityName: string) {
   const supabase = await createClient()
 
   try {
-    const { data, error } = await supabase.from("communities").select("*").eq('community_name', communityName).single()
+    const { data, error } = await supabase.from("communities").select("*").eq('community_name_lower', communityName.toLowerCase()).single()
 
     if (error) {
       return {
@@ -1049,32 +1050,4 @@ export async function fetchCommunityByName(communityName: string) {
     }
   }
 
-}
-
-export async function checkCommunityNameAvailability(name: string) {
-  if (name.length < 3) {
-    return { available: null, message: "" }
-  }
-  const supabase = await createClient()
-
-  try {
-    const { data, error } = await supabase.from('communities').select('community_name').eq('community_name', name).maybeSingle()
-
-    if (error) {
-      console.error('Error checking username:', error);
-      return { available: null, message: 'Error checking username' };
-    }
-
-    return {
-      available: !data,
-      message: data ? 'Username is taken' : 'Username is available'
-    };
-
-  } catch (error) {
-    console.error("Fetch community name error", error)
-    return {
-      available: false,
-      message: "Fetch community name error"
-    }
-  }
 }
