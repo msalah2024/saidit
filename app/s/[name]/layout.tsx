@@ -3,6 +3,7 @@ import CommunityNotFound from '@/components/CommunityNotFound';
 import { CommunityProvider } from '../../context/CommunityContext';
 import { fetchCommunityByName } from '../../actions';
 import CommunityHeader from '@/components/CommunityHeader';
+import CommunityRightSide from '@/components/CommunityRightSide';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function Layout({ children, params }: any) {
@@ -17,9 +18,16 @@ export default async function Layout({ children, params }: any) {
 
     return (
         <CommunityProvider community={community.data}>
-            <div className='gap-x-4 lg:mx-8 mx-4'>
+            <div className='lg:mx-8 mx-4'>
                 <CommunityHeader />
-                {children}
+                <div className='flex gap-4'>
+                    <div className='w-full mt-4'>
+                        {children}
+                    </div>
+                    <div className='w-96 hidden lg:flex'>
+                        <CommunityRightSide />
+                    </div>
+                </div>
             </div>
         </CommunityProvider>
     );

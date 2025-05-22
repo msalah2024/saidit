@@ -19,7 +19,7 @@ export default function CommunityHeader() {
                             <AvatarFallback>/S</AvatarFallback>
                         </Avatar>
                         <div className='flex lg:flex-row flex-col'>
-                            <h2 className="scroll-m-20 text-3xl font-semibold mt-10 tracking-tight">
+                            <h2 className="scroll-m-20 text-3xl font-semibold mt-8 tracking-tight">
                                 flux
                             </h2>
                             <div className="lg:hidden flex items-center gap-4">
