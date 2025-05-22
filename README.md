@@ -37,7 +37,7 @@
 ## Database Setup
 
 -   [x] Create `users` table.
--   [ ] Create `communities` table.
+-   [x] Create `communities` table.
 -   [ ] Create `posts` table.
 -   [ ] Create `comments` table.
 -   [ ] Create `votes` table.
@@ -56,7 +56,7 @@
 
 ## Communities
 
--   [ ] Allow users to create communities.
+-   [x] Allow users to create communities.
 -   [ ] Display a list of all communities.
 -   [ ] Create individual community pages.
 -   [ ] Add community rules and descriptions.
