@@ -74,6 +74,7 @@ export default function Navbar({ user, profile }: NavbarProps) {
                         </h2>
                     </Link>
                     <SidebarDialog
+                        user={user}
                         open={sidebarDialogOpen}
                         setOpen={setSidebarDialogOpen}
                         dialogContent={sidebarDialogContent} />

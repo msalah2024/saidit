@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import CreateCommunity from './CreateCommunity'
+import { User } from '@supabase/supabase-js'
 
 type SidebarDialogContent = {
     title: string,
@@ -20,9 +21,10 @@ interface SidebarDialogProps {
     setOpen: (open: boolean) => void
     dialogContent: SidebarDialogContent | undefined
     hasUnsavedChanges?: boolean
+    user: User | null
 }
 
-export default function SidebarDialog({ open, setOpen, dialogContent }: SidebarDialogProps) {
+export default function SidebarDialog({ open, setOpen, dialogContent, user }: SidebarDialogProps) {
     const [showConfirmation, setShowConfirmation] = useState(false)
     const [pendingAction, setPendingAction] = useState<(() => void) | null>(null)
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -75,6 +77,7 @@ export default function SidebarDialog({ open, setOpen, dialogContent }: SidebarD
                         onOpenAutoFocus={(e) => e.preventDefault()}
                         className="lg:w-screen! lg:h-screen! h-[99%] w-[99%] max-w-none! m-0 p-0 lg:rounded-none flex focus:outline-none transition-none">
                         <CreateCommunity
+                        user={user}
                             dialogContent={dialogContent}
                             setOpen={setOpen}
                             onUnsavedChanges={(unsaved) => setHasUnsavedChanges(unsaved)}

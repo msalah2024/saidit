@@ -31,12 +31,12 @@ import { useMediaQuery } from '@/hooks/use-media-query'
 import ChangeAvatar from './manage-community/change-avatar'
 import CommunityRules from './CommunityRules'
 import CommunityPreview from './CommunityPreview'
-import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { addCommunityBannerAndAvatar, createCommunity } from '@/app/actions'
 import { toast } from "sonner"
 import { createClient } from '@/utils/supabase/client'
 import { debounce } from 'lodash'
 import { useRouter } from 'nextjs-toploader/app'
+import { User } from '@supabase/supabase-js'
 
 type SidebarDialogContent = {
     title: string,
@@ -47,6 +47,7 @@ interface CreateCommunityProps {
     dialogContent: SidebarDialogContent | undefined
     setOpen: (open: boolean) => void
     onUnsavedChanges: (unsaved: boolean) => void
+    user: User | null
 }
 
 const CommunityNameField = memo(({ form, available, setAvailable }: { form: any, available: boolean | null, setAvailable: (available: boolean | null) => void }) => {
@@ -289,11 +290,10 @@ const CommunityTopicsField = memo(({ form }: { form: any }) => {
 });
 CommunityTopicsField.displayName = "CommunityTopicsField";
 
-export default function CreateCommunity({ dialogContent, setOpen, onUnsavedChanges }: CreateCommunityProps) {
+export default function CreateCommunity({ dialogContent, setOpen, onUnsavedChanges, user }: CreateCommunityProps) {
     const router = useRouter()
     const supabase = createClient()
     const isDesktop = useMediaQuery("(min-width: 768px)")
-    const { user } = useGeneralProfile()
 
     const [globalBanner, setGlobalBanner] = useState<string | null>(null)
     const [globalAvatar, setGlobalAvatar] = useState<string | null>(null)
@@ -341,6 +341,7 @@ export default function CreateCommunity({ dialogContent, setOpen, onUnsavedChang
         try {
             setIsSubmitting(true)
             if (!user) { return }
+            console.log("salman")
             const result = await createCommunity(user.id, values)
 
             if (result?.success) {
