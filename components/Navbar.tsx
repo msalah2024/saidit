@@ -9,6 +9,7 @@ import { User } from '@supabase/supabase-js'
 import { usePathname } from 'next/navigation'
 import CreateProfile from './CreateProfile'
 import { SidebarTrigger } from './ui/sidebar'
+import SidebarDialog from './SidebarDialog'
 
 type Profile = {
     username: string
@@ -20,8 +21,15 @@ interface NavbarProps {
     profile: Profile | null;
 }
 
+type SidebarDialogContent = {
+    title: string,
+    description: string
+}
+
 export default function Navbar({ user, profile }: NavbarProps) {
     const [openCreateProfile, setOpenCreateProfile] = useState(false)
+    const [sidebarDialogOpen, setSidebarDialogOpen] = useState(false)
+    const [sidebarDialogContent, setSidebarDialogContent] = useState<SidebarDialogContent>()
 
     const pathname = usePathname()
 
@@ -35,10 +43,20 @@ export default function Navbar({ user, profile }: NavbarProps) {
             setOpenCreateProfile(true)
         }
 
+        const handleSidebarDialog = (e: CustomEvent<SidebarDialogContent>) => {
+            setSidebarDialogContent(e.detail)
+            setSidebarDialogOpen(true)
+        }
+
+        window.addEventListener('openSidebarDialog', handleSidebarDialog as EventListener)
+        return () => {
+            window.removeEventListener('openSidebarDialog', handleSidebarDialog as EventListener)
+        }
+
     }, [user, profile])
 
     return (
-        <div className='flex items-center fixed top-0 left-0 right-0 z-50 h-14 border-b justify-between'>
+        <div className='flex items-center bg-background fixed top-0 left-0 right-0 z-50 h-14 border-b justify-between'>
             {shouldDisableNavbar ? (
                 <div className='flex items-center gap-2 ml-4'>
                     <Image src={Logo} alt='Logo' width={35} height={35} />
@@ -48,13 +66,17 @@ export default function Navbar({ user, profile }: NavbarProps) {
                 </div>
             ) : (
                 <div className='ml-4 lg:ml-2 flex items-center gap-4'>
-                    <SidebarTrigger variant={'outline'} className='text-primary-foreground hover:bg-reddit-gray p-4'/>
+                    <SidebarTrigger variant={'outline'} className='text-primary-foreground hover:bg-reddit-gray p-4' />
                     <Link href="/" className='flex items-center gap-2'>
                         <Image src={Logo} alt='Logo' width={35} height={35} />
                         <h2 className="text-3xl font-semibold tracking-tight">
                             saidit
                         </h2>
                     </Link>
+                    <SidebarDialog
+                        open={sidebarDialogOpen}
+                        setOpen={setSidebarDialogOpen}
+                        dialogContent={sidebarDialogContent} />
                 </div>
             )}
             {

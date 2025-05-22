@@ -11,20 +11,11 @@ import {
 } from "@/components/ui/sidebar"
 import { ChevronDown, Home, Layers, PlusCircle, Telescope, TrendingUp, Users } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible"
-import SidebarDialog from "./SidebarDialog"
-import { useState } from "react"
 import { useGeneralProfile } from "@/app/context/GeneralProfileContext"
 import { useRouter } from 'nextjs-toploader/app'
 
-type SidebarDialogContent = {
-  title: string,
-  description: string
-}
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const [dialogContent, setDialogContent] = useState<SidebarDialogContent>()
   const { user } = useGeneralProfile()
 
   const mainItems = [
@@ -50,10 +41,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
   ]
 
-  const handleDialogOpen = (content: SidebarDialogContent) => {
-    setDialogContent(content)
-    setOpen(true)
+  const handleDialogOpen = (content: { title: string, description: string }) => {
+    window.dispatchEvent(new CustomEvent('openSidebarDialog', { detail: content }))
   }
+
 
   return (
     <Sidebar collapsible="icon" {...props} className="mt-14 sidebar-animation">
@@ -110,7 +101,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
-      <SidebarDialog open={open} setOpen={setOpen} dialogContent={dialogContent} />
     </Sidebar>
   )
 }
