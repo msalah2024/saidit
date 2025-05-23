@@ -1029,7 +1029,9 @@ export async function fetchCommunityByName(communityName: string) {
   const supabase = await createClient()
 
   try {
-    const { data, error } = await supabase.from("communities").select("*").eq('community_name_lower', communityName.toLowerCase()).single()
+    const { data, error } = await supabase.from("communities")
+      .select(`*, users(*),community_moderators(*),community_memberships(count)`)
+      .eq('community_name_lower', communityName.toLowerCase()).single()
 
     if (error) {
       return {

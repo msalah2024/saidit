@@ -11,6 +11,7 @@ export default async function Layout({ children, params }: any) {
     const communityName = awaitedParams.name
 
     const community = await fetchCommunityByName(communityName)
+    console.log(community.data)
 
     if (!community.success) {
         return <CommunityNotFound />
