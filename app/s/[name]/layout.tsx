@@ -24,7 +24,7 @@ export default async function Layout({ children, params }: any) {
                     <div className='w-full mt-4 mx-4'>
                         {children}
                     </div>
-                    <div className='w-96 hidden lg:flex'>
+                    <div className='min-w-80 w-80 hidden lg:flex'>
                         <CommunityRightSide />
                     </div>
                 </div>

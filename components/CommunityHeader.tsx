@@ -2,7 +2,7 @@
 import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
-import { CakeSlice, Ellipsis, Globe, Mail, Plus } from 'lucide-react'
+import { CakeSlice, Camera, Ellipsis, Globe, Mail, Plus, Rows2, Rows3 } from 'lucide-react'
 import {
     Accordion,
     AccordionContent,
@@ -12,45 +12,83 @@ import {
 import Link from 'next/link'
 import { useCommunity } from '@/app/context/CommunityContext'
 import { format } from 'date-fns';
-
+import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 export default function CommunityHeader() {
     const { community } = useCommunity()
+    const { user } = useGeneralProfile()
+
+    const isOwner = community.users.account_id === user?.id
+
     const createAtFormatted = format(new Date(community.created_at), 'dd/MM/yyyy');
+
     return (
         <div className='flex flex-col gap-4'>
             <div
-                className={`h-32 bg-cover bg-center bg-no-repeat bg-gradient-to-r lg:rounded-md lg:mt-4 ${"from-[oklch(67.59%_0.1591_140.34)] to-[oklch(55%_0.17_230)]"}`}
+                className={`h-32 flex justify-between bg-cover bg-center relative bg-no-repeat bg-gradient-to-r lg:rounded-md lg:mt-4 ${"from-[oklch(67.59%_0.1591_140.34)] to-[oklch(55%_0.17_230)]"}`}
                 style={community.banner_url ? { backgroundImage: `url(${community.banner_url})` } : undefined}
             >
-            </div>
-            <div className='relative'>
-                <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center">
-                    <div className='flex gap-2 relative -top-10 left-5'>
+                <div className='flex gap-2 relative top-22 left-5 mb-10'>
+                    <div className='relative'>
                         <Avatar className="lg:w-22 lg:h-22 lg:outline-none w-20 h-20 outline-3 outline-border">
                             <AvatarImage draggable={false} src={community.image_url || undefined} className="rounded-full outline-3 outline-border" />
                             <AvatarFallback>/S</AvatarFallback>
                         </Avatar>
-                        <div className='flex lg:flex-row flex-col'>
-                            <h2 className="scroll-m-20 text-3xl font-semibold mt-8 tracking-tight">
-                                {community.community_name}
-                            </h2>
-                            <div className="lg:hidden flex items-center gap-4">
-                                <small className="text-sm font-medium leading-none">{community.community_memberships[0].count} member</small>
-                                <small className="text-sm font-medium leading-none flex items-center"><span className='text-primary text-4xl mr-1'>•</span>1 online</small>
-                            </div>
+                        {isOwner && (
+                            <Button
+                                variant="redditGray"
+                                size="icon"
+                                className="absolute -right-3 top-1 p-1"
+                            >
+                                <Camera />
+                            </Button>
+                        )
+                        }
+                    </div>
+                    <div className='flex lg:flex-row flex-col'>
+                        <h2 className="scroll-m-20 text-3xl font-semibold mt-12 tracking-tight">
+                            s/{community.community_name}
+                        </h2>
+                        <div className="lg:hidden flex items-center gap-4">
+                            <small className="text-sm font-medium leading-none">{community.community_memberships[0].count} member</small>
+                            <small className="text-sm font-medium leading-none flex items-center"><span className='text-primary text-4xl mr-1'>•</span>1 online</small>
                         </div>
                     </div>
-                    <div className='flex gap-2 ml-5 lg:mb-auto lg:mt-0 -mt-8'>
-                        <Button variant={'outline'} className='rounded-full hover:bg-primary' disabled>
-                            <Plus />
-                            Create Post
-                        </Button>
-                        <Button variant={'secondary'} className='rounded-full' disabled>Join</Button>
-                        <Button variant={'outline'} size={'icon'} className='rounded-full hover:bg-reddit-gray' disabled>
-                            <Ellipsis />
-                        </Button>
-                    </div>
+                </div>
+                {isOwner && (
+                    <Button
+                        variant="redditGray"
+                        size="icon"
+                        className="mr-4 mb-2 self-end rounded-full"
+                    >
+                        <Camera />
+                    </Button>
+                )}
+            </div>
+            <div className="flex lg:justify-end mt-18 lg:mt-0">
+                <div className='flex gap-2 ml-5'>
+                    <Button variant={'outline'} className='rounded-full hover:bg-primary' disabled>
+                        <Plus />
+                        Create Post
+                    </Button>
+                    {
+                        isOwner ?
+                            <Button variant={'secondary'} className='rounded-full'>Mod Tools</Button>
+                            :
+                            <Button variant={'secondary'} className='rounded-full' disabled>Join</Button>
+                    }
+                    <Button variant={'outline'} size={'icon'} className='rounded-full hover:bg-reddit-gray' disabled>
+                        <Ellipsis />
+                    </Button>
                 </div>
             </div>
             <Accordion type="single" collapsible className='bg-black rounded-2xl px-4 lg:hidden mx-4'>
@@ -87,6 +125,35 @@ export default function CommunityHeader() {
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
-        </div>
+            <div className="flex gap-2 mx-4 lg:mt-4">
+                <Select defaultValue='Best'>
+                    <SelectTrigger className="w-32">
+                        <SelectValue placeholder="Best" />
+                    </SelectTrigger>
+                    <SelectContent defaultChecked>
+                        <SelectGroup>
+                            <SelectLabel>Sort by</SelectLabel>
+                            <SelectItem value="Best">Best</SelectItem>
+                            <SelectItem value="Hot">Hot</SelectItem>
+                            <SelectItem value="New">New</SelectItem>
+                            <SelectItem value="Top">Top</SelectItem>
+                            <SelectItem value="Rising">Rising</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                <Select defaultValue='Card'>
+                    <SelectTrigger className="w-34">
+                        <SelectValue placeholder="Card" />
+                    </SelectTrigger>
+                    <SelectContent defaultChecked>
+                        <SelectGroup>
+                            <SelectLabel>View</SelectLabel>
+                            <SelectItem value="Card"><Rows2 className='text-primary-foreground' />Card</SelectItem>
+                            <SelectItem value="Compact"><Rows3 className='text-primary-foreground' />Compact</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+            </div>
+        </div >
     )
 }
