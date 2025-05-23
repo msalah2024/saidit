@@ -1,5 +1,8 @@
-import { CakeSlice, Dot, Globe } from 'lucide-react'
+import { CakeSlice, Dot, Globe, Mail } from 'lucide-react'
 import React from 'react'
+import { Button } from './ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import Link from 'next/link'
 
 export default function CommunityRightSide() {
   return (
@@ -21,6 +24,24 @@ export default function CommunityRightSide() {
         </p>
       </div>
       <hr />
-    </div>
+      <div className='flex flex-col gap-4'>
+        <small className="text-sm font-medium text-muted-foreground leading-none">SETTINGS</small>
+        <Button variant={'redditGray'} className='text-primary-foreground-muted'>
+          <Mail />Message Mods
+        </Button>
+        <Link href={'#'} className='flex items-center gap-2 text-primary-foreground-muted'>
+          <Avatar>
+            <AvatarImage draggable="false" src={undefined} alt="avatar" className='rounded-full' />
+            <AvatarFallback>
+              /S
+            </AvatarFallback>
+          </Avatar>
+          u/moe
+        </Link>
+        <Button variant={'redditGray'} className='text-primary-foreground-muted'>
+          View all moderators
+        </Button>
+      </div>
+    </div >
   )
 }

@@ -18,10 +18,10 @@ export default async function Layout({ children, params }: any) {
 
     return (
         <CommunityProvider community={community.data}>
-            <div className='lg:mx-8 mx-4'>
+            <div className='lg:mx-8'>
                 <CommunityHeader />
                 <div className='flex gap-4'>
-                    <div className='w-full mt-4'>
+                    <div className='w-full mt-4 mx-4'>
                         {children}
                     </div>
                     <div className='w-96 hidden lg:flex'>
