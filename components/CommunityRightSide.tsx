@@ -12,7 +12,7 @@ export default function CommunityRightSide() {
   const createAtFormatted = format(new Date(community.created_at), 'dd/MM/yyyy');
 
   return (
-    <div className='bg-black w-full p-8 rounded-2xl flex flex-col h-fit gap-4'>
+    <div className='bg-black w-full p-5 rounded-2xl flex flex-col h-fit gap-4 -mt-12'>
       <div className='flex flex-col gap-2'>
         <p className='font-medium text-primary-foreground-muted'>{community.community_name}</p>
         <small className="text-sm font-medium leading-none text-muted-foreground">{community.description}</small>

@@ -22,22 +22,53 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { createCommunityMembership, removeCommunityMembership } from '@/app/actions'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 export default function CommunityHeader() {
+    const router = useRouter()
     const { community } = useCommunity()
-    const { user } = useGeneralProfile()
+    const { user, profile } = useGeneralProfile()
 
     const isOwner = community.users.account_id === user?.id
+    const isMember = profile?.community_memberships.some((cm) => (cm.community_id === community.id))
+    console.log(isMember)
 
     const createAtFormatted = format(new Date(community.created_at), 'dd/MM/yyyy');
+
+    const handleJoinClick = async () => {
+        if (!user) { return }
+
+        if (isMember) {
+            const result = await removeCommunityMembership(user?.id, community.id)
+            if (result.success) {
+                toast.success(`You’ve left s/${community.community_name}. Hope to see you again!`)
+                router.refresh()
+            }
+            else {
+                toast.error("An error occurred")
+            }
+        }
+        else {
+            const result = await createCommunityMembership(user?.id, community.id)
+            if (result.success) {
+                toast.success(`You're now a member of s/${community.community_name}. Dive into the discussion!`)
+                router.refresh()
+            }
+            else {
+                toast.error("An error occurred")
+            }
+        }
+    }
 
     return (
         <div className='flex flex-col gap-4'>
             <div
-                className={`h-32 flex justify-between bg-cover bg-center relative bg-no-repeat bg-gradient-to-r lg:rounded-md lg:mt-4 ${"from-[oklch(67.59%_0.1591_140.34)] to-[oklch(55%_0.17_230)]"}`}
-                style={community.banner_url ? { backgroundImage: `url(${community.banner_url})` } : undefined}
+                className={`h-32 lg:h-48 bg-cover bg-center relative bg-no-repeat bg-gradient-to-r lg:rounded-md lg:mt-4 ${"from-[oklch(67.59%_0.1591_140.34)] to-[oklch(55%_0.17_230)]"}`}
+                style={community.banner_url ? { backgroundImage: `url(${community.banner_url})` } : { height: '8rem' }}
             >
-                <div className='flex gap-2 relative top-22 left-5 mb-10'>
+                <div className={`flex gap-2 absolute top-22 lg:top-38 ${!community.banner_url && 'lg:top-22!'} left-5 lg:left-8 `}>
                     <div className='relative'>
                         <Avatar className="lg:w-22 lg:h-22 lg:outline-none w-20 h-20 outline-3 outline-border">
                             <AvatarImage draggable={false} src={community.image_url || undefined} className="rounded-full outline-3 outline-border" />
@@ -68,7 +99,7 @@ export default function CommunityHeader() {
                     <Button
                         variant="redditGray"
                         size="icon"
-                        className="mr-4 mb-2 self-end rounded-full"
+                        className="mr-4 mb-2 self-end rounded-full absolute right-1 bottom-1"
                     >
                         <Camera />
                     </Button>
@@ -84,7 +115,12 @@ export default function CommunityHeader() {
                         isOwner ?
                             <Button variant={'secondary'} className='rounded-full'>Mod Tools</Button>
                             :
-                            <Button variant={'secondary'} className='rounded-full' disabled>Join</Button>
+                            <Button variant={isMember ? 'secondaryOutline' : 'secondary'} className='rounded-full px-5'
+                                onClick={handleJoinClick}>
+                                {
+                                    isMember ? 'Joined' : 'Join'
+                                }
+                            </Button>
                     }
                     <Button variant={'outline'} size={'icon'} className='rounded-full hover:bg-reddit-gray' disabled>
                         <Ellipsis />

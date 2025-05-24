@@ -13,6 +13,7 @@ import { ChevronDown, Home, Layers, PlusCircle, Telescope, TrendingUp, Users } f
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible"
 import { useGeneralProfile } from "@/app/context/GeneralProfileContext"
 import { useRouter } from 'nextjs-toploader/app'
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter()
@@ -44,16 +45,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const handleDialogOpen = (content: { title: string, description: string }) => {
     window.dispatchEvent(new CustomEvent('openSidebarDialog', { detail: content }))
   }
-
+  const { profile } = useGeneralProfile()
 
   return (
-    <Sidebar collapsible="icon" {...props} className="mt-14 sidebar-animation">
+    <Sidebar collapsible="offcanvas" {...props} className="mt-14 sidebar-animation">
       <SidebarContent>
         <SidebarGroup className="mt-2">
           <SidebarMenu>
             {mainItems.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-reddit-gray rounded-sm cursor-pointer">
+                <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-reddit-gray py-5 rounded-sm cursor-pointer">
                   <div aria-disabled={item.title !== "Home"} className="select-none" onClick={() => {
                     router.push(item.url)
                   }}>
@@ -71,7 +72,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             user &&
             <Collapsible defaultOpen className="group/collapsible">
               <SidebarGroupLabel asChild>
-                <CollapsibleTrigger className="flex w-full items-center rounded-sm">
+                <CollapsibleTrigger className="flex w-full items-center rounded-sm py-5">
                   <Users className="mr-2 h-4 w-4" />
                   COMMUNITIES
                   <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
@@ -79,7 +80,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </SidebarGroupLabel>
               <CollapsibleContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
+                  <SidebarMenuItem className="space-y-2">
                     <SidebarMenuButton
                       onClick={() => {
                         handleDialogOpen({
@@ -87,12 +88,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           description: "Create your own unique community and start building a space for people with similar interests."
                         })
                       }}
-                      asChild tooltip="Create a community" className="hover:bg-reddit-gray rounded-sm select-none cursor-pointer">
+                      asChild tooltip="Create a community" className="hover:bg-reddit-gray py-5 rounded-sm select-none cursor-pointer">
                       <span>
                         <PlusCircle />
                         <span>Create a community</span>
                       </span>
                     </SidebarMenuButton>
+                    {
+                      profile?.community_memberships.map((community) => (<SidebarMenuButton
+                        key={community.id}
+                        asChild
+                        className="select-none cursor-pointer py-5 hover:bg-reddit-gray rounded-sm "
+                        tooltip={`s/${community.communities.community_name}`}
+                        onClick={() => {
+                          router.push(`/s/${community.communities.community_name}`)
+                        }}
+                      >
+                        <div>
+                          <Avatar className="h-6 w-6 block">
+                            <AvatarImage src={community.communities.image_url || undefined} className="rounded-full" draggable={false} />
+                            <AvatarFallback>s/</AvatarFallback>
+                          </Avatar>
+                          <span>s/{community.communities.community_name}</span>
+                        </div>
+                      </SidebarMenuButton>))
+                    }
                   </SidebarMenuItem>
                 </SidebarMenu>
               </CollapsibleContent>

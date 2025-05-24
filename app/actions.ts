@@ -966,6 +966,7 @@ export async function addCommunityModerator(userID: string, communityID: string)
 
 export async function createCommunityMembership(userID: string, communityID: string) {
   const supabase = await createClient()
+
   try {
     const { error: createCommunityMembershipError } = await supabase.from('community_memberships').insert({
       user_id: userID,
@@ -1054,5 +1055,32 @@ export async function fetchCommunityByName(communityName: string) {
       message: "Fetch community error"
     }
   }
+}
 
+export async function removeCommunityMembership(userID: string, communityID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error: removeCommunityMembershipError } = await supabase.from('community_memberships').delete()
+      .eq('user_id', userID).eq('community_id', communityID)
+
+    if (removeCommunityMembershipError) {
+      console.error("remove community membership error", removeCommunityMembershipError.message)
+      throw new Error(removeCommunityMembershipError.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: 'remove community membership successful'
+      }
+    }
+
+  } catch (error) {
+    console.error("remove community membership error", error)
+    return {
+      success: false,
+      message: 'remove community membership error'
+    }
+  }
 }
