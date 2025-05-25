@@ -1084,3 +1084,32 @@ export async function removeCommunityMembership(userID: string, communityID: str
     }
   }
 }
+
+export async function fetchAllCommunities() {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from('communities')
+      .select("community_name, description, image_url, banner_url, community_memberships(count)")
+
+    if (error) {
+      console.error("Fetch communities error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Communities fetched successfully",
+        data: data
+      }
+    }
+
+  } catch (error) {
+    console.error("Fetch communities error", error)
+    return {
+      success: false,
+      message: "Fetch communities error"
+    }
+  }
+}

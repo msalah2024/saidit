@@ -3,6 +3,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
+  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
@@ -14,6 +15,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collap
 import { useGeneralProfile } from "@/app/context/GeneralProfileContext"
 import { useRouter } from 'nextjs-toploader/app'
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import Image from "next/image"
+import allCommunitiesLogo from "@/public/assets/images/saidit-slash.svg"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter()
@@ -45,6 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const handleDialogOpen = (content: { title: string, description: string }) => {
     window.dispatchEvent(new CustomEvent('openSidebarDialog', { detail: content }))
   }
+
   const { profile } = useGeneralProfile()
 
   return (
@@ -66,10 +70,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             ))}
           </SidebarMenu>
         </SidebarGroup>
-        <hr className="mx-4" />
-        <SidebarGroup>
-          {
-            user &&
+        {
+          user &&
+          <hr className="mx-4" />
+        }
+        {
+          user &&
+          <SidebarGroup>
             <Collapsible defaultOpen className="group/collapsible">
               <SidebarGroupLabel asChild>
                 <CollapsibleTrigger className="flex w-full items-center rounded-sm py-5">
@@ -117,7 +124,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenu>
               </CollapsibleContent>
             </Collapsible>
-          }
+          </SidebarGroup>
+        }
+        <hr className="mx-4" />
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenuButton asChild tooltip={'All communities'} className="py-5 hover:bg-reddit-gray select-none cursor-pointer"
+              onClick={() => {
+                router.push('/communities')
+              }}
+            >
+              <div>
+                <Image src={allCommunitiesLogo} alt="All communities logo" />
+                Communities
+              </div>
+            </SidebarMenuButton>
+          </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
