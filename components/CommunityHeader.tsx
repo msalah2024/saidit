@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
 import { CakeSlice, Camera, Ellipsis, Globe, Mail, Plus, Rows2, Rows3 } from 'lucide-react'
@@ -30,6 +30,7 @@ export default function CommunityHeader() {
     const router = useRouter()
     const { community } = useCommunity()
     const { user, profile } = useGeneralProfile()
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const isOwner = community.users.account_id === user?.id
     const isMember = profile?.community_memberships.some((cm) => (cm.community_id === community.id))
@@ -37,27 +38,45 @@ export default function CommunityHeader() {
     const createAtFormatted = format(new Date(community.created_at), 'dd/MM/yyyy');
 
     const handleJoinClick = async () => {
-        if (!user) { return }
+        if (!user) {
+            toast.info("Please sign in to join communities")
+            return
+        }
 
         if (isMember) {
-            const result = await removeCommunityMembership(user?.id, community.id)
-            if (result.success) {
-                toast.success(`You’ve left s/${community.community_name}. Hope to see you again!`)
-                router.refresh()
-            }
-            else {
-                toast.error("An error occurred")
+            try {
+                setIsSubmitting(true)
+                const result = await removeCommunityMembership(user?.id, community.id)
+                if (result.success) {
+                    router.refresh()
+                    toast.success(`You’ve left s/${community.community_name}. Hope to see you again!`)
+                }
+                else {
+                    toast.error("An error occurred")
+                }
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setIsSubmitting(false)
             }
         }
         else {
-            const result = await createCommunityMembership(user?.id, community.id)
-            if (result.success) {
-                toast.success(`You're now a member of s/${community.community_name}. Dive into the discussion!`)
-                router.refresh()
+            try {
+                setIsSubmitting(true)
+                const result = await createCommunityMembership(user?.id, community.id)
+                if (result.success) {
+                    router.refresh()
+                    toast.success(`You're now a member of s/${community.community_name}. Dive into the discussion!`)
+                }
+                else {
+                    toast.error("An error occurred")
+                }
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setIsSubmitting(false)
             }
-            else {
-                toast.error("An error occurred")
-            }
+
         }
     }
 
@@ -114,7 +133,7 @@ export default function CommunityHeader() {
                         isOwner ?
                             <Button variant={'secondary'} className='rounded-full'>Mod Tools</Button>
                             :
-                            <Button variant={isMember ? 'secondaryOutline' : 'secondary'} className='rounded-full px-5'
+                            <Button disabled={isSubmitting} variant={isMember ? 'secondaryOutline' : 'secondary'} className='rounded-full px-5'
                                 onClick={handleJoinClick}>
                                 {
                                     isMember ? 'Joined' : 'Join'
