@@ -23,15 +23,14 @@ const CommunityCard = memo(function CommunityCard({ community, counter }: Commun
         <div
             key={community.community_name}
             className='flex gap-2'
-            onClick={() => {
-                router.push(`/s/${community.community_name}`)
-            }}
         >
             <div className='flex items-center pr-2'>
                 <p>{counter++}</p>
             </div>
             <div className='flex flex-col gap-1 justify-center border cursor-pointer rounded-md w-[300px]'
-
+                onClick={() => {
+                    router.push(`/s/${community.community_name}`)
+                }}
             >
                 <div className='w-full'>
                     <div
