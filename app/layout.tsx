@@ -40,7 +40,6 @@ export default async function RootLayout({
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const { data: profile } = await supabase.from('users').select('*, community_memberships(*, communities(*))').eq('account_id', user?.id).single()
-  console.log(profile)
 
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
