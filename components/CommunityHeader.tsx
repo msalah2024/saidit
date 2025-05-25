@@ -33,7 +33,6 @@ export default function CommunityHeader() {
 
     const isOwner = community.users.account_id === user?.id
     const isMember = profile?.community_memberships.some((cm) => (cm.community_id === community.id))
-    console.log(isMember)
 
     const createAtFormatted = format(new Date(community.created_at), 'dd/MM/yyyy');
 

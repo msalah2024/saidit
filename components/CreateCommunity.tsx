@@ -341,7 +341,6 @@ export default function CreateCommunity({ dialogContent, setOpen, onUnsavedChang
         try {
             setIsSubmitting(true)
             if (!user) { return }
-            console.log("salman")
             const result = await createCommunity(user.id, values)
 
             if (result?.success) {
