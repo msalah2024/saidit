@@ -966,6 +966,7 @@ export async function addCommunityModerator(userID: string, communityID: string)
 
 export async function createCommunityMembership(userID: string, communityID: string) {
   const supabase = await createClient()
+
   try {
     const { error: createCommunityMembershipError } = await supabase.from('community_memberships').insert({
       user_id: userID,
@@ -1029,7 +1030,9 @@ export async function fetchCommunityByName(communityName: string) {
   const supabase = await createClient()
 
   try {
-    const { data, error } = await supabase.from("communities").select("*").eq('community_name_lower', communityName.toLowerCase()).single()
+    const { data, error } = await supabase.from("communities")
+      .select(`*, users(*),community_moderators(*),community_memberships(count)`)
+      .eq('community_name_lower', communityName.toLowerCase()).single()
 
     if (error) {
       return {
@@ -1052,5 +1055,61 @@ export async function fetchCommunityByName(communityName: string) {
       message: "Fetch community error"
     }
   }
+}
 
+export async function removeCommunityMembership(userID: string, communityID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error: removeCommunityMembershipError } = await supabase.from('community_memberships').delete()
+      .eq('user_id', userID).eq('community_id', communityID)
+
+    if (removeCommunityMembershipError) {
+      console.error("remove community membership error", removeCommunityMembershipError.message)
+      throw new Error(removeCommunityMembershipError.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: 'remove community membership successful'
+      }
+    }
+
+  } catch (error) {
+    console.error("remove community membership error", error)
+    return {
+      success: false,
+      message: 'remove community membership error'
+    }
+  }
+}
+
+export async function fetchAllCommunities() {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from('communities')
+      .select("community_name, description, image_url, banner_url, community_memberships(count)")
+
+    if (error) {
+      console.error("Fetch communities error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Communities fetched successfully",
+        data: data
+      }
+    }
+
+  } catch (error) {
+    console.error("Fetch communities error", error)
+    return {
+      success: false,
+      message: "Fetch communities error"
+    }
+  }
 }

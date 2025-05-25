@@ -39,7 +39,8 @@ export default async function RootLayout({
 }>) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('users').select("username, avatar_url").eq("account_id", user?.id).single()
+  const { data: profile } = await supabase.from('users').select('*, community_memberships(*, communities(*))').eq('account_id', user?.id).single()
+  console.log(profile)
 
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
@@ -57,7 +58,7 @@ export default async function RootLayout({
           <SidebarProvider defaultOpen={defaultOpen}>
             <Navbar user={user} profile={profile} />
             <div className="flex w-full">
-              <GeneralProfileProvider value={{ user }}>
+              <GeneralProfileProvider value={{ user, profile }}>
                 <AppSidebar />
                 <SidebarInset>
                   <div className="w-full mt-14">

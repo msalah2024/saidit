@@ -2,11 +2,11 @@
 
 import { createContext, useContext, ReactNode } from 'react'
 import { User } from '@supabase/supabase-js'
-import { Tables } from '@/database.types'
+import { Profile } from '@/complexTypes'
 
 interface UserContextType {
     user: User | null
-    profile?: Tables<'users'> | null
+    profile?: Profile | null
 }
 
 const UserContext = createContext<UserContextType>({
