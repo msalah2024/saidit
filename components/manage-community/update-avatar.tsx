@@ -428,7 +428,7 @@ const UpdateAvatar = ({ setGlobalAvatar, setIsDismissible, isDesktop, avatarChil
                             </div>
                             :
                             <div className='flex flex-col w-full gap-2'>
-                                <Button className='p-6' disabled={isSubmitting} onClick={() => { }}>
+                                <Button className='p-6' disabled={isSubmitting} onClick={handleFileUpload}>
                                     {
                                         isSubmitting ?
                                             <>
