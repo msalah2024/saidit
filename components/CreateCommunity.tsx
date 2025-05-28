@@ -28,7 +28,7 @@ import { Globe, Users, Lock, ArrowLeft, Loader2, AlertCircle, Check } from 'luci
 import TopicSelector from './topic-selector'
 import ChangeBanner from './manage-community/change-banner'
 import { useMediaQuery } from '@/hooks/use-media-query'
-import ChangeAvatar from './manage-community/change-avatar'
+import CreateAvatar from './manage-community/create-avatar'
 import CommunityRules from './CommunityRules'
 import CommunityPreview from './CommunityPreview'
 import { addCommunityBannerAndAvatar, createCommunity } from '@/app/actions'
@@ -173,7 +173,7 @@ const CommunityAppearanceField = memo(({ isDesktop, setGlobalAvatar, setGlobalBa
             <h3 className="text-sm">Community appearance</h3>
             <p className="text-sm mt-1 text-muted-foreground">Customize how your community looks to members</p>
             <div className='grid md:grid-cols-2 grid-rows-1 gap-4 mt-4'>
-                <ChangeAvatar isDesktop={isDesktop} setGlobalAvatar={setGlobalAvatar} />
+                <CreateAvatar isDesktop={isDesktop} setGlobalAvatar={setGlobalAvatar} />
                 <ChangeBanner isDesktop={isDesktop} setGlobalBanner={setGlobalBanner} />
             </div>
         </CardContent>

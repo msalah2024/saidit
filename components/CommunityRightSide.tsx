@@ -1,5 +1,5 @@
 "use client"
-import { CakeSlice, Globe, Mail } from 'lucide-react'
+import { CakeSlice, Globe, Mail, Pencil } from 'lucide-react'
 import React from 'react'
 import { Button } from './ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
@@ -14,7 +14,12 @@ export default function CommunityRightSide() {
   return (
     <div className='bg-black w-full p-5 rounded-2xl flex flex-col h-fit gap-4 -mt-12'>
       <div className='flex flex-col gap-2'>
-        <p className='font-medium text-primary-foreground-muted'>{community.community_name}</p>
+        <div className='flex items-center justify-between'>
+          <p className='font-medium text-primary-foreground-muted'>{community.community_name}</p>
+          <Button size='icon' variant={'redditGray'}>
+            <Pencil />
+          </Button>
+        </div>
         <small className="text-sm font-medium leading-none text-muted-foreground">{community.description}</small>
       </div>
       <div className='flex flex-col gap-2'>

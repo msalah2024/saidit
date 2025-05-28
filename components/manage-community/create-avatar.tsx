@@ -14,12 +14,12 @@ import type { Area, Point } from "react-easy-crop"
 import { toast } from "sonner"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 
-interface ChangeAvatarProps {
+interface CreateAvatarProps {
     isDesktop: boolean
     setGlobalAvatar: (banner: string | null) => void
 }
 
-const ChangeAvatar = ({ isDesktop, setGlobalAvatar }: ChangeAvatarProps) => {
+const CreateAvatar = ({ isDesktop, setGlobalAvatar }: CreateAvatarProps) => {
     const [avatar, setAvatar] = useState<string | null>(null)
     const [originalImage, setOriginalImage] = useState<string | null>(null)
     const [step, setStep] = useState(0)
@@ -525,4 +525,4 @@ async function getCroppedImg(
     return canvas.toDataURL(fileType, quality)
 }
 
-export default memo(ChangeAvatar) 
+export default memo(CreateAvatar) 
