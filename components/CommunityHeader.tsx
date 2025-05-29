@@ -94,7 +94,7 @@ export default function CommunityHeader() {
         <div className='flex flex-col gap-4'>
             <div
                 className={`h-30 bg-cover bg-center relative bg-no-repeat bg-gradient-to-r lg:rounded-md lg:mt-4 ${"from-[oklch(67.59%_0.1591_140.34)] to-[oklch(55%_0.17_230)]"}`}
-                style={community.banner_url ? { backgroundImage: `url(${community.banner_url})` } : { height: '8rem' }}
+                style={globalBanner ? { backgroundImage: `url(${globalBanner})` } : community.banner_url ? { backgroundImage: `url(${community.banner_url})` } : { backgroundImage: `bg-muted` }}
             >
                 <div className={`flex gap-2 absolute top-22 ${!community.banner_url && 'lg:top-22!'} left-5 lg:left-8 `}>
                     <div className='relative'>
@@ -147,7 +147,7 @@ export default function CommunityHeader() {
                     </Button>
                     {
                         isOwner ?
-                            <Button variant={'secondary'} className='rounded-full'>Mod Tools</Button>
+                            <Button variant={'secondary'} className='rounded-full' disabled>Mod Tools</Button>
                             :
                             <Button disabled={isSubmitting} variant={isMember ? 'secondaryOutline' : 'secondary'} className='rounded-full px-5'
                                 onClick={handleJoinClick}>
@@ -224,7 +224,8 @@ export default function CommunityHeader() {
                     </SelectContent>
                 </Select>
             </div>
-            <CommunityDrawer drawerTriggerRef={drawerTriggerRef} setGlobalAvatar={setGlobalAvatar} setGlobalBanner={setGlobalBanner} />
+            <CommunityDrawer drawerTriggerRef={drawerTriggerRef} setGlobalAvatar={setGlobalAvatar} globalAvatar={globalAvatar}
+                setGlobalBanner={setGlobalBanner} globalBanner={globalBanner} />
         </div >
     )
 }

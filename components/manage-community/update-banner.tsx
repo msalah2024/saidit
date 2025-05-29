@@ -1,40 +1,39 @@
 "use client"
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, Check, CloudUpload, Loader2, RotateCw, ZoomIn } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, CloudUpload, Loader2, ZoomIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Slider } from "@/components/ui/slider"
 import Cropper from "react-easy-crop"
 import type { Area, Point } from "react-easy-crop"
 import { toast } from "sonner"
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { useCommunity } from '@/app/context/CommunityContext'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
-interface UpdateAvatarProps {
-    setGlobalAvatar: (avatar: string | null) => void
+interface UpdateBannerProps {
+    setGlobalBanner: (banner: string | null) => void
     setIsDismissible: (dismissible: boolean) => void
     isDesktop: boolean
-    avatarChildrenStep: number
-    setAvatarChildrenStep: (step: number) => void
-    isAvatarGif: boolean
-    setIsAvatarGif: (gif: boolean) => void
+    bannerChildrenStep: number
+    setBannerChildrenStep: (step: number) => void
+    isBannerGif: boolean
+    setIsBannerGif: (gif: boolean) => void
     setCurrentStep: (step: string) => void
     setHistory: (history: string[]) => void
-    globalAvatar: string | null
+    globalBanner: string | null
     originalImage: string | null
     setOriginalImage: (img: string | null) => void
-    avatar: string | null
-    setAvatar: (img: string | null) => void
+    banner: string | null
+    setBanner: (img: string | null) => void
 }
 
-const UpdateAvatar = ({
-    setGlobalAvatar, setIsDismissible, isDesktop, avatarChildrenStep,
-    setAvatarChildrenStep, isAvatarGif, setIsAvatarGif, setCurrentStep, setHistory,
-    originalImage, setOriginalImage, avatar, setAvatar
-}: UpdateAvatarProps) => {
+const UpdateBanner = ({
+    setGlobalBanner, setIsDismissible, isDesktop, bannerChildrenStep,
+    setBannerChildrenStep, isBannerGif, setIsBannerGif, setCurrentStep, setHistory,
+    originalImage, setOriginalImage, banner, setBanner
+}: UpdateBannerProps) => {
 
     const supabase = createClient()
     const router = useRouter()
@@ -46,7 +45,6 @@ const UpdateAvatar = ({
     const [isCropperOpen, setIsCropperOpen] = useState(false)
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
     const [zoom, setZoom] = useState(1)
-    const [rotation, setRotation] = useState(0)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -67,7 +65,7 @@ const UpdateAvatar = ({
             }
 
             const isGifFile = file.type === "image/gif"
-            setIsAvatarGif(isGifFile)
+            setIsBannerGif(isGifFile)
 
             const reader = new FileReader()
             reader.onload = (e) => {
@@ -75,11 +73,11 @@ const UpdateAvatar = ({
                 setOriginalImage(imageDataUrl)
 
                 if (isGifFile) {
-                    setAvatar(imageDataUrl)
-                    setGlobalAvatar(imageDataUrl)
-                    setAvatarChildrenStep(2)
+                    setBanner(imageDataUrl)
+                    setGlobalBanner(imageDataUrl)
+                    setBannerChildrenStep(2)
                 } else {
-                    setAvatarChildrenStep(1)
+                    setBannerChildrenStep(1)
                 }
             }
             reader.readAsDataURL(file)
@@ -87,19 +85,19 @@ const UpdateAvatar = ({
     }
 
     useEffect(() => {
-        if (avatarChildrenStep === 1) {
+        if (bannerChildrenStep === 1) {
             setIsDismissible(false)
         }
         else {
             setIsDismissible(true)
         }
-    }, [avatarChildrenStep, setIsDismissible])
+    }, [bannerChildrenStep, setIsDismissible])
 
     useEffect(() => {
-        if (avatarChildrenStep === 0) {
-            setGlobalAvatar(null)
+        if (bannerChildrenStep === 0) {
+            setGlobalBanner(null)
         }
-    }, [avatarChildrenStep, setGlobalAvatar])
+    }, [bannerChildrenStep, setGlobalBanner])
 
     const triggerFileInput = () => {
         fileInputRef.current?.click()
@@ -141,7 +139,7 @@ const UpdateAvatar = ({
             }
 
             const isGifFile = file.type === "image/gif"
-            setIsAvatarGif(isGifFile)
+            setIsBannerGif(isGifFile)
 
             const reader = new FileReader()
             reader.onload = (e) => {
@@ -149,11 +147,11 @@ const UpdateAvatar = ({
                 setOriginalImage(imageDataUrl)
 
                 if (isGifFile) {
-                    setAvatar(imageDataUrl)
-                    setGlobalAvatar(imageDataUrl)
-                    setAvatarChildrenStep(2)
+                    setBanner(imageDataUrl)
+                    setGlobalBanner(imageDataUrl)
+                    setBannerChildrenStep(2)
                 } else {
-                    setAvatarChildrenStep(1)
+                    setBannerChildrenStep(1)
                 }
             }
             reader.readAsDataURL(file)
@@ -161,11 +159,11 @@ const UpdateAvatar = ({
     }
 
     const goToNextStep = () => {
-        setAvatarChildrenStep(Math.min(avatarChildrenStep + 1, 2))
+        setBannerChildrenStep(Math.min(bannerChildrenStep + 1, 2))
     }
 
     const goToPreviousStep = () => {
-        setAvatarChildrenStep(Math.max(avatarChildrenStep - 1, 0))
+        setBannerChildrenStep(Math.max(bannerChildrenStep - 1, 0))
     }
 
     const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
@@ -175,29 +173,29 @@ const UpdateAvatar = ({
     const createCroppedImage = useCallback(async () => {
         if (!originalImage || !croppedAreaPixels) return
         try {
-            const croppedImage = await getCroppedImg(originalImage, croppedAreaPixels, rotation)
-            setAvatar(croppedImage)
-            setGlobalAvatar(croppedImage)
+            const croppedImage = await getCroppedImg(originalImage, croppedAreaPixels)
+            setBanner(croppedImage)
+            setGlobalBanner(croppedImage)
             goToNextStep()
         } catch (e) {
             console.error(e)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [originalImage, croppedAreaPixels, rotation, setGlobalAvatar])
+    }, [originalImage, croppedAreaPixels, setGlobalBanner])
 
     const handleFileUpload = async () => {
-        if (!avatar) { return }
+        if (!banner) { return }
 
         try {
             setIsSubmitting(true)
-            setGlobalAvatar(avatar)
+            setGlobalBanner(banner)
 
             if (!community) { return }
 
-            const fileType = avatar.split(";")[0].split("/")[1]
-            const fileName = `${user?.id}/community_avatar/${community.id}/${Date.now()}.${fileType}`
+            const fileType = banner.split(";")[0].split("/")[1]
+            const fileName = `${user?.id}/community_banner/${community.id}/${Date.now()}.${fileType}`
 
-            const base64Data = avatar.split(",")[1]
+            const base64Data = banner.split(",")[1]
             const binaryData = Buffer.from(base64Data, "base64")
 
             const { error } = await supabase
@@ -209,22 +207,22 @@ const UpdateAvatar = ({
                 })
 
             if (error) {
-                console.error("update avatar error", error.message)
+                console.error("update banner error", error.message)
                 toast.error(error.message)
                 return
             }
 
             else {
-                const oldAvatar = community?.image_url ?? ""
-                const clippedAvatarUrl = oldAvatar.split('saidit/')[1];
+                const oldBanner = community?.image_url ?? ""
+                const clippedBannerUrl = oldBanner.split('saidit/')[1];
 
                 const { error: removeError } = await supabase
                     .storage
                     .from('saidit')
-                    .remove([clippedAvatarUrl])
+                    .remove([clippedBannerUrl])
 
                 if (removeError) {
-                    console.error("Update avatar error", removeError.message)
+                    console.error("Update banner error", removeError.message)
                     toast.error(removeError.message)
                     return
                 }
@@ -232,18 +230,18 @@ const UpdateAvatar = ({
                 else {
                     const { data } = supabase.storage.from('saidit').getPublicUrl(fileName)
                     const { error } = await supabase.from('communities').update({
-                        image_url: data.publicUrl
+                        banner_url: data.publicUrl
                     }).eq('id', community.id)
 
                     if (error) {
-                        console.error("Update avatar error", error.message)
+                        console.error("Update banner error", error.message)
                         toast.error(error.message)
                     }
                     else {
                         router.refresh()
-                        toast.success("Avatar uploaded successfully")
-                        setAvatarChildrenStep(0)
-                        setGlobalAvatar(null)
+                        toast.success("Banner uploaded successfully")
+                        setBannerChildrenStep(0)
+                        setGlobalBanner(null)
                         setCurrentStep("main")
                         setHistory(["main"])
                     }
@@ -257,7 +255,7 @@ const UpdateAvatar = ({
     }
 
     const renderStepContent = () => {
-        switch (avatarChildrenStep) {
+        switch (bannerChildrenStep) {
             case 0:
                 return (
                     <div>
@@ -272,6 +270,7 @@ const UpdateAvatar = ({
                             <div className='space-y-1 text-center'>
                                 <p className="text-sm font-medium">Drag and drop your image here</p>
                                 <p className="text-xs text-muted-foreground">PNG, JPG, WEBP or GIF (max. 2MB)</p>
+                                <p className="text-xs text-muted-foreground">Recommended size: 2400×300px (8:1) or larger</p>
                             </div>
                             <Button variant='outline' className='mt-3 rounded-full'
                                 onClick={(e) => {
@@ -291,12 +290,10 @@ const UpdateAvatar = ({
                                     image={originalImage}
                                     crop={crop}
                                     zoom={zoom}
-                                    rotation={rotation}
-                                    aspect={1}
+                                    aspect={8 / 1}
                                     onCropChange={setCrop}
                                     onCropComplete={onCropComplete}
                                     onZoomChange={setZoom}
-                                    cropShape="round"
                                     showGrid={true}
                                     style={{
                                         containerStyle: {
@@ -314,20 +311,6 @@ const UpdateAvatar = ({
                                     <span className="text-sm font-medium">Zoom</span>
                                 </div>
                                 <Slider value={[zoom]} min={1} max={3} step={0.1} onValueChange={(values) => setZoom(values[0])} />
-                            </div>
-
-                            <div className="space-y-1">
-                                <div className="flex items-center mb-2">
-                                    <RotateCw className="h-4 w-4 mr-2" />
-                                    <span className="text-sm font-medium">Rotation</span>
-                                </div>
-                                <Slider
-                                    value={[rotation]}
-                                    min={0}
-                                    max={360}
-                                    step={1}
-                                    onValueChange={(values) => setRotation(values[0])}
-                                />
                             </div>
                         </div>
                         {isDesktop ?
@@ -357,38 +340,24 @@ const UpdateAvatar = ({
                                 }}>Back</Button>
                             </div>
                         }
-
                     </div>
                 )
             case 2:
                 return (
                     <div className="flex flex-col items-center space-y-6 mb-2">
-                        <div className="text-center">
-                            <h3 className="text-md font-medium">Your New Avatar</h3>
-                            <p className="text-sm text-muted-foreground">This is how your community picture will look</p>
-                        </div>
-                        <div className="flex flex-col items-center gap-4">
-                            <Avatar className="w-32 h-32 border-2 border-muted">
-                                <AvatarImage src={avatar || ""} className='rounded-full' />
-                                <AvatarFallback className="text-2xl bg-muted">?</AvatarFallback>
-                            </Avatar>
-                            <div className="flex items-center gap-4">
-                                <Avatar className="w-16 h-16 border border-muted">
-                                    <AvatarImage src={avatar || ""} className='rounded-full' />
-                                    <AvatarFallback className="text-lg bg-muted">?</AvatarFallback>
-                                </Avatar>
-
-                                <Avatar className="w-10 h-10 border border-muted">
-                                    <AvatarImage src={avatar || ""} className='rounded-full' />
-                                    <AvatarFallback className="text-sm bg-muted">?</AvatarFallback>
-                                </Avatar>
+                        <div className='space-y-4'>
+                            <div className="text-center">
+                                <h3 className="text-md font-medium">Your New Banner</h3>
+                                <p className="text-sm text-muted-foreground">This is how your community banner will look</p>
                             </div>
+                            <div className="flex justify-end aspect-[8/1] rounded-sm bg-cover bg-center bg-no-repeat"
+                                style={{ backgroundImage: `url(${banner})` }}></div>
                         </div>
                         {isDesktop ?
                             <div className='flex justify-end w-full gap-2'>
                                 <Button variant={'redditGray'} onClick={() => {
-                                    if (isAvatarGif) {
-                                        setAvatarChildrenStep(0)
+                                    if (isBannerGif) {
+                                        setBannerChildrenStep(0)
                                     }
                                     else {
                                         goToPreviousStep()
@@ -428,8 +397,8 @@ const UpdateAvatar = ({
                                     }
                                 </Button>
                                 <Button variant={'redditGray'} className='p-6' onClick={() => {
-                                    if (isAvatarGif) {
-                                        setAvatarChildrenStep(0)
+                                    if (isBannerGif) {
+                                        setBannerChildrenStep(0)
                                     }
                                     else {
                                         goToPreviousStep()
@@ -449,9 +418,9 @@ const UpdateAvatar = ({
                 {stepArray.map((_, index) => (
                     <div
                         key={index}
-                        className={`h-2 w-2 rounded-full transition-all duration-300 ${index === avatarChildrenStep
+                        className={`h-2 w-2 rounded-full transition-all duration-300 ${index === bannerChildrenStep
                             ? "bg-primary w-4"
-                            : index < avatarChildrenStep
+                            : index < bannerChildrenStep
                                 ? "bg-primary"
                                 : "bg-muted"
                             }`}
@@ -540,4 +509,4 @@ async function getCroppedImg(
     return canvas.toDataURL(fileType, quality)
 }
 
-export default memo(UpdateAvatar)
+export default memo(UpdateBanner)
