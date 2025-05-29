@@ -350,7 +350,7 @@ const UpdateAvatar = ({
                                 <Button className='p-6' onClick={() => {
                                     createCroppedImage()
                                 }}>
-                                    Preview
+                                    Next
                                 </Button>
                                 <Button variant={'redditGray'} className='p-6' onClick={() => {
                                     goToPreviousStep()
