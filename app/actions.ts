@@ -15,7 +15,8 @@ import {
   UpdatePasswordSchema,
   DisplayNameSchema,
   DescriptionSchema,
-  CreateCommunitySchema
+  CreateCommunitySchema,
+  ManageDetailsWidgetSchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
@@ -1110,6 +1111,38 @@ export async function fetchAllCommunities() {
     return {
       success: false,
       message: "Fetch communities error"
+    }
+  }
+}
+
+export async function updateCommunityDetails(values: z.infer<typeof ManageDetailsWidgetSchema>, communityID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('communities')
+      .update({
+        display_name: values.displayName, members_nickname: values.membersNickname,
+        currently_viewing_nickname: values.currentlyViewingNickname,
+        description: values.description
+      }).eq('id', communityID)
+
+    if (error) {
+      console.error("Update community details error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Community details update successful"
+      }
+    }
+
+  } catch (error) {
+    console.error("Update community details error", error)
+    return {
+      success: false,
+      message: "Update community details error"
     }
   }
 }

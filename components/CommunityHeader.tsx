@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
-import { CakeSlice, Camera, Ellipsis, Globe, Mail, Plus, Rows2, Rows3 } from 'lucide-react'
+import { CakeSlice, Camera, Ellipsis, Globe, Mail, Pencil, Plus, Rows2, Rows3 } from 'lucide-react'
 import {
     Accordion,
     AccordionContent,
@@ -26,6 +26,24 @@ import { createCommunityMembership, removeCommunityMembership } from '@/app/acti
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import CommunityDrawer from './CommunityDrawer'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import DetailsWidgetForm from './manage-community/details-widget-form'
 
 export default function CommunityHeader() {
     const router = useRouter()
@@ -35,6 +53,10 @@ export default function CommunityHeader() {
     const [globalAvatar, setGlobalAvatar] = useState<string | null>(null)
     const [globalBanner, setGlobalBanner] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const [open, setOpen] = useState(false)
+    const [isFormDirty, setIsFormDirty] = useState(false)
+    const [showAlert, setShowAlert] = useState(false)
 
     const drawerTriggerRef = useRef<HTMLButtonElement>(null)
 
@@ -90,6 +112,23 @@ export default function CommunityHeader() {
         }
     }
 
+    const handleDialogOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen && isFormDirty) {
+            setShowAlert(true)
+            return
+        }
+        setOpen(nextOpen)
+    }
+
+    const handleAlertCancel = () => {
+        setShowAlert(false)
+    }
+
+    const handleAlertContinue = () => {
+        setShowAlert(false)
+        setOpen(false)
+    }
+
     return (
         <div className='flex flex-col gap-4'>
             <div
@@ -121,8 +160,8 @@ export default function CommunityHeader() {
                             s/{community.community_name}
                         </h2>
                         <div className="lg:hidden flex items-center gap-4">
-                            <small className="text-sm font-medium leading-none">{community.community_memberships[0].count} member</small>
-                            <small className="text-sm font-medium leading-none flex items-center"><span className='text-primary text-4xl mr-1'>•</span>1 online</small>
+                            <small className="text-sm font-medium leading-none">{community.community_memberships[0].count} {community.members_nickname || "members"}</small>
+                            <small className="text-sm font-medium leading-none flex items-center"><span className='text-primary text-4xl mr-1'>•</span>1 {community.currently_viewing_nickname || 'online'}</small>
                         </div>
                     </div>
                 </div>
@@ -166,7 +205,12 @@ export default function CommunityHeader() {
                     <AccordionTrigger className="hover:no-underline text-primary-foreground-muted">About</AccordionTrigger>
                     <AccordionContent className='flex flex-col gap-4'>
                         <div className='flex flex-col gap-2'>
-                            <p className='font-medium text-primary-foreground-muted'>{community.community_name}</p>
+                            <div className='flex items-center justify-between'>
+                                <p className='font-medium text-primary-foreground-muted'>{community.display_name || community.community_name}</p>
+                                <Button size='icon' variant={'redditGray'} onClick={() => { setOpen(true) }}>
+                                    <Pencil />
+                                </Button>
+                            </div>
                             <small className="text-sm font-medium leading-none text-muted-foreground">{community.description}</small>
                         </div>
                         <div className='flex flex-col gap-2'>
@@ -192,6 +236,33 @@ export default function CommunityHeader() {
                                 View all moderators
                             </Button>
                         </div>
+                        <Dialog open={open} onOpenChange={handleDialogOpenChange}>
+                            <DialogContent
+                                onOpenAutoFocus={(e) => e.preventDefault()}
+                            >
+                                <DialogHeader>
+                                    <DialogTitle> Edit community details widget </DialogTitle>
+                                    <DialogDescription>
+                                        Briefly describes your community and members. Always appears at the top of the sidebar.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <DetailsWidgetForm setOpen={setOpen} setIsFormDirty={setIsFormDirty} />
+                            </DialogContent>
+                        </Dialog>
+                        <AlertDialog open={showAlert}>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        You have unsaved changes. Are you sure you want to leave? Your changes will be lost.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel onClick={handleAlertCancel}>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleAlertContinue}>Discard Changes</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
