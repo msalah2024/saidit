@@ -43,7 +43,7 @@
 -   [ ] Create `votes` table.
 -   [ ] Create `notifications` table.
 -   [ ] Create `visited_subreddits` table.
--   [ ] Create `moderators` table.
+-   [x] Create `moderators` table.
 -   [ ] Create `reports` table.
 -   [ ] Enable Row-Level Security (RLS) for all tables.
 
@@ -57,9 +57,9 @@
 ## Communities
 
 -   [x] Allow users to create communities.
--   [ ] Display a list of all communities.
--   [ ] Create individual community pages.
--   [ ] Add community rules and descriptions.
+-   [x] Display a list of all communities.
+-   [x] Create individual community pages.
+-   [x] Add community rules and descriptions.
 
 ## Posts
 

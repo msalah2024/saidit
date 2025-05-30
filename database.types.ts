@@ -16,9 +16,12 @@ export type Database = {
           community_name_lower: string
           created_at: string
           creator_id: string | null
+          currently_viewing_nickname: string | null
           description: string | null
+          display_name: string | null
           id: string
           image_url: string | null
+          members_nickname: string | null
           type: Database["public"]["Enums"]["community_type"]
           updated_at: string | null
         }
@@ -28,9 +31,12 @@ export type Database = {
           community_name_lower: string
           created_at?: string
           creator_id?: string | null
+          currently_viewing_nickname?: string | null
           description?: string | null
+          display_name?: string | null
           id?: string
           image_url?: string | null
+          members_nickname?: string | null
           type: Database["public"]["Enums"]["community_type"]
           updated_at?: string | null
         }
@@ -40,9 +46,12 @@ export type Database = {
           community_name_lower?: string
           created_at?: string
           creator_id?: string | null
+          currently_viewing_nickname?: string | null
           description?: string | null
+          display_name?: string | null
           id?: string
           image_url?: string | null
+          members_nickname?: string | null
           type?: Database["public"]["Enums"]["community_type"]
           updated_at?: string | null
         }
@@ -175,7 +184,7 @@ export type Database = {
             columns: ["account_username"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["username"]
+            referencedColumns: ["username_lower"]
           },
         ]
       }
@@ -192,6 +201,7 @@ export type Database = {
           id: string
           updated_at: string | null
           username: string
+          username_lower: string
         }
         Insert: {
           account_id: string
@@ -205,6 +215,7 @@ export type Database = {
           id?: string
           updated_at?: string | null
           username: string
+          username_lower: string
         }
         Update: {
           account_id?: string
@@ -218,6 +229,7 @@ export type Database = {
           id?: string
           updated_at?: string | null
           username?: string
+          username_lower?: string
         }
         Relationships: []
       }

@@ -26,9 +26,9 @@ import { Textarea } from './ui/textarea'
 import { RadioGroup, RadioGroupItem } from './ui/radio-group'
 import { Globe, Users, Lock, ArrowLeft, Loader2, AlertCircle, Check } from 'lucide-react'
 import TopicSelector from './topic-selector'
-import ChangeBanner from './manage-community/change-banner'
+import CreateBanner from './manage-community/create-banner'
 import { useMediaQuery } from '@/hooks/use-media-query'
-import ChangeAvatar from './manage-community/change-avatar'
+import CreateAvatar from './manage-community/create-avatar'
 import CommunityRules from './CommunityRules'
 import CommunityPreview from './CommunityPreview'
 import { addCommunityBannerAndAvatar, createCommunity } from '@/app/actions'
@@ -37,6 +37,11 @@ import { createClient } from '@/utils/supabase/client'
 import { debounce } from 'lodash'
 import { useRouter } from 'nextjs-toploader/app'
 import { User } from '@supabase/supabase-js'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 type SidebarDialogContent = {
     title: string,
@@ -173,8 +178,8 @@ const CommunityAppearanceField = memo(({ isDesktop, setGlobalAvatar, setGlobalBa
             <h3 className="text-sm">Community appearance</h3>
             <p className="text-sm mt-1 text-muted-foreground">Customize how your community looks to members</p>
             <div className='grid md:grid-cols-2 grid-rows-1 gap-4 mt-4'>
-                <ChangeAvatar isDesktop={isDesktop} setGlobalAvatar={setGlobalAvatar} />
-                <ChangeBanner isDesktop={isDesktop} setGlobalBanner={setGlobalBanner} />
+                <CreateAvatar isDesktop={isDesktop} setGlobalAvatar={setGlobalAvatar} />
+                <CreateBanner isDesktop={isDesktop} setGlobalBanner={setGlobalBanner} />
             </div>
         </CardContent>
     </Card>
@@ -182,74 +187,83 @@ const CommunityAppearanceField = memo(({ isDesktop, setGlobalAvatar, setGlobalBa
 CommunityAppearanceField.displayName = "CommunityAppearanceField";
 
 const CommunityTypeField = memo(({ form }: { form: any }) => (
-    <Card>
-        <CardContent>
-            <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Community type</FormLabel>
-                        <FormControl className='mt-2'>
-                            <RadioGroup
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                                className="flex flex-col space-y-1"
-                            >
-                                <FormItem className="flex items-start space-x-1 space-y-0 rounded-md border">
-                                    <FormLabel className="font-medium w-full flex flex-col items-start gap-1 cursor-pointer p-4">
-                                        <div className="flex items-center gap-2">
-                                            <FormControl>
-                                                <RadioGroupItem value="public" />
-                                            </FormControl>
-                                            <div className='flex gap-2'>
-                                                <Globe className="h-4 w-4 text-muted-foreground" />
-                                                Public
-                                            </div>
-                                        </div>
-                                        <FormDescription className='ml-6'>Anyone can view, post, and comment to this community</FormDescription>
-                                    </FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-start space-x-1 space-y-0 rounded-md border">
-                                    <FormLabel className="font-medium w-full flex flex-col items-start gap-1 cursor-pointer p-4">
-                                        <div className="flex items-center gap-2">
-                                            <FormControl>
-                                                <RadioGroupItem value="restricted" />
-                                            </FormControl>
-                                            <div className="flex gap-2">
-                                                <Users className="h-4 w-4 text-muted-foreground" />
-                                                Restricted
-                                            </div>
-                                        </div>
-                                        <FormDescription className="ml-6">
-                                            Anyone can view this community, but only approved users can post
-                                        </FormDescription>
-                                    </FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-start space-x-1 space-y-0 rounded-md border">
-                                    <FormLabel className="font-medium w-full flex flex-col items-start gap-1 cursor-pointer p-4">
-                                        <div className="flex items-center gap-2">
-                                            <FormControl>
-                                                <RadioGroupItem value="private" />
-                                            </FormControl>
-                                            <div className="flex gap-2">
-                                                <Lock className="h-4 w-4 text-muted-foreground" />
-                                                Private
-                                            </div>
-                                        </div>
-                                        <FormDescription className="ml-6">
-                                            Only approved users can view and submit to this community
-                                        </FormDescription>
-                                    </FormLabel>
-                                </FormItem>
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-        </CardContent>
-    </Card>
+    <Tooltip>
+        <TooltipTrigger asChild>
+            <Card className='opacity-70 text-muted-foreground'>
+                <CardContent>
+                    <FormField
+                        control={form.control}
+                        name="type"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Community type</FormLabel>
+                                <FormControl className='mt-2'>
+                                    <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        disabled
+                                        className="flex flex-col space-y-1"
+                                    >
+                                        <FormItem className="flex items-start space-x-1 space-y-0 rounded-md border">
+                                            <FormLabel className="font-medium w-full flex flex-col items-start gap-1 cursor-pointer p-4">
+                                                <div className="flex items-center gap-2">
+                                                    <FormControl>
+                                                        <RadioGroupItem value="public" />
+                                                    </FormControl>
+                                                    <div className='flex gap-2'>
+                                                        <Globe className="h-4 w-4 text-muted-foreground" />
+                                                        Public
+                                                    </div>
+                                                </div>
+                                                <FormDescription className='ml-6'>Anyone can view, post, and comment to this community</FormDescription>
+                                            </FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-start space-x-1 space-y-0 rounded-md border">
+                                            <FormLabel className="font-medium w-full flex flex-col items-start gap-1 cursor-pointer p-4">
+                                                <div className="flex items-center gap-2">
+                                                    <FormControl>
+                                                        <RadioGroupItem value="restricted" />
+                                                    </FormControl>
+                                                    <div className="flex gap-2">
+                                                        <Users className="h-4 w-4 text-muted-foreground" />
+                                                        Restricted
+                                                    </div>
+                                                </div>
+                                                <FormDescription className="ml-6">
+                                                    Anyone can view this community, but only approved users can post
+                                                </FormDescription>
+                                            </FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-start space-x-1 space-y-0 rounded-md border">
+                                            <FormLabel className="font-medium w-full flex flex-col items-start gap-1 cursor-pointer p-4">
+                                                <div className="flex items-center gap-2">
+                                                    <FormControl>
+                                                        <RadioGroupItem value="private" />
+                                                    </FormControl>
+                                                    <div className="flex gap-2">
+                                                        <Lock className="h-4 w-4 text-muted-foreground" />
+                                                        Private
+                                                    </div>
+                                                </div>
+                                                <FormDescription className="ml-6">
+                                                    Only approved users can view and submit to this community
+                                                </FormDescription>
+                                            </FormLabel>
+                                        </FormItem>
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </CardContent>
+            </Card>
+        </TooltipTrigger>
+        <TooltipContent>
+            <p>We&#39;re starting with Public communities only! More privacy options coming soon.</p>
+        </TooltipContent>
+    </Tooltip>
+
 ));
 CommunityTypeField.displayName = "CommunityTypeField";
 
@@ -402,6 +416,7 @@ export default function CreateCommunity({ dialogContent, setOpen, onUnsavedChang
 
                 if (addAvatarAndBanner.success) {
                     setOpen(false)
+                    onUnsavedChanges(false)
                     toast.success("Community created successfully")
                     router.push(`/s/${result.data.community_name}`)
 

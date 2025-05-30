@@ -173,3 +173,10 @@ export const CreateCommunitySchema = z.object({
     }),
     topics: z.array(z.string()).min(1, { message: "Add at least one topic" })
 })
+
+export const ManageDetailsWidgetSchema = z.object({
+    displayName: z.string().max(100, { message: "Display name must be less than 100 characters" }),
+    membersNickname: z.string().max(30, { message: "Members nickname must be less than 30 characters" }),
+    currentlyViewingNickname: z.string().max(30, { message: "Currently viewing nickname must be less than 30 characters" }),
+    description: z.string().max(500, { message: "Description must be less than 500 characters" })
+})
