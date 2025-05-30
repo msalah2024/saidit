@@ -169,6 +169,10 @@ function Sidebar({
   const shouldDisableSidebar = disabledPaths.some((path) => pathname.startsWith(path))
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
+  React.useEffect(() => {
+    setOpenMobile(false)
+  }, [pathname, setOpenMobile])
+
   if (shouldDisableSidebar) {
     return null
   }

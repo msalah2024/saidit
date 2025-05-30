@@ -45,7 +45,7 @@ const CreateAvatar = ({ isDesktop, setGlobalAvatar }: CreateAvatarProps) => {
         if (file) {
             if (!validateFileType(file)) {
                 toast.error("Invalid file type", {
-                    description: "Only JPEG, PNG, or GIF files are allowed."
+                    description: "Only JPEG, PNG, webp, or GIF files are allowed."
                 })
                 return
             }
@@ -104,7 +104,7 @@ const CreateAvatar = ({ isDesktop, setGlobalAvatar }: CreateAvatarProps) => {
         if (file) {
             if (!validateFileType(file)) {
                 toast.error("Invalid file type", {
-                    description: "Only JPEG, PNG, or GIF files are allowed."
+                    description: "Only JPEG, PNG, webp, or GIF files are allowed."
                 })
                 return
             }
@@ -173,61 +173,6 @@ const CreateAvatar = ({ isDesktop, setGlobalAvatar }: CreateAvatarProps) => {
             setIsSubmitting(true)
             setGlobalAvatar(avatar)
             setOpen(false)
-
-            // if (!user) { return }
-
-            // const fileType = avatar.split(";")[0].split("/")[1]
-            // const fileName = `${user?.id}/avatar/${Date.now()}.${fileType}`
-
-            // const base64Data = avatar.split(",")[1]
-            // const binaryData = Buffer.from(base64Data, "base64")
-
-            // const { error } = await supabase
-            //     .storage
-            //     .from('saidit')
-            //     .update(fileName, binaryData, {
-            //         contentType: `image/${fileType}`,
-            //         upsert: true
-            //     })
-
-            // if (error) {
-            //     console.error("Update avatar error", error.message)
-            //     toast.error(error.message)
-            //     return
-            // }
-
-            // else {
-            //     const oldAvatar = profile?.avatar_url ?? ""
-            //     const clippedAvatarUrl = oldAvatar.split('saidit/')[1];
-
-            //     const { error: removeError } = await supabase
-            //         .storage
-            //         .from('saidit')
-            //         .remove([clippedAvatarUrl])
-
-            //     if (removeError) {
-            //         console.error("Update avatar error", removeError.message)
-            //         toast.error(removeError.message)
-            //         return
-            //     }
-
-            //     else {
-            //         const { data } = supabase.storage.from('saidit').getPublicUrl(fileName)
-            //         const { error } = await supabase.from('users').update({
-            //             avatar_url: data.publicUrl
-            //         }).eq('account_id', user.id)
-
-            //         if (error) {
-            //             console.error("Update avatar error", error.message)
-            //             toast.error(error.message)
-            //         }
-            //         else {
-            //             router.refresh()
-            //             onOpenChange(false)
-            //             toast.success("Avatar uploaded successfully")
-            //         }
-            //     }
-            // }
 
         } catch (error) {
             console.error(error)
@@ -322,7 +267,7 @@ const CreateAvatar = ({ isDesktop, setGlobalAvatar }: CreateAvatarProps) => {
     return (
         <div>
             <h4 className='text-sm'>Community avatar</h4>
-            <div className={`flex flex-col items-center w-full mt-2 rounded-lg border-2 border-dashed p-6 
+            <div className={`flex flex-col items-center w-full mt-2 rounded-lg border-2 border-dashed p-4 
                            ${isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/20"}`}
                 onDragEnter={handleDragEnter}
                 onDragOver={handleDragOver}
@@ -330,9 +275,9 @@ const CreateAvatar = ({ isDesktop, setGlobalAvatar }: CreateAvatarProps) => {
                 onDrop={handleDrop}
             >
                 <CloudUpload size={40} className='text-muted-foreground' />
-                <div className='space-y-1 text-center'>
+                <div className='space-y-1 text-center mt-2'>
                     <p className="text-sm font-medium">Drag and drop your image here</p>
-                    <p className="text-xs text-muted-foreground">PNG, JPG or GIF (max. 2MB)</p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG, WEBP or GIF (max. 2MB)</p>
                 </div>
                 <Button variant='outline' className='mt-3 rounded-full'
                     onClick={(e) => {

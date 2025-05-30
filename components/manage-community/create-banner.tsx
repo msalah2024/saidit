@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from "sonner"
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ArrowRight, Check, ImageIcon, Loader2, ZoomIn } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, GalleryVertical, Loader2, ZoomIn } from 'lucide-react'
 import Cropper from "react-easy-crop"
 import type { Area, Point } from "react-easy-crop"
 import { Slider } from '@/components/ui/slider'
@@ -16,12 +16,12 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 
-interface ChangeBannerProps {
+interface CreateBannerProps {
     isDesktop: boolean
     setGlobalBanner: (banner: string | null) => void
 }
 
-const ChangeBanner = ({ isDesktop, setGlobalBanner }: ChangeBannerProps) => {
+const CreateBanner = ({ isDesktop, setGlobalBanner }: CreateBannerProps) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [dragCounter, setDragCounter] = useState(0)
     const [isDragging, setIsDragging] = useState(false)
@@ -41,7 +41,7 @@ const ChangeBanner = ({ isDesktop, setGlobalBanner }: ChangeBannerProps) => {
         if (file) {
             if (!validateFileType(file)) {
                 toast.error("Invalid file type", {
-                    description: "Only JPEG, PNG, or GIF files are allowed."
+                    description: "Only JPEG, PNG, webp, or GIF files are allowed."
                 })
                 return
             }
@@ -74,7 +74,7 @@ const ChangeBanner = ({ isDesktop, setGlobalBanner }: ChangeBannerProps) => {
         if (file) {
             if (!validateFileType(file)) {
                 toast.error("Invalid file type", {
-                    description: "Only JPEG, PNG, or GIF files are allowed."
+                    description: "Only JPEG, PNG, webp, or GIF files are allowed."
                 })
 
                 return
@@ -175,60 +175,6 @@ const ChangeBanner = ({ isDesktop, setGlobalBanner }: ChangeBannerProps) => {
             setIsSubmitting(true)
             setGlobalBanner(banner)
             setOpen(false)
-            // if (!user) { return }
-
-            // const fileType = banner.split(";")[0].split("/")[1]
-            // const fileName = `${user?.id}/banner/${Date.now()}.${fileType}`
-
-            // const base64Data = banner.split(",")[1]
-            // const binaryData = Buffer.from(base64Data, "base64")
-
-            // const { error } = await supabase
-            //     .storage
-            //     .from('saidit')
-            //     .update(fileName, binaryData, {
-            //         contentType: `image/${fileType}`,
-            //         upsert: true
-            //     })
-
-            // if (error) {
-            //     console.error("Update banner error", error.message)
-            //     toast.error(error.message)
-            //     return
-            // }
-
-            // else {
-            //     const oldBanner = profile?.banner_url ?? ""
-            //     const clippedBannerUrl = oldBanner.split('saidit/')[1];
-
-            //     const { error: removeError } = await supabase
-            //         .storage
-            //         .from('saidit')
-            //         .remove([clippedBannerUrl])
-
-            //     if (removeError) {
-            //         console.error("Update banner error", removeError.message)
-            //         toast.error(removeError.message)
-            //         return
-            //     }
-
-            //     else {
-            //         const { data } = supabase.storage.from('saidit').getPublicUrl(fileName)
-            //         const { error } = await supabase.from('users').update({
-            //             banner_url: data.publicUrl
-            //         }).eq('account_id', user.id)
-
-            //         if (error) {
-            //             console.error("Update banner error", error.message)
-            //             toast.error(error.message)
-            //         }
-            //         else {
-            //             onOpenChange(false)
-            //             toast.success("Banner uploaded successfully")
-            //         }
-            //     }
-            // }
-
         } catch (error) {
             console.error(error)
         } finally {
@@ -247,7 +193,7 @@ const ChangeBanner = ({ isDesktop, setGlobalBanner }: ChangeBannerProps) => {
                                 image={originalImage}
                                 crop={crop}
                                 zoom={zoom}
-                                aspect={16 / 5}
+                                aspect={8 / 1}
                                 onCropChange={setCrop}
                                 onCropComplete={onCropComplete}
                                 onZoomChange={setZoom}
@@ -280,7 +226,7 @@ const ChangeBanner = ({ isDesktop, setGlobalBanner }: ChangeBannerProps) => {
                             <h3 className="text-md font-medium">Your New Banner</h3>
                             <p className="text-sm text-muted-foreground">This is how your community banner will look</p>
                         </div>
-                        <div className="flex justify-end h-28 rounded-2xl bg-cover bg-center bg-no-repeat"
+                        <div className="flex justify-end aspect-[8/1] rounded-sm bg-cover bg-center bg-no-repeat"
                             style={{ backgroundImage: `url(${banner})` }}></div>
                     </div>
 
@@ -294,17 +240,18 @@ const ChangeBanner = ({ isDesktop, setGlobalBanner }: ChangeBannerProps) => {
     return (
         <div>
             <h4 className='text-sm'>Community banner</h4>
-            <div className={`flex flex-col items-center mt-2 w-full rounded-lg border-2 border-dashed p-6 
+            <div className={`flex flex-col items-center mt-2 w-full rounded-lg border-2 border-dashed p-4 
                            ${isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/20"}`}
                 onDragEnter={handleDragEnter}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
             >
-                <ImageIcon size={40} className='text-muted-foreground' />
-                <div className='space-y-1 text-center'>
+                <GalleryVertical size={40} className='text-muted-foreground' />
+                <div className='space-y-1 text-center mt-2'>
                     <p className="text-sm font-medium">Drag and drop your image here</p>
-                    <p className="text-xs text-muted-foreground">PNG, JPG or GIF (max. 2MB)</p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG, WEBP or GIF (max. 2MB)</p>
+                    <p className="text-xs text-muted-foreground">Recommended size: 2400×300px (8:1) or larger</p>
                 </div>
                 <Button variant='outline' className='mt-3 rounded-full' onClick={(e) => {
                     e.preventDefault()
@@ -421,7 +368,7 @@ const ChangeBanner = ({ isDesktop, setGlobalBanner }: ChangeBannerProps) => {
 }
 
 const validateFileType = (file: File): boolean => {
-    const validTypes = ["image/jpeg", "image/png", "image/gif"]
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
     return validTypes.includes(file.type)
 }
 
@@ -473,4 +420,4 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string>
     const quality = fileType === "image/jpeg" ? 0.95 : 1
     return canvas.toDataURL(fileType, quality)
 }
-export default memo(ChangeBanner) 
+export default memo(CreateBanner) 
