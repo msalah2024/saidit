@@ -238,9 +238,13 @@ export default function CommunityHeader() {
                         <div className='flex flex-col gap-2'>
                             <div className='flex items-center justify-between'>
                                 <p className='font-medium text-primary-foreground-muted'>{community.display_name || community.community_name}</p>
-                                <Button size='icon' variant={'redditGray'} onClick={() => { setOpen(true) }}>
-                                    <Pencil />
-                                </Button>
+                                {
+                                    isOwner &&
+                                    <Button size='icon' variant={'redditGray'} onClick={() => { setOpen(true) }}>
+                                        <Pencil />
+                                    </Button>
+                                }
+
                             </div>
                             <small className="text-sm font-medium leading-none text-muted-foreground">{community.description}</small>
                         </div>
