@@ -94,7 +94,8 @@ export default function CommunityRightSide() {
         <small className="text-sm font-medium leading-none text-muted-foreground flex gap-1 items-center"><Globe /> {community.type}</small>
       </div>
       <div className="flex items-center gap-4">
-        <small className="text-sm font-medium leading-none">{community.community_memberships[0].count}{" "}
+        <small className="text-sm font-medium leading-none">
+          {community.community_memberships[0].count}{" "}
           {community.community_memberships[0].count === 1
             ? (community.members_nickname || "member")
             : (community.members_nickname || "members")}
