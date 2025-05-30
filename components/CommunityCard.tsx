@@ -34,7 +34,7 @@ const CommunityCard = memo(function CommunityCard({ community, counter }: Commun
                         className='hover:underline w-fit text-sm font-medium overflow-hidden text-ellipsis line-clamp-1'>
                         s/{community.community_name}
                     </Link>
-                    <small className="text-xs font-medium leading-none overflow-hidden text-ellipsis line-clamp-1">
+                    <small className="text-xs font-medium overflow-hidden text-ellipsis line-clamp-1">
                         {community.description}
                     </small>
                     <small className="text-xs font-medium text-muted-foreground leading-none">
