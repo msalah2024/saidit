@@ -39,6 +39,8 @@ export default function CommunityRightSide() {
 
   const createAtFormatted = format(new Date(community.created_at), 'dd/MM/yyyy');
 
+  const isOwner = community.users.account_id === user?.id
+
   const handleDialogOpenChange = (nextOpen: boolean) => {
     if (!nextOpen && isFormDirty) {
       setShowAlert(true)
@@ -83,9 +85,12 @@ export default function CommunityRightSide() {
       <div className='flex flex-col gap-2'>
         <div className='flex items-center justify-between'>
           <p className='font-medium text-primary-foreground-muted'>{community.display_name || community.community_name}</p>
-          <Button size='icon' variant={'redditGray'} onClick={() => { setOpen(true) }}>
-            <Pencil />
-          </Button>
+          {
+            isOwner &&
+            <Button size='icon' variant={'redditGray'} onClick={() => { setOpen(true) }}>
+              <Pencil />
+            </Button>
+          }
         </div>
         <small className="text-sm font-medium leading-none text-muted-foreground">{community.description}</small>
       </div>
