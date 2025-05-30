@@ -71,6 +71,7 @@ export default function DetailsWidgetForm({ setOpen, setIsFormDirty }: DetailsWi
         }
 
     }
+
     useEffect(() => {
         if (!isDirty) return
 

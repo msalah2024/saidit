@@ -1,5 +1,5 @@
 "use client"
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
 import { CakeSlice, Camera, Ellipsis, Globe, Mail, Pencil, Plus, Rows2, Rows3 } from 'lucide-react'
@@ -44,8 +44,10 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import DetailsWidgetForm from './manage-community/details-widget-form'
+import { createClient } from '@/utils/supabase/client'
 
 export default function CommunityHeader() {
+    const supabase = createClient()
     const router = useRouter()
     const { community } = useCommunity()
     const { user, profile } = useGeneralProfile()
@@ -57,6 +59,7 @@ export default function CommunityHeader() {
     const [open, setOpen] = useState(false)
     const [isFormDirty, setIsFormDirty] = useState(false)
     const [showAlert, setShowAlert] = useState(false)
+    const [viewerCount, setViewerCount] = useState(0)
 
     const drawerTriggerRef = useRef<HTMLButtonElement>(null)
 
@@ -129,6 +132,29 @@ export default function CommunityHeader() {
         setOpen(false)
     }
 
+    useEffect(() => {
+        const channel = supabase.channel(`community_header:${community.id}`, {
+            config: { presence: { key: user?.id } },
+        })
+
+        channel
+            .on('presence', { event: 'sync' }, () => {
+                const state = channel.presenceState()
+                setViewerCount(Object.keys(state).length)
+            })
+            .subscribe(status => {
+                if (status === 'SUBSCRIBED') {
+                    channel.track({ user_id: user?.id })
+                }
+            })
+
+
+        return () => {
+            channel.unsubscribe()
+        }
+
+    }, [supabase, community.id, user?.id])
+
     return (
         <div className='flex flex-col gap-4'>
             <div
@@ -160,8 +186,13 @@ export default function CommunityHeader() {
                             s/{community.community_name}
                         </h2>
                         <div className="lg:hidden flex items-center gap-4">
-                            <small className="text-sm font-medium leading-none">{community.community_memberships[0].count} {community.members_nickname || "members"}</small>
-                            <small className="text-sm font-medium leading-none flex items-center"><span className='text-primary text-4xl mr-1'>•</span>1 {community.currently_viewing_nickname || 'online'}</small>
+                            <small className="text-sm font-medium leading-none">
+                                {community.community_memberships[0].count}{" "}
+                                {community.community_memberships[0].count === 1
+                                    ? (community.members_nickname || "member")
+                                    : (community.members_nickname || "members")}
+                            </small>
+                            <small className="text-sm font-medium leading-none flex items-center"><span className='text-primary text-4xl mr-1'>•</span>{viewerCount} {community.currently_viewing_nickname || 'online'}</small>
                         </div>
                     </div>
                 </div>

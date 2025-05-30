@@ -1,6 +1,6 @@
 "use client"
 import { CakeSlice, Globe, Mail, Pencil } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import Link from 'next/link'
@@ -24,13 +24,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { createClient } from '@/utils/supabase/client'
+import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 
 
 export default function CommunityRightSide() {
+  const supabase = createClient()
   const { community } = useCommunity()
+  const { user } = useGeneralProfile()
   const [open, setOpen] = useState(false)
   const [isFormDirty, setIsFormDirty] = useState(false)
   const [showAlert, setShowAlert] = useState(false)
+  const [viewerCount, setViewerCount] = useState(0)
+
   const createAtFormatted = format(new Date(community.created_at), 'dd/MM/yyyy');
 
   const handleDialogOpenChange = (nextOpen: boolean) => {
@@ -50,6 +56,28 @@ export default function CommunityRightSide() {
     setOpen(false)
   }
 
+  useEffect(() => {
+    const channel = supabase.channel(`community_sidebar:${community.id}`, {
+      config: { presence: { key: user?.id } },
+    })
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState()
+        setViewerCount(Object.keys(state).length)
+      })
+      .subscribe(status => {
+        if (status === 'SUBSCRIBED') {
+          channel.track({ user_id: user?.id })
+        }
+      })
+
+    return () => {
+      channel.unsubscribe()
+    }
+
+  }, [supabase, community.id, user?.id])
+
   return (
     <div className='bg-black w-full p-5 rounded-2xl flex flex-col h-fit gap-4 -mt-12'>
       <div className='flex flex-col gap-2'>
@@ -66,8 +94,12 @@ export default function CommunityRightSide() {
         <small className="text-sm font-medium leading-none text-muted-foreground flex gap-1 items-center"><Globe /> {community.type}</small>
       </div>
       <div className="flex items-center gap-4">
-        <small className="text-sm font-medium leading-none">{community.community_memberships[0].count} {community.members_nickname || "members"}</small>
-        <small className="text-sm font-medium leading-none flex items-center"><span className='text-primary text-4xl mr-1'>•</span>1 {community.currently_viewing_nickname || 'online'}</small>
+        <small className="text-sm font-medium leading-none">{community.community_memberships[0].count}{" "}
+          {community.community_memberships[0].count === 1
+            ? (community.members_nickname || "member")
+            : (community.members_nickname || "members")}
+        </small>
+        <small className="text-sm font-medium leading-none flex items-center"><span className='text-primary text-4xl mr-1'>•</span>{viewerCount} {community.currently_viewing_nickname || 'online'}</small>
       </div>
       <hr />
       <div className='flex flex-col gap-4'>
