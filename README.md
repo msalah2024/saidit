@@ -38,6 +38,8 @@
 
 -   [x] Create `users` table.
 -   [x] Create `communities` table.
+-   [x] Create `community_memberships` table.
+-   [x] Create `social_links` table.
 -   [ ] Create `posts` table.
 -   [ ] Create `comments` table.
 -   [ ] Create `votes` table.
@@ -46,6 +48,10 @@
 -   [x] Create `moderators` table.
 -   [ ] Create `reports` table.
 -   [ ] Enable Row-Level Security (RLS) for all tables.
+
+## Virtualization
+
+-   [ ] Implement virtualization.
 
 ## Authentication
 
