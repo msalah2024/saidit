@@ -10,6 +10,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { GeneralProfileProvider } from "./context/GeneralProfileContext";
 import { cookies } from "next/headers";
+import { ViewProvider } from "./context/ViewContext";
 
 const robotoSlap = Roboto_Slab({
   variable: "--font-roboto-slab",
@@ -58,12 +59,14 @@ export default async function RootLayout({
             <Navbar user={user} profile={profile} />
             <div className="flex w-full">
               <GeneralProfileProvider value={{ user, profile }}>
-                <AppSidebar />
-                <SidebarInset>
-                  <div className="w-full mt-14">
-                    {children}
-                  </div>
-                </SidebarInset>
+                <ViewProvider>
+                  <AppSidebar />
+                  <SidebarInset>
+                    <div className="w-full mt-14">
+                      {children}
+                    </div>
+                  </SidebarInset>
+                </ViewProvider>
               </GeneralProfileProvider>
             </div>
           </SidebarProvider>

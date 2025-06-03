@@ -45,12 +45,14 @@ import {
 } from "@/components/ui/alert-dialog"
 import DetailsWidgetForm from './manage-community/details-widget-form'
 import { createClient } from '@/utils/supabase/client'
+import { useView } from '@/app/context/ViewContext'
 
 export default function CommunityHeader() {
     const supabase = createClient()
     const router = useRouter()
     const { community } = useCommunity()
     const { user, profile } = useGeneralProfile()
+    const { view, setView } = useView()
 
     const [globalAvatar, setGlobalAvatar] = useState<string | null>(null)
     const [globalBanner, setGlobalBanner] = useState<string | null>(null)
@@ -317,7 +319,7 @@ export default function CommunityHeader() {
                         </SelectGroup>
                     </SelectContent>
                 </Select>
-                <Select defaultValue='Card'>
+                <Select value={view} onValueChange={setView}>
                     <SelectTrigger className="w-34">
                         <SelectValue placeholder="Card" />
                     </SelectTrigger>
