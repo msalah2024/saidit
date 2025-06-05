@@ -3,7 +3,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
 import { faker } from "@faker-js/faker"
-import PostCard from "@/components/PostCard"
 
 // Generate a random item with variable content length and random images
 const generateItem = (index: number) => {
@@ -16,6 +15,16 @@ const generateItem = (index: number) => {
             url: faker.image.url({
                 width: 640,
                 height: 480,
+                category: faker.helpers.arrayElement([
+                    "nature",
+                    "city",
+                    "business",
+                    "food",
+                    "nightlife",
+                    "fashion",
+                    "people",
+                    "transport",
+                ]),
             }),
             alt: faker.lorem.words(3),
         }))
@@ -40,6 +49,16 @@ const generateItems = (count: number, startIndex = 0) => {
     return Array.from({ length: count }).map((_, i) => generateItem(i + startIndex))
 }
 
+// Format date for display
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+    }).format(date)
+}
 
 export default function VirtualScroller() {
     const [items, setItems] = useState(() => generateItems(100))
@@ -98,7 +117,7 @@ export default function VirtualScroller() {
 
         window.addEventListener("scroll", handleScroll, { passive: true })
         return () => window.removeEventListener("scroll", handleScroll)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [items, isLoading, hasMore])
 
     // Function to load more items
@@ -144,7 +163,7 @@ export default function VirtualScroller() {
                             position: "relative",
                         }}
                     >
-                        {/* {virtualizer.getVirtualItems().map((virtualItem) => {
+                        {virtualizer.getVirtualItems().map((virtualItem) => {
                             const item = items[virtualItem.index]
                             if (!item) return null
 
@@ -166,13 +185,69 @@ export default function VirtualScroller() {
                                     }}
                                 >
                                     <div className="mx-2 mb-4">
-                                        <PostCard post={item} />
+                                        <div
+                                            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+                                            style={{ borderLeft: `4px solid ${item.color}` }}
+                                        >
+                                            <div className="flex gap-4">
+                                                <div className="flex-shrink-0">
+                                                    <img
+                                                        src={item.avatar || "/placeholder.svg"}
+                                                        alt={item.name}
+                                                        className="h-16 w-16 rounded-full object-cover ring-2 ring-gray-100"
+                                                        crossOrigin="anonymous"
+                                                    />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-start justify-between">
+                                                        <div>
+                                                            <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+                                                            <p className="text-sm text-gray-600">{item.jobTitle}</p>
+                                                            <p className="text-sm text-gray-500">{item.company}</p>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <div className="mt-1 text-xs text-gray-400">{formatDate(item.timestamp)}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-4">
+                                                        <p className="text-sm leading-relaxed text-gray-700">{item.bio}</p>
+                                                    </div>
+
+                                                    {/* Image gallery - only shown if the post has images */}
+                                                    {item.images.length > 0 && (
+                                                        <div className="mt-4">
+                                                            <div
+                                                                className={`grid gap-2 ${item.images.length === 1
+                                                                    ? "grid-cols-1"
+                                                                    : item.images.length === 2
+                                                                        ? "grid-cols-2"
+                                                                        : "grid-cols-3"
+                                                                    }`}
+                                                            >
+                                                                {item.images.map((image, idx) => (
+                                                                    <div
+                                                                        key={idx}
+                                                                        className="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100"
+                                                                    >
+                                                                        <img
+                                                                            src={image.url || "/placeholder.svg"}
+                                                                            alt={image.alt}
+                                                                            className="h-full w-full object-cover transition-transform hover:scale-105"
+                                                                            crossOrigin="anonymous"
+                                                                            loading="lazy"
+                                                                        />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )
-                        })} */}
-
-                        <PostCard />
+                        })}
                     </div>
 
                     {/* Loading indicator */}
@@ -189,7 +264,7 @@ export default function VirtualScroller() {
                     {!hasMore && !isLoading && items.length > 0 && (
                         <div className="py-8 text-center">
                             <div className="rounded-lg bg-white p-6 shadow-sm">
-                                <p className="text-gray-500">🎉 You&#39;ve reached the end!</p>
+                                <p className="text-gray-500">🎉 You've reached the end!</p>
                                 <p className="mt-1 text-sm text-gray-400">Loaded {items.length} items total</p>
                             </div>
                         </div>

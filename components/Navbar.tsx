@@ -10,6 +10,8 @@ import { usePathname } from 'next/navigation'
 import CreateProfile from './CreateProfile'
 import { SidebarTrigger } from './ui/sidebar'
 import SidebarDialog from './SidebarDialog'
+import { Button } from './ui/button'
+import { Plus } from 'lucide-react'
 
 type Profile = {
     username: string
@@ -80,12 +82,25 @@ export default function Navbar({ user, profile }: NavbarProps) {
                         dialogContent={sidebarDialogContent} />
                 </div>
             )}
+
             {
                 openCreateProfile && (
                     <CreateProfile user={user} />
                 )
             }
-            {!shouldDisableNavbar && (user ? <ProfileMenu profile={profile} /> : <AuthDialog />)}
+            {!shouldDisableNavbar && (user ? <div className='flex items-center gap-2'>
+                <Button variant={'outline'} size={'icon'} className='rounded-full hover:bg-primary lg:hidden' asChild>
+                    <Link href={'/protected/create-post'}>
+                        <Plus />
+                    </Link>
+                </Button>
+                <Button variant={'outline'} className='rounded-full hover:bg-primary hidden lg:flex' asChild>
+                    <Link href={'/protected/create-post'}>
+                        <Plus /> Create Post
+                    </Link>
+                </Button>
+                <ProfileMenu profile={profile} />
+            </div> : <AuthDialog />)}
         </div>
     )
 }

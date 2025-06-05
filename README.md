@@ -40,9 +40,9 @@
 -   [x] Create `communities` table.
 -   [x] Create `community_memberships` table.
 -   [x] Create `social_links` table.
--   [ ] Create `posts` table.
+-   [x] Create `posts` table.
+-   [x] Create `posts_votes` table.
 -   [ ] Create `comments` table.
--   [ ] Create `votes` table.
 -   [ ] Create `notifications` table.
 -   [ ] Create `visited_subreddits` table.
 -   [x] Create `moderators` table.
@@ -51,7 +51,7 @@
 
 ## Virtualization
 
--   [ ] Implement virtualization.
+-   [x] Implement virtualization.
 
 ## Authentication
 

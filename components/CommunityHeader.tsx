@@ -77,6 +77,7 @@ export default function CommunityHeader() {
     const handleJoinClick = async () => {
         if (!user) {
             toast.info("Please sign in to join communities")
+            handleAuthDialog()
             return
         }
 
@@ -157,6 +158,10 @@ export default function CommunityHeader() {
 
     }, [supabase, community.id, user?.id])
 
+    const handleAuthDialog = () => {
+        window.dispatchEvent(new CustomEvent('openAuthDialog'))
+    }
+
     return (
         <div className='flex flex-col gap-4'>
             <div
@@ -213,9 +218,24 @@ export default function CommunityHeader() {
             </div>
             <div className="flex lg:justify-end mt-18 lg:mt-0">
                 <div className='flex gap-2 ml-5'>
-                    <Button variant={'outline'} className='rounded-full hover:bg-primary' disabled>
-                        <Plus />
-                        Create Post
+                    <Button variant={'outline'} className='rounded-full hover:bg-primary' asChild onClick={() => {
+                        if (!user) {
+                            handleAuthDialog()
+                        }
+                    }}>
+                        {
+                            user ?
+                                <Link href={'/protected/create-post'}>
+                                    <Plus />
+                                    Create Post
+                                </Link>
+                                :
+                                <div className='select-none hover:cursor-pointer'>
+                                    <Plus />
+                                    Create Post
+                                </div>
+                        }
+
                     </Button>
                     {
                         isOwner ?
