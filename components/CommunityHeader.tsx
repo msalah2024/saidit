@@ -76,7 +76,6 @@ export default function CommunityHeader() {
 
     const handleJoinClick = async () => {
         if (!user) {
-            toast.info("Please sign in to join communities")
             handleAuthDialog()
             return
         }
