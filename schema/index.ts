@@ -182,6 +182,7 @@ export const ManageDetailsWidgetSchema = z.object({
 })
 
 export const TextPostSchema = z.object({
-    title: z.string().max(300, { message: "Title must be less than 300 characters" }),
+    title: z.string().min(3, { message: "The title must be at least 3 characters long" })
+        .max(300, { message: "Title must be less than 300 characters" }),
     body: z.string().optional()
 })

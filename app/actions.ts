@@ -1146,3 +1146,28 @@ export async function updateCommunityDetails(values: z.infer<typeof ManageDetail
     }
   }
 }
+
+export async function selectCommunity(name: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from("communities").select().ilike("community_name", `%${name}%`)
+    if (error) {
+      console.error("Select community error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+    else {
+      return {
+        success: true,
+        message: "Community selected successfully",
+        data: data
+      }
+    }
+  } catch (error) {
+    console.error("Select community error", error)
+    return {
+      success: false,
+      message: "Select community error"
+    }
+  }
+}

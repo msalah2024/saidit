@@ -1,8 +1,11 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { TextContentForm } from '@/components/create-post-forms/editor'
+import { Tables } from '@/database.types'
+import TextForm from '@/components/create-post-forms/text-form'
+
 export default function Page() {
+    const [selectedCommunity, setSelectedCommunity] = useState<Tables<'communities'> | null>(null)
 
     const tabs = [
         "text", 'images', "videos", "link", "poll"
@@ -18,7 +21,7 @@ export default function Page() {
                     <TabsList className='h-fit bg-background gap-2 sm:gap-6'>
                         {
                             tabs.map((tab) => (
-                                <TabsTrigger key={tab} value={tab} className='border-b-background py-2 text-primary-foreground-muted rounded-none 
+                                <TabsTrigger disabled={tab !== "text"} key={tab} value={tab} className='border-b-background py-2 text-primary-foreground-muted rounded-none 
                         data-[state=active]:border-b-white hover:border-b-primary-foreground-muted
                         data-[state=active]:text-primary-foreground hover:text-primary-foreground'>
                                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -27,10 +30,12 @@ export default function Page() {
                         }
                     </TabsList>
                     <TabsContent value="text">
-                        <TextContentForm />
-                        {/* hey */}
+                        <TextForm selectedCommunity={selectedCommunity} setSelectedCommunity={setSelectedCommunity} />
                     </TabsContent>
-                    <TabsContent value="images">Change your password here.</TabsContent>
+                    <TabsContent value="images">Image</TabsContent>
+                    <TabsContent value="videos">Video</TabsContent>
+                    <TabsContent value="link">Link</TabsContent>
+                    <TabsContent value="poll">Poll</TabsContent>
                 </Tabs>
             </div>
         </div>

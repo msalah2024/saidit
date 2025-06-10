@@ -2,6 +2,8 @@
 
 @plugin "tailwindcss-animate";
 
+@plugin "@tailwindcss/typography";
+
 @custom-variant dark (&:is(.dark *));
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -156,4 +158,45 @@ input:autofill {
     --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
     --sidebar-border: hsl(240 3.7% 15.9%);
     --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    font-size: medium;
+}
+
+.ProseMirror strong {
+    color: var(--primary-foreground-muted);
+}
+
+.ProseMirror code {
+    color: var(--primary-foreground-muted);
+}
+
+.ProseMirror li p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.ProseMirror blockquote p {
+    color: var(--primary-foreground-muted);
+}
+
+.ProseMirror blockquote {
+    border-inline-start-color: var(--primary);
+}
+
+.ProseMirror p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.ProseMirror h1,
+h2,
+h3 {
+    color: var(--primary-foreground-muted);
 }
