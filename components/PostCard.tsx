@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
 import TextContent from './posts-content-type/textContent';
 import { PostsWithAuthor } from '@/complexTypes';
-import { managePostVotes } from '@/app/actions';
+import { managePostVotes, removeVote } from '@/app/actions'; // Import removeVote
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext';
 import { toast } from "sonner"
 
@@ -22,56 +22,59 @@ interface PostCardProps {
     post: PostsWithAuthor
 }
 
+type vote = { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }
+
 export default memo(function PostCard({ post }: PostCardProps) {
     const [votes, setVotes] = useState(0);
-    const [userVote, setUserVote] = useState<null | string>(null); // Track user's current vote
+    const [userVote, setUserVote] = useState<null | vote>(null); 
     const { user } = useGeneralProfile();
 
     useEffect(() => {
         let upVotes = 0;
         let downVotes = 0;
-        let currentUserVote = null;
+        let currentUserVote: vote | null = null;
 
         post.posts_votes.forEach((vote) => {
-            if (vote.vote_type === 'upvote') {
-                upVotes++;
-                if (vote.voter_id === user?.id) currentUserVote = 'upvote';
-            } else {
-                downVotes++;
-                if (vote.voter_id === user?.id) currentUserVote = 'downvote';
-            }
+            if (vote.vote_type === 'upvote') upVotes++;
+            else downVotes++;
+            if (vote.voter_id === user?.id) currentUserVote = vote;
         });
 
         setVotes(upVotes - downVotes);
         setUserVote(currentUserVote);
     }, [post.posts_votes, user?.id]);
 
-    const handleVote = async (voteType: string) => {
+    const handleVote = async (voteType: 'upvote' | 'downvote') => {
         if (!user) {
             toast.error("Please log in to vote");
             return;
         }
 
-        try {
-            const result = await managePostVotes(user.id, post.id, voteType);
-
-            if (result.success) {
-                if (userVote === voteType) {
+        if (userVote && userVote.vote_type === voteType) {
+            try {
+                const result = await removeVote(userVote.id);
+                if (result.success) {
                     setVotes(prev => voteType === 'upvote' ? prev - 1 : prev + 1);
                     setUserVote(null);
-                } else if (userVote) {
-                    setVotes(prev => {
-                        if (voteType === 'upvote') {
-                            return prev + 2;
-                        } else {
-                            return prev - 2;
-                        }
-                    });
-                    setUserVote(voteType);
+                } else {
+                    toast.error("Failed to remove vote");
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error("Failed to remove vote");
+            }
+            return;
+        }
+
+        try {
+            const result = await managePostVotes(user.id, post.id, voteType);
+            if (result.success) {
+                if (userVote) {
+                    setVotes(prev => voteType === 'upvote' ? prev + 2 : prev - 2);
                 } else {
                     setVotes(prev => voteType === 'upvote' ? prev + 1 : prev - 1);
-                    setUserVote(voteType);
                 }
+                setUserVote({ vote_type: voteType, voter_id: user.id, id: result.data?.id }); // Update with new vote
             } else {
                 toast.error("An error occurred");
             }
@@ -116,8 +119,8 @@ export default memo(function PostCard({ post }: PostCardProps) {
                                 handleVote("upvote")
                             }}
                             className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'>
-                            <ArrowBigUp size={20} fill={userVote === 'upvote' ? '#5BAE4A' : ''}
-                                className={userVote === 'upvote' ? 'text-primary' : ''} />
+                            <ArrowBigUp size={20} fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
+                                className={userVote?.vote_type === 'upvote' ? 'text-primary' : ''} />
                         </div>
                         <p className='text-sm font-medium text-primary-foreground-muted select-none'>{votes}</p>
                         <div
@@ -125,8 +128,8 @@ export default memo(function PostCard({ post }: PostCardProps) {
                                 handleVote("downvote")
                             }}
                             className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'>
-                            <ArrowBigDown size={20} fill={userVote === 'downvote' ? '#477ed8' : ''}
-                                className={userVote === 'downvote' ? 'text-accent' : ''} />
+                            <ArrowBigDown size={20} fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
+                                className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''} />
                         </div>
                     </div>
                     <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><MessageCircle /> 0</Button>

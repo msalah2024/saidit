@@ -3,9 +3,9 @@ import React, { memo, useEffect, useState, useCallback, useMemo } from 'react'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel"
 
 // Move testImages outside the component so it's not recreated on each render
-interface ImagesContentProps {
-    image: string
-}
+// interface ImagesContentProps {
+//     image: string
+// }
 
 const testImages = [
     {
@@ -30,7 +30,7 @@ const testImages = [
     }
 ]
 
-export default memo(function ImagesContent({ image }: any) {
+export default memo(function ImagesContent() {
     const [api, setApi] = useState<CarouselApi>()
     const [current, setCurrent] = useState(0)
     const [count, setCount] = useState(0)

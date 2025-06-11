@@ -1210,11 +1210,11 @@ export async function managePostVotes(voterID: string, postID: string, voteType:
   const supabase = await createClient()
 
   try {
-    const { error } = await supabase.from('posts_votes').upsert({
+    const { data, error } = await supabase.from('posts_votes').upsert({
       voter_id: voterID,
       post_id: postID,
       vote_type: voteType,
-    }, { onConflict: 'post_id, voter_id' })
+    }, { onConflict: 'post_id, voter_id' }).select().single()
 
     if (error) {
       console.error("Vote upsert error", error.message)
@@ -1225,6 +1225,7 @@ export async function managePostVotes(voterID: string, postID: string, voteType:
       return {
         success: true,
         message: "Vote upsert successful",
+        data: data
       }
     }
 
@@ -1233,6 +1234,33 @@ export async function managePostVotes(voterID: string, postID: string, voteType:
     return {
       success: false,
       message: "Vote upsert error"
+    }
+  }
+}
+
+export async function removeVote(voteID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('posts_votes').delete().eq('id', voteID)
+
+    if (error) {
+      console.error("Vote remove error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Vote removed successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Vote remove error", error)
+    return {
+      success: false,
+      message: "Vote remove error"
     }
   }
 }
