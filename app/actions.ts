@@ -16,7 +16,8 @@ import {
   DisplayNameSchema,
   DescriptionSchema,
   CreateCommunitySchema,
-  ManageDetailsWidgetSchema
+  ManageDetailsWidgetSchema,
+  TextPostSchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
@@ -1168,6 +1169,39 @@ export async function selectCommunity(name: string) {
     return {
       success: false,
       message: "Select community error"
+    }
+  }
+}
+
+export async function createTextPost(communityID: string, authorID: string, post: z.infer<typeof TextPostSchema>) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('posts').insert({
+      community_id: communityID,
+      author_id: authorID,
+      title: post.title,
+      content: post.body,
+      post_type: "text",
+    })
+
+    if (error) {
+      console.error("Create text post error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Text post created successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Create text post error", error)
+    return {
+      success: false,
+      message: "Create text post error"
     }
   }
 }

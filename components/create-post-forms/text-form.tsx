@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import TipTap from './TipTap'
 import { Tables } from '@/database.types'
 import SelectCommunity from '../SelectCommunity'
@@ -18,13 +18,19 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { TextPostSchema } from "@/schema"
 import { Button } from '../ui/button'
+import { createTextPost } from '@/app/actions'
+import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
+import { Loader2 } from 'lucide-react'
+import { toast } from "sonner"
 
 interface TextContentFormProps {
     selectedCommunity: Tables<'communities'> | null
     setSelectedCommunity: React.Dispatch<React.SetStateAction<Tables<'communities'> | null>>
 }
 
-export default function TextForm({ selectedCommunity, setSelectedCommunity }: TextContentFormProps) {
+export default function TextForm({ selectedCommunity, setSelectedCommunity}: TextContentFormProps) {
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const { profile } = useGeneralProfile()
     const form = useForm<z.infer<typeof TextPostSchema>>({
         resolver: zodResolver(TextPostSchema),
         defaultValues: {
@@ -33,10 +39,34 @@ export default function TextForm({ selectedCommunity, setSelectedCommunity }: Te
         },
     })
 
-    function onSubmit(values: z.infer<typeof TextPostSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof TextPostSchema>) {
+
+        if (!selectedCommunity) {
+            toast.error("You must select a community")
+            return
+        }
+
+        try {
+            setIsSubmitting(true)
+
+            if (!profile) { return }
+
+            const result = await createTextPost(selectedCommunity.id, profile?.account_id, values)
+
+            if (result.success) {
+                console.log("post created successfully")
+            }
+
+            else {
+                toast.error("An error occurred trying to create your post")
+                return
+            }
+
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -81,8 +111,12 @@ export default function TextForm({ selectedCommunity, setSelectedCommunity }: Te
 
                         )}
                     />
-                    <div className="flex justify-end">
-                        <Button type="submit">Post</Button>
+                    <div className="flex justify-center sm:justify-end">
+                        <Button type="submit" disabled={isSubmitting} className='w-full mt-2 p-6 sm:mt-0 sm:p-4 sm:w-fit'>
+                            {isSubmitting ? <>
+                                <Loader2 className="mr-1 h-4 w-4 animate-spin" />Posting...
+                            </> : 'Post'}
+                        </Button>
                     </div>
                 </form>
             </Form>

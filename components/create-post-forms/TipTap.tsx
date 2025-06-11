@@ -37,7 +37,7 @@ export default memo(function TipTap({ form }: TipTapProps) {
 
   if (!editor) {
     return (
-      <p className='ml-4 text-sm text-primary-foreground-muted'>Loading editor...</p>
+      <p className='ml-2 text-sm text-primary-foreground-muted'>Loading editor...</p>
     )
   }
 
