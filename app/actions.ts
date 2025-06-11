@@ -1205,3 +1205,34 @@ export async function createTextPost(communityID: string, authorID: string, post
     }
   }
 }
+
+export async function managePostVotes(voterID: string, postID: string, voteType: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('posts_votes').upsert({
+      voter_id: voterID,
+      post_id: postID,
+      vote_type: voteType,
+    }, { onConflict: 'post_id, voter_id' })
+
+    if (error) {
+      console.error("Vote upsert error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Vote upsert successful",
+      }
+    }
+
+  } catch (error) {
+    console.error("Vote upsert error", error)
+    return {
+      success: false,
+      message: "Vote upsert error"
+    }
+  }
+}

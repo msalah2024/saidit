@@ -12,7 +12,7 @@ export default memo(function TextContent({ post }: TextContentProps) {
 
     return (
         <div className='flex flex-col ml-2 gap-2 cursor-pointer select-none'>
-            <h4 className="scroll-m-20 text-lg font-semibold tracking-tight">
+            <h4 className="scroll-m-20 text-[1.1rem] font-medium tracking-tight">
                 {post.title}
             </h4>
             {

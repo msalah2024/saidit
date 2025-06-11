@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import {
     Card,
     CardAction,
@@ -14,12 +14,73 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
 import TextContent from './posts-content-type/textContent';
 import { PostsWithAuthor } from '@/complexTypes';
+import { managePostVotes } from '@/app/actions';
+import { useGeneralProfile } from '@/app/context/GeneralProfileContext';
+import { toast } from "sonner"
 
 interface PostCardProps {
     post: PostsWithAuthor
 }
 
 export default memo(function PostCard({ post }: PostCardProps) {
+    const [votes, setVotes] = useState(0);
+    const [userVote, setUserVote] = useState<null | string>(null); // Track user's current vote
+    const { user } = useGeneralProfile();
+
+    useEffect(() => {
+        let upVotes = 0;
+        let downVotes = 0;
+        let currentUserVote = null;
+
+        post.posts_votes.forEach((vote) => {
+            if (vote.vote_type === 'upvote') {
+                upVotes++;
+                if (vote.voter_id === user?.id) currentUserVote = 'upvote';
+            } else {
+                downVotes++;
+                if (vote.voter_id === user?.id) currentUserVote = 'downvote';
+            }
+        });
+
+        setVotes(upVotes - downVotes);
+        setUserVote(currentUserVote);
+    }, [post.posts_votes, user?.id]);
+
+    const handleVote = async (voteType: string) => {
+        if (!user) {
+            toast.error("Please log in to vote");
+            return;
+        }
+
+        try {
+            const result = await managePostVotes(user.id, post.id, voteType);
+
+            if (result.success) {
+                if (userVote === voteType) {
+                    setVotes(prev => voteType === 'upvote' ? prev - 1 : prev + 1);
+                    setUserVote(null);
+                } else if (userVote) {
+                    setVotes(prev => {
+                        if (voteType === 'upvote') {
+                            return prev + 2;
+                        } else {
+                            return prev - 2;
+                        }
+                    });
+                    setUserVote(voteType);
+                } else {
+                    setVotes(prev => voteType === 'upvote' ? prev + 1 : prev - 1);
+                    setUserVote(voteType);
+                }
+            } else {
+                toast.error("An error occurred");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to update vote");
+        }
+    };
+
 
     return (
         <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black'>
@@ -50,12 +111,22 @@ export default memo(function PostCard({ post }: PostCardProps) {
             <CardFooter className='mt-2'>
                 <div className='flex gap-3'>
                     <div className='flex items-center bg-muted rounded-full'>
-                        <div className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'>
-                            <ArrowBigUp size={20} />
+                        <div
+                            onClick={() => {
+                                handleVote("upvote")
+                            }}
+                            className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'>
+                            <ArrowBigUp size={20} fill={userVote === 'upvote' ? '#5BAE4A' : ''}
+                                className={userVote === 'upvote' ? 'text-primary' : ''} />
                         </div>
-                        <p className='text-sm font-medium text-primary-foreground-muted select-none'>0</p>
-                        <div className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'>
-                            <ArrowBigDown size={20} />
+                        <p className='text-sm font-medium text-primary-foreground-muted select-none'>{votes}</p>
+                        <div
+                            onClick={() => {
+                                handleVote("downvote")
+                            }}
+                            className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'>
+                            <ArrowBigDown size={20} fill={userVote === 'downvote' ? '#477ed8' : ''}
+                                className={userVote === 'downvote' ? 'text-accent' : ''} />
                         </div>
                     </div>
                     <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><MessageCircle /> 0</Button>
