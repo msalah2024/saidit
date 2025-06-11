@@ -1,70 +1,19 @@
 "use client"
-
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
-import { faker } from "@faker-js/faker"
+import PostCard from "@/components/PostCard"
+import { createClient } from "@/utils/supabase/client"
+import { useCommunity } from "@/app/context/CommunityContext"
+import { PostsWithAuthor } from "@/complexTypes"
 
-// Generate a random item with variable content length and random images
-const generateItem = (index: number) => {
-    // Randomly decide if this post should have images (about 60% chance)
-    const hasImages = Math.random() < 0.6
-
-    // Generate 0-3 images if hasImages is true
-    const images = hasImages
-        ? Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => ({
-            url: faker.image.url({
-                width: 640,
-                height: 480,
-                category: faker.helpers.arrayElement([
-                    "nature",
-                    "city",
-                    "business",
-                    "food",
-                    "nightlife",
-                    "fashion",
-                    "people",
-                    "transport",
-                ]),
-            }),
-            alt: faker.lorem.words(3),
-        }))
-        : []
-
-    return {
-        id: index,
-        name: faker.person.fullName(),
-        email: faker.internet.email(),
-        avatar: faker.image.avatar(),
-        bio: faker.lorem.paragraphs(Math.floor(Math.random() * 3) + 1),
-        color: faker.color.rgb(),
-        company: faker.company.name(),
-        jobTitle: faker.person.jobTitle(),
-        images,
-        timestamp: faker.date.recent({ days: 14 }).toISOString(),
-    }
-}
-
-// Generate initial batch of items
-const generateItems = (count: number, startIndex = 0) => {
-    return Array.from({ length: count }).map((_, i) => generateItem(i + startIndex))
-}
-
-// Format date for display
-const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-    }).format(date)
-}
+const PAGE_SIZE = 20
 
 export default function VirtualScroller() {
-    const [items, setItems] = useState(() => generateItems(100))
+    const supabase = createClient()
+    const [items, setItems] = useState<PostsWithAuthor[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [hasMore, setHasMore] = useState(true)
-
+    const { community } = useCommunity()
     // Reference to parent container
     const parentRef = useRef<HTMLDivElement>(null)
 
@@ -74,17 +23,10 @@ export default function VirtualScroller() {
     // Function to estimate row height based on content
     const estimateSize = (index: number) => {
         const item = items[index]
-        if (!item) return 120
+        if (!item || !item.content) return 120
 
-        // Estimate based on bio length and number of images
-        const bioLines = Math.ceil(item.bio.length / 80) // ~80 chars per line
-        const baseHeight = 80 // Base height for name, email, etc.
-        const bioHeight = bioLines * 20 // ~20px per line
-
-        // Add height for images if present
-        const imageHeight = item.images.length > 0 ? 220 : 0 // Approximate height for image section
-
-        return Math.max(120, baseHeight + bioHeight + imageHeight)
+        const lineCount = Math.ceil(item.content.length / 80)
+        return 100 + lineCount * 20
     }
 
     // Set up the virtualizer with better configuration
@@ -99,6 +41,32 @@ export default function VirtualScroller() {
             return el?.getBoundingClientRect().height ?? estimateSize(0)
         },
     })
+
+    useEffect(() => {
+        const loadInitialItems = async () => {
+            setIsLoading(true)
+            try {
+                const { data, error } = await supabase
+                    .from('posts')
+                    .select("*, users(username,avatar_url)")
+                    .order("created_at", { ascending: false })
+                    .range(0, PAGE_SIZE - 1)
+                    .eq('community_id', community.id)
+
+                if (error) throw error
+
+                setItems(data || [])
+                setHasMore(data?.length === PAGE_SIZE)
+            } catch (error) {
+                console.error("Initial load error:", error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        loadInitialItems()
+
+    }, [supabase, community.id])
 
     // Handle loading more items when scrolling near the bottom
     useEffect(() => {
@@ -117,25 +85,30 @@ export default function VirtualScroller() {
 
         window.addEventListener("scroll", handleScroll, { passive: true })
         return () => window.removeEventListener("scroll", handleScroll)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [items, isLoading, hasMore])
 
     // Function to load more items
     const loadMoreItems = async () => {
         if (isLoading || !hasMore) return
 
+        console.log(items)
         setIsLoading(true)
 
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        const from = items.length
+        const to = from + PAGE_SIZE - 1
 
-        // Add more items
-        const newItems = generateItems(50, items.length)
-        setItems((prevItems) => [...prevItems, ...newItems])
+        const { data, error } = await supabase.from('posts').select("*, users(username,avatar_url)").order("created_at", { ascending: false })
+            .range(from, to).eq('community_id', community.id)
 
-        // Stop infinite loading after reaching 500 items (for demo purposes)
-        if (items.length + 50 >= 500) {
-            setHasMore(false)
+        if (error) {
+            console.error("Error loading posts:", error.message)
+        } else {
+            if (data.length === 0) {
+                setHasMore(false)
+            } else {
+                setItems((prev) => [...prev, ...data])
+            }
         }
 
         setIsLoading(false)
@@ -184,67 +157,7 @@ export default function VirtualScroller() {
                                         transform: `translateY(${virtualItem.start}px)`,
                                     }}
                                 >
-                                    <div className="mx-2 mb-4">
-                                        <div
-                                            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-                                            style={{ borderLeft: `4px solid ${item.color}` }}
-                                        >
-                                            <div className="flex gap-4">
-                                                <div className="flex-shrink-0">
-                                                    <img
-                                                        src={item.avatar || "/placeholder.svg"}
-                                                        alt={item.name}
-                                                        className="h-16 w-16 rounded-full object-cover ring-2 ring-gray-100"
-                                                        crossOrigin="anonymous"
-                                                    />
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <div className="flex items-start justify-between">
-                                                        <div>
-                                                            <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
-                                                            <p className="text-sm text-gray-600">{item.jobTitle}</p>
-                                                            <p className="text-sm text-gray-500">{item.company}</p>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <div className="mt-1 text-xs text-gray-400">{formatDate(item.timestamp)}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="mt-4">
-                                                        <p className="text-sm leading-relaxed text-gray-700">{item.bio}</p>
-                                                    </div>
-
-                                                    {/* Image gallery - only shown if the post has images */}
-                                                    {item.images.length > 0 && (
-                                                        <div className="mt-4">
-                                                            <div
-                                                                className={`grid gap-2 ${item.images.length === 1
-                                                                    ? "grid-cols-1"
-                                                                    : item.images.length === 2
-                                                                        ? "grid-cols-2"
-                                                                        : "grid-cols-3"
-                                                                    }`}
-                                                            >
-                                                                {item.images.map((image, idx) => (
-                                                                    <div
-                                                                        key={idx}
-                                                                        className="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100"
-                                                                    >
-                                                                        <img
-                                                                            src={image.url || "/placeholder.svg"}
-                                                                            alt={image.alt}
-                                                                            className="h-full w-full object-cover transition-transform hover:scale-105"
-                                                                            crossOrigin="anonymous"
-                                                                            loading="lazy"
-                                                                        />
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <PostCard post={item} />
                                 </div>
                             )
                         })}
@@ -256,16 +169,6 @@ export default function VirtualScroller() {
                             <div className="flex items-center gap-3 rounded-full bg-white px-6 py-3 shadow-sm">
                                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
                                 <span className="text-sm font-medium text-gray-600">Loading more...</span>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* End of list message */}
-                    {!hasMore && !isLoading && items.length > 0 && (
-                        <div className="py-8 text-center">
-                            <div className="rounded-lg bg-white p-6 shadow-sm">
-                                <p className="text-gray-500">🎉 You've reached the end!</p>
-                                <p className="mt-1 text-sm text-gray-400">Loaded {items.length} items total</p>
                             </div>
                         </div>
                     )}
