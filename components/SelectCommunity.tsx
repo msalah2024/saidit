@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import { debounce } from 'lodash'
 import {
     Popover,
@@ -20,11 +20,20 @@ import { ChevronsUpDown } from 'lucide-react'
 import { selectCommunity } from '@/app/actions'
 import { Tables } from '@/database.types'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
+import { useRouter, useSearchParams } from 'next/navigation'
+
 
 interface SelectCommunityProps {
     selectedCommunity: Tables<'communities'> | null
     setSelectedCommunity: React.Dispatch<React.SetStateAction<Tables<'communities'> | null>>
 }
+
+const CommunityAvatar: React.FC<{ image?: string }> = ({ image }) => (
+    <Avatar>
+        <AvatarImage src={image || undefined} className='rounded-full' draggable={false} />
+        <AvatarFallback>s/</AvatarFallback>
+    </Avatar>
+)
 
 export default function SelectCommunity({ selectedCommunity, setSelectedCommunity }: SelectCommunityProps) {
     const [search, setSearch] = useState("")
@@ -32,63 +41,99 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
     const [isLoading, setIsLoading] = useState(false)
     const [open, setOpen] = useState(false)
     const { profile } = useGeneralProfile()
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const urlCommunity = searchParams.get('community')
 
-    const debouncedSearchHandler = useMemo(() => debounce(async (searchTerm: string) => {
-        setIsLoading(true)
-        try {
-            const result = await selectCommunity(searchTerm)
-            if (result.data) {
-                setCommunities(result.data)
+    const debouncedSearchHandler = useMemo(() =>
+        debounce(async (searchTerm: string) => {
+            setIsLoading(true)
+            try {
+                const result = await selectCommunity(searchTerm)
+                setCommunities(result.data || [])
+            } catch (error) {
+                console.error("Failed to fetch communities:", error)
+            } finally {
+                setIsLoading(false)
             }
-        } catch (error) {
-            console.error("Failed to fetch communities:", error)
-        } finally {
-            setIsLoading(false)
-        }
-    }, 300), [])
+        }, 300)
+        , [])
 
     useEffect(() => {
-        if (search.trim() !== '') {
+        if (!urlCommunity) return
+        let isMounted = true
+        selectCommunity(urlCommunity)
+            .then(result => {
+                if (isMounted && result.data) setSelectedCommunity(result.data[0])
+            })
+            .catch(error => console.error("Failed to fetch communities:", error))
+        return () => { isMounted = false }
+    }, [setSelectedCommunity, urlCommunity])
+
+    useEffect(() => {
+        if (search.trim()) {
             debouncedSearchHandler(search)
         } else {
             setCommunities([])
         }
-        return () => {
-            debouncedSearchHandler.cancel()
-        }
+        return () => { debouncedSearchHandler.cancel() }
     }, [search, debouncedSearchHandler])
+
+    const handleCommunitySelect = useCallback((community: Tables<'communities'>) => {
+        setOpen(false)
+        setSelectedCommunity(community)
+        const params = new URLSearchParams(searchParams.toString())
+        params.set('community', community.community_name)
+        router.replace(`?${params.toString()}`, { scroll: false })
+    }, [router, searchParams, setSelectedCommunity])
+
+    const renderCommunities = () => {
+        if (isLoading) return <CommandEmpty>Searching...</CommandEmpty>
+        if (search && communities.length === 0) return <CommandEmpty>No results found.</CommandEmpty>
+        if (search) {
+            return (
+                <CommandGroup>
+                    {communities.map((community) => (
+                        <CommandItem key={community.id} value={community.community_name} className='my-2'
+                            onSelect={() => handleCommunitySelect(community)}
+                        >
+                            <CommunityAvatar image={community.image_url || undefined} />
+                            <p>s/{community.community_name}</p>
+                        </CommandItem>
+                    ))}
+                </CommandGroup>
+            )
+        }
+        return (
+            <CommandGroup>
+                {profile?.community_memberships.map((community) => (
+                    <CommandItem key={community.community_id} value={community.communities.community_name} className='my-2'
+                        onSelect={() => handleCommunitySelect(community.communities)}
+                    >
+                        <CommunityAvatar image={community.communities.image_url || undefined} />
+                        <p>s/{community.communities.community_name}</p>
+                    </CommandItem>
+                ))}
+            </CommandGroup>
+        )
+    }
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className='w-fit'>
-                <Button variant={'outline'} className='justify-between hover:bg-muted rounded-full py-6 w-72' size={'default'}>
+                <Button variant='outline' className='justify-between hover:bg-muted rounded-full py-6 w-72' size='default'>
                     <div className='flex items-center gap-2'>
-                        {
-                            selectedCommunity ?
-                                <>
-                                    <Avatar>
-                                        <AvatarImage src={selectedCommunity.image_url || undefined}
-                                            className='rounded-full'
-                                            draggable={false}
-                                        />
-                                        <AvatarFallback>s/</AvatarFallback>
-                                    </Avatar>
-                                    <p>
-                                        s/
-                                        {selectedCommunity.community_name}
-                                    </p>
-                                </>
-                                :
-                                <>
-                                    <Avatar>
-                                        <AvatarImage src="" />
-                                        <AvatarFallback>s/</AvatarFallback>
-                                    </Avatar>
-                                    <p>
-                                        Select a community
-                                    </p>
-                                </>
-                        }
+                        {selectedCommunity ? (
+                            <>
+                                <CommunityAvatar image={selectedCommunity.image_url || undefined} />
+                                <p>s/{selectedCommunity.community_name}</p>
+                            </>
+                        ) : (
+                            <>
+                                <CommunityAvatar />
+                                <p>Select a community</p>
+                            </>
+                        )}
                     </div>
                     <ChevronsUpDown className="text-muted-foreground" />
                 </Button>
@@ -97,49 +142,7 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
                 <Command className='bg-background'>
                     <CommandInput value={search} onValueChange={setSearch} placeholder="Type a command or search..." />
                     <CommandList>
-                        {
-                            isLoading ?
-                                <CommandEmpty>Searching...</CommandEmpty>
-                                :
-                                <>
-                                    <CommandEmpty>No results found.</CommandEmpty>
-                                    <CommandGroup>
-                                        {search ?
-                                            communities.map((community) => (
-                                                <CommandItem key={community.id} value={community.community_name} className='my-2'
-                                                    onSelect={() => {
-                                                        setSelectedCommunity(community)
-                                                        setOpen(false)
-                                                    }}
-                                                >
-                                                    <Avatar>
-                                                        <AvatarImage src={community.image_url || undefined}
-                                                            className='rounded-full' draggable={false} />
-                                                        <AvatarFallback>s/</AvatarFallback>
-                                                    </Avatar>
-                                                    <p>s/{community.community_name}</p>
-                                                </CommandItem>
-                                            ))
-                                            :
-                                            profile?.community_memberships.map((community) => (
-                                                <CommandItem key={community.community_id} value={community.communities.community_name} className='my-2'
-                                                    onSelect={() => {
-                                                        setSelectedCommunity(community.communities)
-                                                        setOpen(false)
-                                                    }}
-                                                >
-                                                    <Avatar>
-                                                        <AvatarImage src={community.communities.image_url || undefined}
-                                                            className='rounded-full' draggable={false} />
-                                                        <AvatarFallback>s/</AvatarFallback>
-                                                    </Avatar>
-                                                    <p>s/{community.communities.community_name}</p>
-                                                </CommandItem>
-                                            ))
-                                        }
-                                    </CommandGroup>
-                                </>
-                        }
+                        {renderCommunities()}
                     </CommandList>
                 </Command>
             </PopoverContent>

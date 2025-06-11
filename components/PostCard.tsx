@@ -58,8 +58,8 @@ export default memo(function PostCard({ post }: PostCardProps) {
                             <ArrowBigDown size={20} />
                         </div>
                     </div>
-                    <Button variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><MessageCircle /> 0</Button>
-                    <Button variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><Forward /> Share</Button>
+                    <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><MessageCircle /> 0</Button>
+                    <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><Forward /> Share</Button>
                 </div>
             </CardFooter>
         </Card>

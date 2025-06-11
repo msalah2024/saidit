@@ -224,7 +224,7 @@ export default function CommunityHeader() {
                     }}>
                         {
                             user ?
-                                <Link href={'/protected/create-post'}>
+                                <Link href={`/protected/create-post?community=${community.community_name}`}>
                                     <Plus />
                                     Create Post
                                 </Link>
