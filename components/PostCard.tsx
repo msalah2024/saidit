@@ -8,29 +8,53 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { ArrowBigDown, ArrowBigUp, Ellipsis, Forward, MessageCircle, Rows3 } from 'lucide-react';
+import { ArrowBigDown, ArrowBigUp, Ellipsis, Forward, Loader2, MessageCircle, Rows3, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
 import TextContent from './posts-content-type/textContent';
 import { PostsWithAuthor } from '@/complexTypes';
-import { managePostVotes, removeVote } from '@/app/actions'; // Import removeVote
+import { deletePost, managePostVotes, removeVote } from '@/app/actions'; // Import removeVote
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext';
 import { toast } from "sonner"
 import { useView } from '@/app/context/ViewContext';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { formatRelativeTime } from '@/lib/formatDate';
 
 interface PostCardProps {
     post: PostsWithAuthor
+    setItems: React.Dispatch<React.SetStateAction<PostsWithAuthor[]>>;
 }
 
 type vote = { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }
 
-export default memo(function PostCard({ post }: PostCardProps) {
+export default memo(function PostCard({ post, setItems }: PostCardProps) {
     const [votes, setVotes] = useState(0);
     const [userVote, setUserVote] = useState<null | vote>(null);
-    const { user } = useGeneralProfile();
+    const deleteDialogRef = React.useRef<HTMLButtonElement>(null);
 
+    const { user } = useGeneralProfile();
     const { view } = useView()
+    const isAuthor = post.author_id === user?.id
+
+    console.log(post)
 
     useEffect(() => {
         let upVotes = 0;
@@ -89,7 +113,7 @@ export default memo(function PostCard({ post }: PostCardProps) {
 
     if (view === "Compact") {
         return (
-            <Card className='w-full max-w-full my-2 gap-1 bg-saidit-black'>
+            <Card className='w-full py-4 max-w-full my-2 gap-1 bg-saidit-black'>
                 <div className='flex w-full gap-2'>
                     <div className='bg-background flex items-center justify-center border rounded-lg w-28 h-20 ml-3'>
                         <Rows3 size={24} className='text-muted-foreground' />
@@ -110,10 +134,24 @@ export default memo(function PostCard({ post }: PostCardProps) {
                                     </Link>
                                 </CardTitle>
                                 <span className='text-muted-foreground'>•</span>
-                                <CardDescription>4 days ago</CardDescription>
+                                <CardDescription>{formatRelativeTime(post.created_at)}</CardDescription>
                             </div>
                             <CardAction>
-                                <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
+                                <DropdownMenu modal={false}>
+                                    <DropdownMenuTrigger asChild disabled={!isAuthor}>
+                                        <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className='bg-saidit-black mr-14'>
+                                        {
+                                            isAuthor &&
+                                            <DropdownMenuItem
+                                                onClick={() => deleteDialogRef.current?.click()}
+                                                className='text-primary-foreground-muted'>
+                                                <Trash className='text-primary-foreground-muted' /> Delete
+                                            </DropdownMenuItem>
+                                        }
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </CardAction>
                         </CardHeader>
                         <CardContent className='pl-0'>
@@ -146,7 +184,7 @@ export default memo(function PostCard({ post }: PostCardProps) {
                         </CardFooter>
                     </div>
                 </div>
-
+                <ConfirmationDialog triggerRef={deleteDialogRef} postID={post.id} setItems={setItems} />
             </Card>
 
         )
@@ -169,10 +207,24 @@ export default memo(function PostCard({ post }: PostCardProps) {
                         </Link>
                     </CardTitle>
                     <span className='text-muted-foreground'>•</span>
-                    <CardDescription>4 days ago</CardDescription>
+                    <CardDescription>{formatRelativeTime(post.created_at)}</CardDescription>
                 </div>
                 <CardAction>
-                    <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
+                    <DropdownMenu modal={false}>
+                        <DropdownMenuTrigger asChild disabled={!isAuthor}>
+                            <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className='bg-saidit-black mr-14'>
+                            {
+                                isAuthor &&
+                                <DropdownMenuItem
+                                    onClick={() => deleteDialogRef.current?.click()}
+                                    className='text-primary-foreground-muted'>
+                                    <Trash className='text-primary-foreground-muted' /> Delete
+                                </DropdownMenuItem>
+                            }
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </CardAction>
             </CardHeader>
             <CardContent>
@@ -203,6 +255,60 @@ export default memo(function PostCard({ post }: PostCardProps) {
                     <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><Forward /> Share</Button>
                 </div>
             </CardFooter>
+            <ConfirmationDialog triggerRef={deleteDialogRef} postID={post.id} setItems={setItems} />
         </Card>
     )
 })
+
+
+type ConfirmationDialogProps = {
+    triggerRef: React.RefObject<HTMLButtonElement | null>;
+    postID: string
+    setItems: React.Dispatch<React.SetStateAction<PostsWithAuthor[]>>;
+};
+
+const ConfirmationDialog = memo(({ triggerRef, postID, setItems }: ConfirmationDialogProps) => {
+    const [isDeleting, setIsDeleting] = useState(false)
+
+    const handlePostDelete = async () => {
+        try {
+            setIsDeleting(true)
+            const result = await deletePost(postID)
+
+            if (result.success) {
+                setItems(prevItems => prevItems.filter(item => item.id !== postID));
+            }
+
+            else {
+                toast.error("An error occurred")
+            }
+
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsDeleting(false)
+        }
+    }
+
+    return (
+        <AlertDialog>
+            <AlertDialogTrigger ref={triggerRef}></AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Delete post?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Once you delete this post, it can’t be restored.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Go Back</AlertDialogCancel>
+                    <AlertDialogAction onClick={handlePostDelete}>
+                        {isDeleting ? <>
+                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />Deleting...
+                        </> : 'Yes, Delete'}</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    )
+})
+ConfirmationDialog.displayName = "ConfirmationDialog";

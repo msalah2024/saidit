@@ -1264,3 +1264,31 @@ export async function removeVote(voteID: string) {
     }
   }
 }
+
+export async function deletePost(postID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('posts').delete().eq('id', postID)
+
+    if (error) {
+      console.error("Post delete error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Post deleted successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Post delete error", error)
+    return {
+      success: false,
+      message: "Post delete error"
+    }
+  }
+
+}

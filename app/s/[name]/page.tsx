@@ -155,7 +155,7 @@ export default function VirtualScroller() {
                                         transform: `translateY(${virtualItem.start}px)`,
                                     }}
                                 >
-                                    <PostCard post={item} />
+                                    <PostCard post={item} setItems={setItems} />
                                 </div>
                             )
                         })}
