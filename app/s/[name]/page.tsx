@@ -5,6 +5,7 @@ import PostCard from "@/components/PostCard"
 import { createClient } from "@/utils/supabase/client"
 import { useCommunity } from "@/app/context/CommunityContext"
 import { PostsWithAuthor } from "@/complexTypes"
+import PulseLogo from "@/components/PulseLogo"
 
 const PAGE_SIZE = 20
 
@@ -162,14 +163,11 @@ export default function VirtualScroller() {
                     </div>
 
                     {/* Loading indicator */}
-                    {isLoading && (
+                    {isLoading &&
                         <div className="flex justify-center py-8">
-                            <div className="flex items-center gap-3 rounded-full bg-white px-6 py-3 shadow-sm">
-                                <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
-                                <span className="text-sm font-medium text-gray-600">Loading more...</span>
-                            </div>
+                            <PulseLogo />
                         </div>
-                    )}
+                    }
                 </div>
             </div>
         </div>

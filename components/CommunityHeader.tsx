@@ -323,7 +323,7 @@ export default function CommunityHeader() {
                 </AccordionItem>
             </Accordion>
             <div className="flex gap-2 mx-4 lg:mt-4">
-                <Select defaultValue='New'>
+                <Select defaultValue='New' disabled>
                     <SelectTrigger className="w-32">
                         <SelectValue placeholder="Best" />
                     </SelectTrigger>
