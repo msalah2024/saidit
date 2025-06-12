@@ -22,15 +22,17 @@ import { createTextPost } from '@/app/actions'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { Loader2 } from 'lucide-react'
 import { toast } from "sonner"
+import { useRouter } from 'nextjs-toploader/app'
 
 interface TextContentFormProps {
     selectedCommunity: Tables<'communities'> | null
     setSelectedCommunity: React.Dispatch<React.SetStateAction<Tables<'communities'> | null>>
 }
 
-export default function TextForm({ selectedCommunity, setSelectedCommunity}: TextContentFormProps) {
+export default function TextForm({ selectedCommunity, setSelectedCommunity }: TextContentFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const { profile } = useGeneralProfile()
+    const router = useRouter()
     const form = useForm<z.infer<typeof TextPostSchema>>({
         resolver: zodResolver(TextPostSchema),
         defaultValues: {
@@ -54,7 +56,7 @@ export default function TextForm({ selectedCommunity, setSelectedCommunity}: Tex
             const result = await createTextPost(selectedCommunity.id, profile?.account_id, values)
 
             if (result.success) {
-                console.log("post created successfully")
+                router.push(`/s/${selectedCommunity.community_name}`)
             }
 
             else {
