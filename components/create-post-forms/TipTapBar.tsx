@@ -34,7 +34,10 @@ export default memo(function MenuBar({ editor }: any) {
             <div className="button-group">
                 <Button
                     variant={editorState.isBold ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleBold().run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
@@ -42,7 +45,10 @@ export default memo(function MenuBar({ editor }: any) {
                 </Button>
                 <Button
                     variant={editorState.isItalic ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleItalic().run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
@@ -50,7 +56,10 @@ export default memo(function MenuBar({ editor }: any) {
                 </Button>
                 <Button
                     variant={editorState.isStrike ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleStrike().run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleStrike().run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
@@ -58,7 +67,10 @@ export default memo(function MenuBar({ editor }: any) {
                 </Button>
                 <Button
                     variant={editorState.isCode ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleCode().run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleCode().run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
@@ -66,7 +78,10 @@ export default memo(function MenuBar({ editor }: any) {
                 </Button>
                 <Button
                     variant={editorState.isH1 ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleHeading({ level: 1 }).run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
@@ -74,7 +89,10 @@ export default memo(function MenuBar({ editor }: any) {
                 </Button>
                 <Button
                     variant={editorState.isH2 ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleHeading({ level: 2 }).run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
@@ -82,7 +100,10 @@ export default memo(function MenuBar({ editor }: any) {
                 </Button>
                 <Button
                     variant={editorState.isH3 ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleHeading({ level: 3 }).run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
@@ -90,7 +111,10 @@ export default memo(function MenuBar({ editor }: any) {
                 </Button>
                 <Button
                     variant={editorState.isBullet ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleBulletList().run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
@@ -98,16 +122,21 @@ export default memo(function MenuBar({ editor }: any) {
                 </Button>
                 <Button
                     variant={editorState.isOrdered ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleOrderedList().run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
-
                     <ListOrdered />
                 </Button>
                 <Button
                     variant={editorState.isCodeBlock ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleCodeBlock().run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
@@ -115,7 +144,10 @@ export default memo(function MenuBar({ editor }: any) {
                 </Button>
                 <Button
                     variant={editorState.isBlockQuote ? 'default' : 'ghost'}
-                    onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleBlockquote().run()
+                    }}
                     size={'icon'}
                     className='rounded-full hover:bg-reddit-gray'
                 >
@@ -125,14 +157,20 @@ export default memo(function MenuBar({ editor }: any) {
                     variant={'ghost'}
                     size={'icon'}
                     className='hover:bg-reddit-gray rounded-full'
-                    onClick={() => editor.chain().focus().undo().run()}>
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().undo().run()
+                    }}>
                     <Undo />
                 </Button>
                 <Button
                     variant={'ghost'}
                     size={'icon'}
                     className='hover:bg-reddit-gray rounded-full'
-                    onClick={() => editor.chain().focus().redo().run()}>
+                    onClick={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().redo().run()
+                    }}>
                     <Redo />
                 </Button>
             </div>

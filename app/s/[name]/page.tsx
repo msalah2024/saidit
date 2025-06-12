@@ -124,7 +124,7 @@ export default function VirtualScroller() {
 
     return (
         <div className="min-h-screen border-t">
-            <div className="mx-auto max-w-4xl">
+            <div className="mx-auto">
                 <div ref={parentRef} className="relative">
                     {/* Virtual list container */}
                     <div

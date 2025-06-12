@@ -8,7 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { ArrowBigDown, ArrowBigUp, Ellipsis, Forward, MessageCircle } from 'lucide-react';
+import { ArrowBigDown, ArrowBigUp, Ellipsis, Forward, MessageCircle, Rows3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
@@ -17,6 +17,7 @@ import { PostsWithAuthor } from '@/complexTypes';
 import { managePostVotes, removeVote } from '@/app/actions'; // Import removeVote
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext';
 import { toast } from "sonner"
+import { useView } from '@/app/context/ViewContext';
 
 interface PostCardProps {
     post: PostsWithAuthor
@@ -26,8 +27,10 @@ type vote = { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: str
 
 export default memo(function PostCard({ post }: PostCardProps) {
     const [votes, setVotes] = useState(0);
-    const [userVote, setUserVote] = useState<null | vote>(null); 
+    const [userVote, setUserVote] = useState<null | vote>(null);
     const { user } = useGeneralProfile();
+
+    const { view } = useView()
 
     useEffect(() => {
         let upVotes = 0;
@@ -84,6 +87,70 @@ export default memo(function PostCard({ post }: PostCardProps) {
         }
     };
 
+    if (view === "Compact") {
+        return (
+            <Card className='w-full max-w-full my-2 gap-1 bg-saidit-black'>
+                <div className='flex w-full gap-2'>
+                    <div className='bg-background flex items-center justify-center border rounded-lg w-28 h-20 ml-3'>
+                        <Rows3 size={24} className='text-muted-foreground' />
+                    </div>
+                    <div className='w-full'>
+                        <CardHeader className='pl-0'>
+                            <div className='flex items-center gap-2'>
+                                <CardTitle className='text-primary-foreground-muted flex items-center gap-1'>
+                                    <Avatar className='h-6 w-6'>
+                                        <AvatarImage src={post.users?.avatar_url || undefined}
+                                            className='rounded-full'
+                                            draggable={false}
+                                        />
+                                        <AvatarFallback>CN</AvatarFallback>
+                                    </Avatar>
+                                    <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline'>
+                                        u/{post.users?.username}
+                                    </Link>
+                                </CardTitle>
+                                <span className='text-muted-foreground'>•</span>
+                                <CardDescription>4 days ago</CardDescription>
+                            </div>
+                            <CardAction>
+                                <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
+                            </CardAction>
+                        </CardHeader>
+                        <CardContent className='pl-0'>
+                            <TextContent post={post} />
+                        </CardContent>
+                        <CardFooter className='mt-2 pl-0'>
+                            <div className='flex gap-3'>
+                                <div className='flex items-center bg-muted rounded-full'>
+                                    <div
+                                        onClick={() => {
+                                            handleVote("upvote")
+                                        }}
+                                        className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'>
+                                        <ArrowBigUp size={20} fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
+                                            className={userVote?.vote_type === 'upvote' ? 'text-primary' : ''} />
+                                    </div>
+                                    <p className='text-sm font-medium text-primary-foreground-muted select-none'>{votes}</p>
+                                    <div
+                                        onClick={() => {
+                                            handleVote("downvote")
+                                        }}
+                                        className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'>
+                                        <ArrowBigDown size={20} fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
+                                            className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''} />
+                                    </div>
+                                </div>
+                                <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><MessageCircle /> 0</Button>
+                                <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><Forward /> Share</Button>
+                            </div>
+                        </CardFooter>
+                    </div>
+                </div>
+
+            </Card>
+
+        )
+    }
 
     return (
         <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black'>
