@@ -13,13 +13,12 @@ import {
 import { ChevronDown, Home, Layers, PlusCircle, Telescope, TrendingUp, Users } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible"
 import { useGeneralProfile } from "@/app/context/GeneralProfileContext"
-import { useRouter } from 'nextjs-toploader/app'
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import Image from "next/image"
 import allCommunitiesLogo from "@/public/assets/images/saidit-slash.svg"
+import Link from "next/link"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const router = useRouter()
   const { user } = useGeneralProfile()
 
   const mainItems = [
@@ -59,12 +58,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {mainItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-reddit-gray py-5 rounded-sm cursor-pointer">
-                  <div aria-disabled={item.title !== "Home"} className="select-none" onClick={() => {
-                    router.push(item.url)
-                  }}>
+                  <Link aria-disabled={item.title !== "Home"} className="select-none" href={item.url} >
                     <item.icon />
                     <span>{item.title}</span>
-                  </div>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -107,17 +104,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         asChild
                         className="select-none cursor-pointer py-5 hover:bg-reddit-gray rounded-sm "
                         tooltip={`s/${community.communities.community_name}`}
-                        onClick={() => {
-                          router.push(`/s/${community.communities.community_name}`)
-                        }}
                       >
-                        <div>
+                        <Link href={`/s/${community.communities.community_name}`}>
                           <Avatar className="h-6 w-6 block">
                             <AvatarImage src={community.communities.image_url || undefined} className="rounded-full" draggable={false} />
                             <AvatarFallback>s/</AvatarFallback>
                           </Avatar>
                           <span>s/{community.communities.community_name}</span>
-                        </div>
+                        </Link>
                       </SidebarMenuButton>))
                     }
                   </SidebarMenuItem>
@@ -130,14 +124,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenuButton asChild tooltip={'All communities'} className="py-5 hover:bg-reddit-gray select-none cursor-pointer"
-              onClick={() => {
-                router.push('/communities')
-              }}
             >
-              <div>
+              <Link href={'/communities'}>
                 <Image src={allCommunitiesLogo} alt="All communities logo" />
                 Communities
-              </div>
+              </Link>
             </SidebarMenuButton>
           </SidebarGroupContent>
         </SidebarGroup>
