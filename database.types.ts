@@ -24,6 +24,8 @@ export type Database = {
           members_nickname: string | null
           type: Database["public"]["Enums"]["community_type"]
           updated_at: string | null
+          verified: boolean
+          verified_since: string | null
         }
         Insert: {
           banner_url?: string | null
@@ -39,6 +41,8 @@ export type Database = {
           members_nickname?: string | null
           type: Database["public"]["Enums"]["community_type"]
           updated_at?: string | null
+          verified?: boolean
+          verified_since?: string | null
         }
         Update: {
           banner_url?: string | null
@@ -54,6 +58,8 @@ export type Database = {
           members_nickname?: string | null
           type?: Database["public"]["Enums"]["community_type"]
           updated_at?: string | null
+          verified?: boolean
+          verified_since?: string | null
         }
         Relationships: [
           {
@@ -296,6 +302,8 @@ export type Database = {
           updated_at: string | null
           username: string
           username_lower: string
+          verified: boolean
+          verified_since: string | null
         }
         Insert: {
           account_id: string
@@ -311,6 +319,8 @@ export type Database = {
           updated_at?: string | null
           username: string
           username_lower: string
+          verified?: boolean
+          verified_since?: string | null
         }
         Update: {
           account_id?: string
@@ -326,6 +336,8 @@ export type Database = {
           updated_at?: string | null
           username?: string
           username_lower?: string
+          verified?: boolean
+          verified_since?: string | null
         }
         Relationships: []
       }

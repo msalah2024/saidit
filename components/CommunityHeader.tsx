@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
-import { CakeSlice, Camera, Ellipsis, Globe, Mail, Pencil, Plus, Rows2, Rows3 } from 'lucide-react'
+import { BadgeCheck, CakeSlice, CalendarDays, Camera, Ellipsis, Globe, Mail, Pencil, Plus, Rows2, Rows3 } from 'lucide-react'
 import {
     Accordion,
     AccordionContent,
@@ -46,6 +46,7 @@ import {
 import DetailsWidgetForm from './manage-community/details-widget-form'
 import { createClient } from '@/utils/supabase/client'
 import { useView } from '@/app/context/ViewContext'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
 export default function CommunityHeader() {
     const supabase = createClient()
@@ -69,6 +70,9 @@ export default function CommunityHeader() {
     const isMember = profile?.community_memberships.some((cm) => (cm.community_id === community.id))
 
     const createAtFormatted = format(new Date(community.created_at), 'dd/MM/yyyy');
+    const verifiedSinceFormatted = community.verified_since
+        ? format(new Date(community.verified_since), 'MMM, yyyy')
+        : "N/A";
 
     const openDrawer = () => {
         drawerTriggerRef.current?.click()
@@ -188,9 +192,39 @@ export default function CommunityHeader() {
                         }
                     </div>
                     <div className='flex lg:flex-row flex-col'>
-                        <h2 className="scroll-m-20 text-3xl font-semibold mt-10 tracking-tight">
-                            s/{community.community_name}
-                        </h2>
+                        <div className='flex gap-2 items-center mt-10'>
+                            <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight">
+                                s/{community.community_name}
+                            </h2>
+                            {community.verified &&
+                                <Popover>
+                                    <PopoverTrigger asChild className="hover:bg-muted rounded-sm p-0.5">
+                                        <BadgeCheck className="text-background hover:cursor-pointer" fill="#477ed8" size={28} />
+                                    </PopoverTrigger>
+                                    <PopoverContent asChild className="mr-2 md:mr-26">
+                                        <div className="flex flex-col gap-2">
+                                            <h4 className="scroll-m-20 text-primary-foreground-muted text-xl font-semibold tracking-tight">
+                                                Verified community
+                                            </h4>
+                                            <div className="flex gap-2">
+                                                <div className="flex flex-col gap-2 items-center">
+                                                    <BadgeCheck className="text-background" fill="#477ed8" />
+                                                    <CalendarDays size={18} className="text-primary-foreground-muted" />
+                                                </div>
+                                                <div className="flex flex-col gap-1">
+                                                    <p className="text-muted-foreground">
+                                                        This community is verified.
+                                                    </p>
+                                                    <p className="text-muted-foreground">
+                                                        Verified since {verifiedSinceFormatted}.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
+                            }
+                        </div>
                         <div className="lg:hidden flex items-center gap-4">
                             <small className="text-sm font-medium leading-none">
                                 {community.community_memberships[0].count}{" "}
