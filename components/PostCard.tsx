@@ -54,8 +54,6 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
     const { view } = useView()
     const isAuthor = post.author_id === user?.id
 
-    console.log(post)
-
     useEffect(() => {
         let upVotes = 0;
         let downVotes = 0;

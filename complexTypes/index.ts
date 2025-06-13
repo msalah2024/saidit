@@ -20,7 +20,7 @@ export type CommunityWithDetails = Community & {
 };
 
 export type PostsWithAuthor = Post & {
-    users: {
+    users?: {
         username: string | null
         avatar_url: string | null
     } | null

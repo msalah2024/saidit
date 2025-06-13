@@ -60,9 +60,9 @@ export default function Navbar({ user, profile }: NavbarProps) {
     return (
         <div className='flex items-center bg-background fixed top-0 left-0 right-0 z-50 h-14 border-b justify-between'>
             {shouldDisableNavbar ? (
-                <div className='flex items-center gap-2 ml-4'>
+                <div className='flex items-center text-primary-foreground gap-2 ml-4'>
                     <Image src={Logo} alt='Logo' width={35} height={35} />
-                    <h2 className="text-3xl font-semibold tracking-tight">
+                    <h2 className="text-3xl text-primary-foreground font-semibold tracking-tight">
                         saidit
                     </h2>
                 </div>

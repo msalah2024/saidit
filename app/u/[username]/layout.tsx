@@ -1,10 +1,9 @@
 import React from 'react'
-import ProfileHeader from "@/components/ProfileHeader";
-import ProfileRightSide from "@/components/ProfileRightSide";
 import { fetchProfile, getSocialLinksByUserName } from '@/app/actions'
 import UserNotFound from "@/components/UserNotFound";
 import { ProfileProvider } from "@/app/context/ProfileContext";
 import { createClient } from "@/utils/supabase/server";
+import ProfileChildLayout from '@/components/ProfileChildLayout';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function Layout({ children, params }: any) {
@@ -26,15 +25,9 @@ export default async function Layout({ children, params }: any) {
 
     return (
         <ProfileProvider profile={profile.data} currentUser={user} socialLinks={socialLinks}>
-            <div className="flex gap-x-4 lg:mx-8">
-                <div className="w-full">
-                    <ProfileHeader />
-                    {children}
-                </div>
-                <div className="w-80 hidden lg:flex">
-                    <ProfileRightSide />
-                </div>
-            </div>
+            <ProfileChildLayout>
+                {children}
+            </ProfileChildLayout>
         </ProfileProvider>
     );
 }
