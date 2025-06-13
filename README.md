@@ -80,6 +80,10 @@
 -   [ ] Implement nested comment threads.
 -   [ ] Allow comment editing and deletion.
 
+## Verification
+
+-   [x] Implement verification for users and communities.
+
 ## Voting
 
 -   [x] Implement upvote/downvote for posts.

@@ -22,14 +22,13 @@ import { Tables } from '@/database.types'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-
 interface SelectCommunityProps {
     selectedCommunity: Tables<'communities'> | null
     setSelectedCommunity: React.Dispatch<React.SetStateAction<Tables<'communities'> | null>>
 }
 
 const CommunityAvatar: React.FC<{ image?: string }> = ({ image }) => (
-    <Avatar>
+    <Avatar className="h-6 w-6">
         <AvatarImage src={image || undefined} className='rounded-full' draggable={false} />
         <AvatarFallback>s/</AvatarFallback>
     </Avatar>
@@ -56,8 +55,7 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
             } finally {
                 setIsLoading(false)
             }
-        }, 300)
-        , [])
+        }, 300), [])
 
     useEffect(() => {
         if (!urlCommunity) return
@@ -81,10 +79,14 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
 
     const handleCommunitySelect = useCallback((community: Tables<'communities'>) => {
         setOpen(false)
+
         setSelectedCommunity(community)
+
         const params = new URLSearchParams(searchParams.toString())
         params.set('community', community.community_name)
-        router.replace(`?${params.toString()}`, { scroll: false })
+        setTimeout(() => {
+            router.replace(`?${params.toString()}`, { scroll: false })
+        }, 100)
     }, [router, searchParams, setSelectedCommunity])
 
     const renderCommunities = () => {
@@ -94,11 +96,18 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
             return (
                 <CommandGroup>
                     {communities.map((community) => (
-                        <CommandItem key={community.id} value={community.community_name} className='my-2'
-                            onSelect={() => handleCommunitySelect(community)}
+                        <CommandItem
+                            key={community.id}
+                            value={community.community_name}
+                            className='my-2'
+                            onSelect={() => {
+                                handleCommunitySelect(community)
+                            }}
                         >
-                            <CommunityAvatar image={community.image_url || undefined} />
-                            <p>s/{community.community_name}</p>
+                            <div className="flex items-center gap-2">
+                                <CommunityAvatar image={community.image_url || undefined} />
+                                <span>s/{community.community_name}</span>
+                            </div>
                         </CommandItem>
                     ))}
                 </CommandGroup>
@@ -107,11 +116,18 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
         return (
             <CommandGroup>
                 {profile?.community_memberships.map((community) => (
-                    <CommandItem key={community.community_id} value={community.communities.community_name} className='my-2'
-                        onSelect={() => handleCommunitySelect(community.communities)}
+                    <CommandItem
+                        key={community.community_id}
+                        value={community.communities.community_name}
+                        className='my-2'
+                        onSelect={() => {
+                            handleCommunitySelect(community.communities)
+                        }}
                     >
-                        <CommunityAvatar image={community.communities.image_url || undefined} />
-                        <p>s/{community.communities.community_name}</p>
+                        <div className="flex items-center gap-2">
+                            <CommunityAvatar image={community.communities.image_url || undefined} />
+                            <span>s/{community.communities.community_name}</span>
+                        </div>
                     </CommandItem>
                 ))}
             </CommandGroup>
@@ -119,9 +135,14 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
     }
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild className='w-fit'>
-                <Button variant='outline' className='justify-between hover:bg-muted rounded-full py-6 w-72' size='default'>
+        <Popover open={open} onOpenChange={setOpen} modal={true}>
+            <PopoverTrigger asChild>
+                <Button
+                    variant='outline'
+                    className='justify-between hover:bg-muted rounded-full py-6 w-72'
+                    size='default'
+                    onClick={() => setOpen(!open)}
+                >
                     <div className='flex items-center gap-2'>
                         {selectedCommunity ? (
                             <>
@@ -135,12 +156,22 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
                             </>
                         )}
                     </div>
-                    <ChevronsUpDown className="text-muted-foreground" />
+                    <ChevronsUpDown className="text-muted-foreground h-4 w-4" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className='bg-background rounded-xl p-2'>
+            <PopoverContent
+                className='bg-background rounded-xl p-2 w-[--radix-popover-trigger-width]'
+                align="start"
+                onInteractOutside={(e) => {
+                    e.preventDefault()
+                }}
+            >
                 <Command className='bg-background'>
-                    <CommandInput value={search} onValueChange={setSearch} placeholder="Type a command or search..." />
+                    <CommandInput
+                        value={search}
+                        onValueChange={setSearch}
+                        placeholder="Search communities..."
+                    />
                     <CommandList>
                         {renderCommunities()}
                     </CommandList>

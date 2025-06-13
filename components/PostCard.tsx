@@ -139,7 +139,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                     <DropdownMenuTrigger asChild disabled={!isAuthor}>
                                         <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className='bg-saidit-black mr-14'>
+                                    <DropdownMenuContent className='mr-6 lg:mr-18'>
                                         {
                                             isAuthor &&
                                             <DropdownMenuItem
@@ -156,28 +156,36 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                             <TextContent post={post} />
                         </CardContent>
                         <CardFooter className='mt-2 pl-0'>
-                            <div className='flex gap-3'>
-                                <div className='flex items-center bg-muted rounded-full'>
+                            <div className='flex items-center gap-2'>
+                                <div className='flex items-center h-8 bg-muted rounded-full'>
                                     <div
                                         onClick={() => {
                                             handleVote("upvote")
                                         }}
                                         className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'>
-                                        <ArrowBigUp size={20} fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
+                                        <ArrowBigUp size={18} fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
                                             className={userVote?.vote_type === 'upvote' ? 'text-primary' : ''} />
                                     </div>
-                                    <p className='text-sm font-medium text-primary-foreground-muted select-none'>{votes}</p>
+                                    <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{votes}</p>
                                     <div
                                         onClick={() => {
                                             handleVote("downvote")
                                         }}
                                         className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'>
-                                        <ArrowBigDown size={20} fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
+                                        <ArrowBigDown size={18} fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
                                             className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''} />
                                     </div>
                                 </div>
-                                <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><MessageCircle /> 0</Button>
-                                <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><Forward /> Share</Button>
+                                <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
+                                    <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'><MessageCircle size={18} />
+                                        <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>0</p>
+                                    </div>
+                                </Button>
+                                <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
+                                    <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
+                                        <Forward size={18} /> Share
+                                    </div>
+                                </Button>
                             </div>
                         </CardFooter>
                     </div>
@@ -212,7 +220,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                         <DropdownMenuTrigger asChild disabled={!isAuthor}>
                             <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className='bg-saidit-black mr-14'>
+                        <DropdownMenuContent className='mr-6 lg:mr-18'>
                             {
                                 isAuthor &&
                                 <DropdownMenuItem
@@ -229,28 +237,36 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                 <TextContent post={post} />
             </CardContent>
             <CardFooter className='mt-2'>
-                <div className='flex gap-3'>
-                    <div className='flex items-center bg-muted rounded-full'>
+                <div className='flex items-center gap-2'>
+                    <div className='flex items-center h-8 bg-muted rounded-full'>
                         <div
                             onClick={() => {
                                 handleVote("upvote")
                             }}
                             className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'>
-                            <ArrowBigUp size={20} fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
+                            <ArrowBigUp size={18} fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
                                 className={userVote?.vote_type === 'upvote' ? 'text-primary' : ''} />
                         </div>
-                        <p className='text-sm font-medium text-primary-foreground-muted select-none'>{votes}</p>
+                        <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{votes}</p>
                         <div
                             onClick={() => {
                                 handleVote("downvote")
                             }}
                             className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'>
-                            <ArrowBigDown size={20} fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
+                            <ArrowBigDown size={18} fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
                                 className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''} />
                         </div>
                     </div>
-                    <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><MessageCircle /> 0</Button>
-                    <Button disabled variant={'ghost'} className='bg-muted rounded-full text-primary-foreground-muted'><Forward /> Share</Button>
+                    <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
+                        <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'><MessageCircle size={18} />
+                            <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>0</p>
+                        </div>
+                    </Button>
+                    <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
+                        <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
+                            <Forward size={18} /> Share
+                        </div>
+                    </Button>
                 </div>
             </CardFooter>
             <ConfirmationDialog triggerRef={deleteDialogRef} postID={post.id} setItems={setItems} />
