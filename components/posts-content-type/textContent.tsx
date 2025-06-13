@@ -18,7 +18,14 @@ export default memo(function TextContent({ post }: TextContentProps) {
             {
                 !isEmptyParagraph &&
                 <div
-                    className='text-primary-foreground-muted line-clamp-6'
+                    className='text-primary-foreground-muted prose
+                                prose-strong:text-primary-foreground-muted
+                                prose-code:text-primary-foreground-muted
+                                prose-li:p:my-0
+                                prose-p:my-0
+                                prose-blockquote:p:text-primary-foreground-muted
+                                prose-blockquote:border-l-primary
+                                prose-headings:text-primary-foreground-muted line-clamp-6'
                     dangerouslySetInnerHTML={{ __html: cleanContent }}
                 />
             }
