@@ -126,6 +126,11 @@ export default function VirtualScroller() {
     return (
         <div className="min-h-screen border-t">
             <div className="mx-auto">
+                {!items[0] && !isLoading && !hasMore && <div className="flex items-center justify-center">
+                    <h4 className="mt-20 border-b pb-2 w-fit scroll-m-20 text-xl font-semibold tracking-tight">
+                        This community doesn&#39;t have any posts yet
+                    </h4>
+                </div>}
                 <div ref={parentRef} className="relative">
                     {/* Virtual list container */}
                     <div

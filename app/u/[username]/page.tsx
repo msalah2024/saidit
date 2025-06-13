@@ -6,7 +6,6 @@ import { createClient } from "@/utils/supabase/client"
 import { PostsWithAuthor } from "@/complexTypes"
 import PulseLogo from "@/components/PulseLogo"
 import { useProfile } from "@/app/context/ProfileContext"
-import { Island_Moments } from "next/font/google"
 
 const PAGE_SIZE = 20
 

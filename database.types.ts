@@ -180,7 +180,7 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedColumns: ["account_id"]
           },
           {
             foreignKeyName: "posts_community_id_fkey"
@@ -292,6 +292,7 @@ export type Database = {
           email: string
           gender: Database["public"]["Enums"]["Gender"]
           id: string
+          post_karma: number
           updated_at: string | null
           username: string
           username_lower: string
@@ -306,6 +307,7 @@ export type Database = {
           email: string
           gender: Database["public"]["Enums"]["Gender"]
           id?: string
+          post_karma?: number
           updated_at?: string | null
           username: string
           username_lower: string
@@ -320,6 +322,7 @@ export type Database = {
           email?: string
           gender?: Database["public"]["Enums"]["Gender"]
           id?: string
+          post_karma?: number
           updated_at?: string | null
           username?: string
           username_lower?: string
@@ -331,7 +334,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_karma: {
+        Args: { score: number }
+        Returns: number
+      }
     }
     Enums: {
       community_type: "public" | "private" | "restricted"

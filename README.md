@@ -69,9 +69,10 @@
 
 ## Posts
 
--   [ ] Allow users to create posts (text, link, media).
--   [ ] Display posts on the homepage and community pages.
--   [ ] Implement post editing and deletion.
+-   [x] Allow users to create posts (~~text~~, link, media).
+-   [x] Display posts on the homepage and community pages.
+-   [x] Implement post deletion.
+-   [ ] Implement post editing.
 
 ## Comments
 
@@ -81,7 +82,7 @@
 
 ## Voting
 
--   [ ] Implement upvote/downvote for posts.
+-   [x] Implement upvote/downvote for posts.
 -   [ ] Implement upvote/downvote for comments.
 -   [ ] Display vote counts in real-time.
 
@@ -102,6 +103,29 @@
 -   [ ] Allow moderators to delete posts and comments.
 -   [ ] Implement a reporting system for inappropriate content.
 -   [ ] Add a moderation dashboard for community moderators.
+
+## **🎯 Karma System Explained**
+
+Saidit uses a smart, scalable karma system to reflect how well posts are received by the community. Here’s how it works:
+
+- 🔼 **Upvotes** and 🔽 **Downvotes** affect the score of each post.  
+- The **net score** is:  
+  `net_score = upvotes - downvotes`
+
+- To keep karma growth fair and meaningful, we use a **logarithmic scale** for positive scores:  
+  - If `net_score` ≤ 0, karma equals the net score (negative or zero scores stay the same).  
+  - If `net_score` > 0, karma =  
+    `floor(10 * log₁₀(1 + net_score))`  
+    This means big upvote counts get scaled down to avoid runaway karma inflation 🚀⬇️.
+
+### ⚙️ Implementation Details
+
+- The **`calculate_karma`** function implements this logic in PostgreSQL.  
+- Whenever a vote is added, changed, or removed, the **`update_user_post_karma`** trigger:  
+  - Counts the post’s upvotes and downvotes.  
+  - Calculates the new karma with `calculate_karma`.  
+  - Updates the post author’s total `post_karma` in the `users` table.  
+- This keeps user karma always updated in real time, automatically 🎉.
 
 ## **🔐 License**
 

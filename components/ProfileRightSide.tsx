@@ -105,7 +105,7 @@ export default function ProfileRightSide() {
                     <div className='grid grid-cols-2 gap-4 mt-3'>
                         <div className='space-y-4'>
                             <div>
-                                <p className='leading-7 [&:not(:first-child)]:mt-6'>0</p>
+                                <p className='leading-7 [&:not(:first-child)]:mt-6'>{profile.post_karma}</p>
                                 <small className="text-sm font-medium text-muted-foreground leading-none">Post karma</small>
                             </div>
                             <div>
