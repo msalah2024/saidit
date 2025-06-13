@@ -24,6 +24,8 @@ export type Database = {
           members_nickname: string | null
           type: Database["public"]["Enums"]["community_type"]
           updated_at: string | null
+          verified: boolean
+          verified_since: string | null
         }
         Insert: {
           banner_url?: string | null
@@ -39,6 +41,8 @@ export type Database = {
           members_nickname?: string | null
           type: Database["public"]["Enums"]["community_type"]
           updated_at?: string | null
+          verified?: boolean
+          verified_since?: string | null
         }
         Update: {
           banner_url?: string | null
@@ -54,6 +58,8 @@ export type Database = {
           members_nickname?: string | null
           type?: Database["public"]["Enums"]["community_type"]
           updated_at?: string | null
+          verified?: boolean
+          verified_since?: string | null
         }
         Relationships: [
           {
@@ -140,6 +146,99 @@ export type Database = {
           },
         ]
       }
+      posts: {
+        Row: {
+          author_id: string | null
+          community_id: string
+          content: string | null
+          created_at: string
+          id: string
+          post_type: Database["public"]["Enums"]["post_type"]
+          title: string
+          updated_at: string | null
+          url: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          community_id: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          post_type: Database["public"]["Enums"]["post_type"]
+          title: string
+          updated_at?: string | null
+          url?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          community_id?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          post_type?: Database["public"]["Enums"]["post_type"]
+          title?: string
+          updated_at?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+          {
+            foreignKeyName: "posts_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts_votes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string | null
+          updated_at: string | null
+          vote_type: Database["public"]["Enums"]["vote_type"]
+          voter_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          updated_at?: string | null
+          vote_type: Database["public"]["Enums"]["vote_type"]
+          voter_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          updated_at?: string | null
+          vote_type?: Database["public"]["Enums"]["vote_type"]
+          voter_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_votes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_votes_voter_id_fkey"
+            columns: ["voter_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
       social_links: {
         Row: {
           account_id: string
@@ -199,9 +298,12 @@ export type Database = {
           email: string
           gender: Database["public"]["Enums"]["Gender"]
           id: string
+          post_karma: number
           updated_at: string | null
           username: string
           username_lower: string
+          verified: boolean
+          verified_since: string | null
         }
         Insert: {
           account_id: string
@@ -213,9 +315,12 @@ export type Database = {
           email: string
           gender: Database["public"]["Enums"]["Gender"]
           id?: string
+          post_karma?: number
           updated_at?: string | null
           username: string
           username_lower: string
+          verified?: boolean
+          verified_since?: string | null
         }
         Update: {
           account_id?: string
@@ -227,9 +332,12 @@ export type Database = {
           email?: string
           gender?: Database["public"]["Enums"]["Gender"]
           id?: string
+          post_karma?: number
           updated_at?: string | null
           username?: string
           username_lower?: string
+          verified?: boolean
+          verified_since?: string | null
         }
         Relationships: []
       }
@@ -238,11 +346,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_karma: {
+        Args: { score: number }
+        Returns: number
+      }
     }
     Enums: {
       community_type: "public" | "private" | "restricted"
       Gender: "male" | "female"
+      post_type: "text" | "link" | "image" | "video"
+      vote_type: "upvote" | "downvote"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -360,6 +473,8 @@ export const Constants = {
     Enums: {
       community_type: ["public", "private", "restricted"],
       Gender: ["male", "female"],
+      post_type: ["text", "link", "image", "video"],
+      vote_type: ["upvote", "downvote"],
     },
   },
 } as const

@@ -16,7 +16,8 @@ import {
   DisplayNameSchema,
   DescriptionSchema,
   CreateCommunitySchema,
-  ManageDetailsWidgetSchema
+  ManageDetailsWidgetSchema,
+  TextPostSchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
@@ -1145,4 +1146,149 @@ export async function updateCommunityDetails(values: z.infer<typeof ManageDetail
       message: "Update community details error"
     }
   }
+}
+
+export async function selectCommunity(name: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from("communities").select().ilike("community_name", `%${name}%`)
+    if (error) {
+      console.error("Select community error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+    else {
+      return {
+        success: true,
+        message: "Community selected successfully",
+        data: data
+      }
+    }
+  } catch (error) {
+    console.error("Select community error", error)
+    return {
+      success: false,
+      message: "Select community error"
+    }
+  }
+}
+
+export async function createTextPost(communityID: string, authorID: string, post: z.infer<typeof TextPostSchema>) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('posts').insert({
+      community_id: communityID,
+      author_id: authorID,
+      title: post.title,
+      content: post.body,
+      post_type: "text",
+    })
+
+    if (error) {
+      console.error("Create text post error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Text post created successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Create text post error", error)
+    return {
+      success: false,
+      message: "Create text post error"
+    }
+  }
+}
+
+export async function managePostVotes(voterID: string, postID: string, voteType: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from('posts_votes').upsert({
+      voter_id: voterID,
+      post_id: postID,
+      vote_type: voteType,
+    }, { onConflict: 'post_id, voter_id' }).select().single()
+
+    if (error) {
+      console.error("Vote upsert error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Vote upsert successful",
+        data: data
+      }
+    }
+
+  } catch (error) {
+    console.error("Vote upsert error", error)
+    return {
+      success: false,
+      message: "Vote upsert error"
+    }
+  }
+}
+
+export async function removeVote(voteID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('posts_votes').delete().eq('id', voteID)
+
+    if (error) {
+      console.error("Vote remove error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Vote removed successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Vote remove error", error)
+    return {
+      success: false,
+      message: "Vote remove error"
+    }
+  }
+}
+
+export async function deletePost(postID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('posts').delete().eq('id', postID)
+
+    if (error) {
+      console.error("Post delete error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Post deleted successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Post delete error", error)
+    return {
+      success: false,
+      message: "Post delete error"
+    }
+  }
+
 }

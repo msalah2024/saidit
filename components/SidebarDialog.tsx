@@ -77,7 +77,7 @@ export default function SidebarDialog({ open, setOpen, dialogContent, user }: Si
                         onOpenAutoFocus={(e) => e.preventDefault()}
                         className="lg:w-screen! lg:h-screen! h-[99%] w-[99%] max-w-none! m-0 p-0 lg:rounded-none flex focus:outline-none transition-none">
                         <CreateCommunity
-                        user={user}
+                            user={user}
                             dialogContent={dialogContent}
                             setOpen={setOpen}
                             onUnsavedChanges={(unsaved) => setHasUnsavedChanges(unsaved)}

@@ -22,6 +22,17 @@ export default function AuthDialog() {
         }
     }, [open])
 
+    useEffect(() => {
+        const handleAuthDialog = () => {
+            setOpen(true)
+        }
+
+        window.addEventListener('openAuthDialog', handleAuthDialog as EventListener)
+        return () => {
+            window.removeEventListener('openAuthDialog', handleAuthDialog as EventListener)
+        }
+    }, [])
+
     return (
         <Dialog onOpenChange={setOpen} open={open}>
             <DialogTrigger asChild className='mr-4'>

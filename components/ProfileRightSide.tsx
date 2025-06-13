@@ -18,12 +18,15 @@ import { useRouter } from 'nextjs-toploader/app';
 import { socialPlatforms } from '@/lib/social-platforms-data';
 import Image from 'next/image';
 import { toast } from "sonner"
+import { format } from 'date-fns';
 
 export default function ProfileRightSide() {
     const { profile, isOwner, socialLinks = [] } = useProfile();
     const router = useRouter()
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isCopied, setIsCopied] = useState(false)
+
+    const createAtFormatted = format(new Date(profile.created_at), 'MMM dd, yyyy');
 
     const copyToClipboard = async () => {
         const text = `https://www.saidit.app/u/${profile.username}`
@@ -102,21 +105,21 @@ export default function ProfileRightSide() {
                     <div className='grid grid-cols-2 gap-4 mt-3'>
                         <div className='space-y-4'>
                             <div>
-                                <p className='leading-7 [&:not(:first-child)]:mt-6'>83</p>
+                                <p className='leading-7 [&:not(:first-child)]:mt-6'>{profile.post_karma}</p>
                                 <small className="text-sm font-medium text-muted-foreground leading-none">Post karma</small>
                             </div>
                             <div>
-                                <p className='leading-7 [&:not(:first-child)]:mt-6'>3</p>
+                                <p className='leading-7 [&:not(:first-child)]:mt-6'>0</p>
                                 <small className="text-sm font-medium text-muted-foreground leading-none">Followers</small>
                             </div>
                         </div>
                         <div className='space-y-4'>
                             <div>
-                                <p className='leading-7 [&:not(:first-child)]:mt-6'>876</p>
+                                <p className='leading-7 [&:not(:first-child)]:mt-6'>0</p>
                                 <small className="text-sm font-medium text-muted-foreground leading-none">Comment karma</small>
                             </div>
                             <div>
-                                <p className='leading-7 [&:not(:first-child)]:mt-6'>May 21, 2019</p>
+                                <p className='leading-7 [&:not(:first-child)]:mt-6'>{createAtFormatted}</p>
                                 <small className="text-sm font-medium text-muted-foreground leading-none">Cake day</small>
                             </div>
 

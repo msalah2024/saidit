@@ -2,7 +2,7 @@
 import { useProfile } from "@/app/context/ProfileContext"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "./ui/button"
-import { Camera, ChevronLeft, ChevronRight, Ellipsis, Forward, Mail, MessageCircleMore, Plus, UserX } from "lucide-react"
+import { BadgeCheck, CalendarDays, Camera, ChevronLeft, ChevronRight, Ellipsis, Forward, Mail, MessageCircleMore, Plus, Rows2, Rows3, UserX } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from "nextjs-toploader/app"
@@ -22,6 +22,18 @@ import {
     DrawerTitle,
     DrawerTrigger,
 } from "@/components/ui/drawer"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { format } from "date-fns"
+import { useView } from "@/app/context/ViewContext"
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 
 export default function ProfileHeader() {
     const router = useRouter()
@@ -32,7 +44,13 @@ export default function ProfileHeader() {
     const [showLeftScroll, setShowLeftScroll] = useState(false)
     const [showRightScroll, setShowRightScroll] = useState(false)
     const [open, setOpen] = useState(false)
+    const { view, setView } = useView()
     const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+    const createAtFormatted = format(new Date(profile.created_at), 'MMM dd, yyyy');
+    const verifiedSinceFormatted = profile.verified_since
+        ? format(new Date(profile.verified_since), 'MMM, yyyy')
+        : "N/A";
 
     const tabs = [
         { id: "overview", label: "Overview" },
@@ -193,9 +211,40 @@ export default function ProfileHeader() {
                     </div>
                 </div>
                 <div className="flex flex-col">
-                    <h2 className="scroll-m-20 text-3xl break-all font-semibold tracking-tight first:mt-0 text-primary-foreground-muted">
-                        {profile.display_name || profile.username}
-                    </h2>
+                    <div className="flex gap-2 items-center">
+                        <h2 className="scroll-m-20 text-3xl break-all font-semibold tracking-tight first:mt-0 text-primary-foreground-muted">
+                            {profile.display_name || profile.username}
+                        </h2>
+                        {
+                            profile.verified &&
+                            <Popover>
+                                <PopoverTrigger asChild className="hover:bg-muted rounded-sm p-0.5">
+                                    <BadgeCheck className="text-background hover:cursor-pointer" fill="#5BAE4A" size={28} />
+                                </PopoverTrigger>
+                                <PopoverContent asChild className="ml-2 md:ml-26">
+                                    <div className="flex flex-col gap-2">
+                                        <h4 className="scroll-m-20 text-primary-foreground-muted text-xl font-semibold tracking-tight">
+                                            Verified account
+                                        </h4>
+                                        <div className="flex gap-2">
+                                            <div className="flex flex-col gap-2 items-center">
+                                                <BadgeCheck className="text-background" fill="#5BAE4A" />
+                                                <CalendarDays size={18} className="text-primary-foreground-muted" />
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <p className="text-muted-foreground">
+                                                    This account is verified.
+                                                </p>
+                                                <p className="text-muted-foreground">
+                                                    Verified since {verifiedSinceFormatted}.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        }
+                    </div>
                     <p className="text-muted-foreground">u/{profile.username}</p>
                 </div>
             </div>
@@ -261,21 +310,21 @@ export default function ProfileHeader() {
                         <div className='grid grid-cols-2 gap-4'>
                             <div className='space-y-4'>
                                 <div>
-                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>83</p>
+                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>{profile.post_karma}</p>
                                     <small className="text-sm font-medium text-muted-foreground leading-none">Post karma</small>
                                 </div>
                                 <div>
-                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>3</p>
+                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>0</p>
                                     <small className="text-sm font-medium text-muted-foreground leading-none">Followers</small>
                                 </div>
                             </div>
                             <div className='space-y-4'>
                                 <div>
-                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>876</p>
+                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>0</p>
                                     <small className="text-sm font-medium text-muted-foreground leading-none">Comment karma</small>
                                 </div>
                                 <div>
-                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>May 21, 2019</p>
+                                    <p className='leading-7 [&:not(:first-child)]:mt-6'>{createAtFormatted}</p>
                                     <small className="text-sm font-medium text-muted-foreground leading-none">Cake day</small>
                                 </div>
 
@@ -328,9 +377,11 @@ export default function ProfileHeader() {
                     onScroll={checkScroll}
                 >
                     {visibleTabs.map((tab) => (
-                        <button
+                        <Button
                             key={tab.id}
+                            variant={'ghost'}
                             onClick={() => setActiveTab(tab.id)}
+                            disabled={tab.id !== "overview"}
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap flex-shrink-0",
                                 activeTab === tab.id
@@ -339,7 +390,7 @@ export default function ProfileHeader() {
                             )}
                         >
                             {tab.label}
-                        </button>
+                        </Button>
                     ))}
                 </div>
 
@@ -353,6 +404,35 @@ export default function ProfileHeader() {
                         <ChevronRight className="h-5 w-5" />
                     </button>
                 )}
+            </div>
+            <div className="flex gap-2 mx-4 lg:mx-0">
+                <Select defaultValue='New' disabled>
+                    <SelectTrigger className="w-32">
+                        <SelectValue placeholder="Best" />
+                    </SelectTrigger>
+                    <SelectContent defaultChecked>
+                        <SelectGroup>
+                            <SelectLabel>Sort by</SelectLabel>
+                            <SelectItem value="Best">Best</SelectItem>
+                            <SelectItem value="Hot">Hot</SelectItem>
+                            <SelectItem value="New">New</SelectItem>
+                            <SelectItem value="Top">Top</SelectItem>
+                            <SelectItem value="Rising">Rising</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                <Select value={view} onValueChange={setView}>
+                    <SelectTrigger className="w-34">
+                        <SelectValue placeholder="Card" />
+                    </SelectTrigger>
+                    <SelectContent defaultChecked>
+                        <SelectGroup>
+                            <SelectLabel>View</SelectLabel>
+                            <SelectItem value="Card"><Rows2 className='text-primary-foreground' />Card</SelectItem>
+                            <SelectItem value="Compact"><Rows3 className='text-primary-foreground' />Compact</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
             </div>
         </div>
     )

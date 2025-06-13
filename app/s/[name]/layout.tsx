@@ -2,8 +2,7 @@ import React from 'react'
 import CommunityNotFound from '@/components/CommunityNotFound';
 import { CommunityProvider } from '../../context/CommunityContext';
 import { fetchCommunityByName } from '../../actions';
-import CommunityHeader from '@/components/CommunityHeader';
-import CommunityRightSide from '@/components/CommunityRightSide';
+import CommunityChildLayout from '@/components/CommunityChildLayout';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function Layout({ children, params }: any) {
@@ -18,17 +17,9 @@ export default async function Layout({ children, params }: any) {
 
     return (
         <CommunityProvider community={community.data}>
-            <div className='lg:mx-8'>
-                <CommunityHeader />
-                <div className='flex gap-4'>
-                    <div className='w-full mt-4 mx-4'>
-                        {children}
-                    </div>
-                    <div className='min-w-80 w-80 hidden lg:flex'>
-                        <CommunityRightSide />
-                    </div>
-                </div>
-            </div>
+            <CommunityChildLayout>
+                {children}
+            </CommunityChildLayout>
         </CommunityProvider>
     );
 }

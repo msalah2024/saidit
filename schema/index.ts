@@ -180,3 +180,9 @@ export const ManageDetailsWidgetSchema = z.object({
     currentlyViewingNickname: z.string().max(30, { message: "Currently viewing nickname must be less than 30 characters" }),
     description: z.string().max(500, { message: "Description must be less than 500 characters" })
 })
+
+export const TextPostSchema = z.object({
+    title: z.string().min(3, { message: "The title must be at least 3 characters long" })
+        .max(300, { message: "Title must be less than 300 characters" }),
+    body: z.string().optional()
+})
