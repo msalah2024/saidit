@@ -191,7 +191,7 @@ function CarouselPrevious({
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
-      disabled={!canScrollPrev}
+      hidden={!canScrollPrev}
       onClick={scrollPrev}
       {...props}
     >
@@ -221,7 +221,7 @@ function CarouselNext({
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
-      disabled={!canScrollNext}
+      hidden={!canScrollNext}
       onClick={scrollNext}
       {...props}
     >

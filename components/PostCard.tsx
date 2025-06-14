@@ -37,6 +37,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { formatRelativeTime } from '@/lib/formatDate';
+import ImagesContent from './posts-content-type/imagesContent';
 
 interface PostCardProps {
     post: PostsWithAuthor
@@ -234,7 +235,8 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                 </CardAction>
             </CardHeader>
             <CardContent>
-                <TextContent post={post} />
+                {/* <TextContent post={post} /> */}
+                <ImagesContent />
             </CardContent>
             <CardFooter className='mt-2'>
                 <div className='flex items-center gap-2'>
