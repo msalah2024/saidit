@@ -87,7 +87,7 @@ export default memo(function ImagesContent() {
 
     const handleImageClick = useCallback((index: number) => {
         setClickedImageIndex(index)
-        setCurrent(index + 1) 
+        setCurrent(index + 1)
         setOpen(true)
     }, [])
 
@@ -130,7 +130,7 @@ export default memo(function ImagesContent() {
                         {testImages.map((img, index) => (
                             <CarouselItem key={index} className='relative flex items-center hover:cursor-pointer'>
                                 <div className="absolute hidden lg:block inset-0 overflow-hidden">
-                                    <div className="w-full h-full scale-140 opacity-30 blur-lg">
+                                    <div className="w-full h-full scale-120 opacity-30 blur-xl">
                                         <Image
                                             src={img.url}
                                             alt={img.alt}
@@ -175,8 +175,7 @@ export default memo(function ImagesContent() {
                 </div>
             </Carousel>
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger className='w-0 h-0 hidden' asChild></DialogTrigger>
-                <DialogContent
+                <DialogTrigger className='w-0 h-0 hidden' asChild></DialogTrigger> <DialogContent
                     showCloseButton={false}
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     className='w-vh! h-dvh! max-w-none! p-0 border-none rounded-none'>

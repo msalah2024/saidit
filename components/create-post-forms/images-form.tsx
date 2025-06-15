@@ -16,28 +16,30 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { TextPostSchema } from "@/schema"
 import { Button } from '../ui/button'
 import { createTextPost } from '@/app/actions'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { Loader2 } from 'lucide-react'
 import { toast } from "sonner"
 import { useRouter } from 'nextjs-toploader/app'
+import { ImagePostSchema } from '@/schema'
+import ImagesManagement from './images-management'
 
-interface TextContentFormProps {
+interface ImagesFormProps {
     selectedCommunity: Tables<'communities'> | null
     setSelectedCommunity: React.Dispatch<React.SetStateAction<Tables<'communities'> | null>>
 }
 
-export default function TextForm({ selectedCommunity, setSelectedCommunity }: TextContentFormProps) {
+export default function ImagesForm({ selectedCommunity, setSelectedCommunity }: ImagesFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const { profile } = useGeneralProfile()
     const router = useRouter()
-    const form = useForm<z.infer<typeof TextPostSchema>>({
-        resolver: zodResolver(TextPostSchema),
+    const form = useForm<z.infer<typeof ImagePostSchema>>({
+        resolver: zodResolver(ImagePostSchema),
         defaultValues: {
             title: "",
             body: "<p></p>",
+            images: []
         },
     })
 
@@ -56,7 +58,7 @@ export default function TextForm({ selectedCommunity, setSelectedCommunity }: Te
         return () => window.removeEventListener('beforeunload', handleBeforeUnload)
     }, [isDirty])
 
-    async function onSubmit(values: z.infer<typeof TextPostSchema>) {
+    async function onSubmit(values: z.infer<typeof ImagePostSchema>) {
 
         if (!selectedCommunity) {
             toast.error("You must select a community")
@@ -66,18 +68,18 @@ export default function TextForm({ selectedCommunity, setSelectedCommunity }: Te
         try {
             setIsSubmitting(true)
 
-            if (!profile) { return }
+            // if (!profile) { return }
 
-            const result = await createTextPost(selectedCommunity.id, profile?.account_id, values)
+            // const result = await createTextPost(selectedCommunity.id, profile?.account_id, values)
 
-            if (result.success) {
-                router.push(`/s/${selectedCommunity.community_name}`)
-            }
+            // if (result.success) {
+            //     router.push(`/s/${selectedCommunity.community_name}`)
+            // }
 
-            else {
-                toast.error("An error occurred trying to create your post")
-                return
-            }
+            // else {
+            //     toast.error("An error occurred trying to create your post")
+            //     return
+            // }
 
         } catch (error) {
             console.error(error)
@@ -112,10 +114,28 @@ export default function TextForm({ selectedCommunity, setSelectedCommunity }: Te
                     />
                     <FormField
                         control={form.control}
+                        name="images"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="ml-2 text-primary-foreground-muted">
+                                    Images <span className="text-red-500">*</span>
+                                </FormLabel>
+                                <FormControl>
+                                    <ImagesManagement form={form} />
+                                </FormControl>
+                                <div className="flex mx-2 items-center justify-between">
+                                    <FormMessage />
+                                </div>
+                            </FormItem>
+
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
                         name="body"
                         render={() => (
                             <FormItem>
-                                <FormLabel className="ml-2 text-primary-foreground-muted">
+                                <FormLabel className="ml-2 mt-2 text-primary-foreground-muted">
                                     Content
                                 </FormLabel>
                                 <FormControl>

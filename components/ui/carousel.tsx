@@ -192,7 +192,10 @@ function CarouselPrevious({
         className
       )}
       hidden={!canScrollPrev}
-      onClick={scrollPrev}
+      onClick={(e) => {
+        e.preventDefault()
+        scrollPrev()
+      }}
       {...props}
     >
       <ChevronLeft />
@@ -222,7 +225,10 @@ function CarouselNext({
         className
       )}
       hidden={!canScrollNext}
-      onClick={scrollNext}
+      onClick={(e) => {
+        e.preventDefault()
+        scrollNext()
+      }}
       {...props}
     >
       <ChevronRight />

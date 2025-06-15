@@ -186,3 +186,19 @@ export const TextPostSchema = z.object({
         .max(300, { message: "Title must be less than 300 characters" }),
     body: z.string().optional()
 })
+
+export const ImagePostSchema = z.object({
+    title: z.string().min(3, { message: "The title must be at least 3 characters long" })
+        .max(300, { message: "Title must be less than 300 characters" }),
+    body: z.string().optional(),
+    images: z.array(
+        z.object({
+            image: z.string(),
+            width: z.number().positive(),
+            height: z.number().positive(),
+            alt: z.string()
+        })
+    ).min(1, { message: "At least one image is required" })
+        .max(20, { message: "Maximum of 20 images allowed" })
+
+})
