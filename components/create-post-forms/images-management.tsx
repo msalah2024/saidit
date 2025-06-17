@@ -9,6 +9,16 @@ import { toast } from 'sonner'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel"
 import Image from 'next/image'
 import { Button } from '../ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import ImagesDialogContent from './images-dialog-content'
+
 
 interface ImagesManagementProps {
   form: UseFormReturn<z.infer<typeof ImagePostSchema>>
@@ -20,6 +30,7 @@ interface UploadedImage {
   preview: string
   width: number
   height: number
+  caption?: string
 }
 
 export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
@@ -28,6 +39,7 @@ export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
   const [count, setCount] = useState(0)
+  const [open, setOpen] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -156,12 +168,6 @@ export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
     }
   }, [images, current, api]);
 
-  useEffect(() => {
-    return () => {
-      images.forEach(img => URL.revokeObjectURL(img.preview))
-    }
-  }, [images])
-
   const dots = useMemo(() =>
     Array.from({ length: count }).map((_, index) => (
       <div
@@ -258,6 +264,7 @@ export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
                   <Button
                     onClick={(e) => {
                       e.preventDefault()
+                      setOpen(true)
                     }}
                     variant={'ghost'} className='bg-background/80 hover:bg-muted rounded-full'>
                     <Pencil />
@@ -300,7 +307,19 @@ export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
             </div>
           </Carousel>
       }
-
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger className='w-0 h-0 hidden'></DialogTrigger>
+        <DialogContent className='md:max-w-3xl! md:w-full!'>
+          <DialogHeader>
+            <DialogTitle>
+              Edit gallery
+            </DialogTitle>
+            <DialogDescription className='hidden'>
+            </DialogDescription>
+          </DialogHeader>
+          <ImagesDialogContent images={images} setImages={setImages} setOpen={setOpen} openFileDialog={openFileDialog} />
+        </DialogContent>
+      </Dialog>
       <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileInput} className="hidden" />
     </>
   )
