@@ -40,6 +40,8 @@ export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
   const [current, setCurrent] = useState(0)
   const [count, setCount] = useState(0)
   const [open, setOpen] = useState(false)
+  const [showAlert, setShowAlert] = useState(false)
+  const [isLocalImagesDirty, setLocalImagesDirty] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -187,7 +189,43 @@ export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
 
   const handleDeleteCurrent = () => {
     setImages(prev => prev.filter((_, index) => index + 1 !== current));
-  };
+  }
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    }
+    else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (images && images.length > 0) {
+      const formattedImages = images.map((img) => ({
+        image: img.file,
+        width: img.width,
+        height: img.height,
+        caption: img.caption || "",
+        alt: img.file.name
+      }))
+
+      form.setValue('images', formattedImages)
+    }
+    else {
+      form.setValue('images', []);
+    }
+  }, [images, form])
+
+  const handleDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen && isLocalImagesDirty) {
+      setShowAlert(true)
+      return
+    }
+    setOpen(nextOpen)
+  }
 
   return (
     <>
@@ -245,6 +283,14 @@ export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
                           }
                         }
                       />
+                      {
+                        img.caption &&
+                        <div className='absolute bottom-12 left-0 right-0 mx-2 z-50'>
+                          <div className="bg-black/60 line-clamp-8 text-white text-sm p-1.5 rounded-md text-center">
+                            {img.caption}
+                          </div>
+                        </div>
+                      }
                     </div>
                   </CarouselItem>
                 ))}
@@ -307,7 +353,7 @@ export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
             </div>
           </Carousel>
       }
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleDialogOpenChange}>
         <DialogTrigger className='w-0 h-0 hidden'></DialogTrigger>
         <DialogContent className='md:max-w-3xl! md:w-full!'>
           <DialogHeader>
@@ -317,7 +363,16 @@ export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
             <DialogDescription className='hidden'>
             </DialogDescription>
           </DialogHeader>
-          <ImagesDialogContent images={images} setImages={setImages} setOpen={setOpen} openFileDialog={openFileDialog} />
+          <ImagesDialogContent
+            images={images}
+            setImages={setImages}
+            setOpen={setOpen}
+            openFileDialog={openFileDialog}
+            showAlert={showAlert}
+            setShowAlert={setShowAlert}
+            isLocalImagesDirty={isLocalImagesDirty}
+            setLocalImagesDirty={setLocalImagesDirty}
+          />
         </DialogContent>
       </Dialog>
       <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileInput} className="hidden" />

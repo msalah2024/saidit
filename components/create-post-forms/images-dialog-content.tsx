@@ -13,6 +13,17 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 import { toast } from 'sonner'
 import { ScrollArea } from '../ui/scroll-area';
 import { DialogFooter } from '../ui/dialog';
+import { RestrictToElement } from '@dnd-kit/dom/modifiers';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 type UploadedImage = {
     id: string
@@ -28,17 +39,24 @@ interface ImagesDialogContentProps {
     setImages: React.Dispatch<React.SetStateAction<UploadedImage[]>>
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
     openFileDialog: (open: void) => void
+    showAlert: boolean
+    setShowAlert: React.Dispatch<React.SetStateAction<boolean>>
+    isLocalImagesDirty: boolean
+    setLocalImagesDirty: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 interface SortableProps {
     img: UploadedImage
     index: number
     setLocalImages: React.Dispatch<React.SetStateAction<UploadedImage[]>>
+    containerRef: React.RefObject<HTMLDivElement | null>
 }
 
-function Sortable({ img, index, setLocalImages }: SortableProps) {
+function Sortable({ img, index, setLocalImages, containerRef }: SortableProps) {
     const id = img.id
-    const { ref, isDragging } = useSortable({ id, index });
+    const { ref, isDragging } = useSortable({
+        id, index, modifiers: [RestrictToElement.configure({ element: () => containerRef.current })],
+    });
     const [isEditingCaption, setIsEditingCaption] = useState(false);
     const [captionInput, setCaptionInput] = useState(img.caption || '');
     const inputRef = useRef<HTMLInputElement>(null);
@@ -143,6 +161,7 @@ function Sortable({ img, index, setLocalImages }: SortableProps) {
                                     onChange={handleCaptionChange}
                                     onBlur={handleCaptionSave}
                                     onKeyDown={handleKeyDown}
+                                    maxLength={180}
                                     className="w-full p-1.5 pr-8 text-sm bg-background border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                     placeholder="Enter image caption..."
                                     autoFocus
@@ -157,8 +176,8 @@ function Sortable({ img, index, setLocalImages }: SortableProps) {
                         </div>
                     ) : (
                         img.caption && (
-                            <div className='absolute bottom-2 left-0 right-0 mx-2 z-50'>
-                                <div className="bg-black/60 text-white text-sm p-1.5 rounded-md text-center">
+                            <div className='absolute bottom-2 left-0 right-0 mx-2 z-50 px-1.5'>
+                                <div className="bg-black/60 line-clamp-3 text-white text-sm py-1 rounded-md text-center">
                                     {img.caption}
                                 </div>
                             </div>
@@ -170,10 +189,11 @@ function Sortable({ img, index, setLocalImages }: SortableProps) {
     );
 }
 
-export default function ImagesDialogContent({ images, setImages, setOpen }: ImagesDialogContentProps) {
+export default function ImagesDialogContent({ images, setImages, setOpen, showAlert, setShowAlert, isLocalImagesDirty, setLocalImagesDirty }: ImagesDialogContentProps) {
     const [localImages, setLocalImages] = useState([...images])
     const isDesktop = useMediaQuery("(min-width: 768px)")
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const containerRef = useRef<HTMLDivElement>(null)
 
     const handleSubmit = () => {
         images.forEach(img => {
@@ -183,6 +203,31 @@ export default function ImagesDialogContent({ images, setImages, setOpen }: Imag
         });
         setImages(localImages);
         setOpen(false);
+    }
+
+    useEffect(() => {
+        const isDirty =
+            localImages.length !== images.length ||
+            localImages.some((localImg, index) => {
+                const originalImg = images[index];
+                if (!originalImg || localImg.id !== originalImg.id) {
+                    return true;
+                }
+                const captionChanged =
+                    (localImg.caption || '') !== (originalImg.caption || '');
+                return captionChanged;
+            });
+
+        setLocalImagesDirty(isDirty);
+    }, [localImages, images, setLocalImagesDirty]);
+
+    const handleAlertCancel = () => {
+        setShowAlert(false)
+    }
+
+    const handleAlertContinue = () => {
+        setShowAlert(false)
+        setOpen(false)
     }
 
     const handleFiles = useCallback(
@@ -255,7 +300,12 @@ export default function ImagesDialogContent({ images, setImages, setOpen }: Imag
     }
 
     const handleCancel = () => {
-        setOpen(false)
+        if (!isLocalImagesDirty) {
+            setOpen(false)
+        }
+        else {
+            setShowAlert(true)
+        }
     }
 
     const handleAddMore = () => {
@@ -266,6 +316,19 @@ export default function ImagesDialogContent({ images, setImages, setOpen }: Imag
         setLocalImages(images)
     }, [images])
 
+    useEffect(() => {
+        if (!isLocalImagesDirty) return
+
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            e.preventDefault()
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?'
+            return e.returnValue
+        }
+
+        window.addEventListener('beforeunload', handleBeforeUnload)
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+    }, [isLocalImagesDirty])
+
     return (
         <DragDropProvider
             onDragOver={(event) => {
@@ -275,10 +338,10 @@ export default function ImagesDialogContent({ images, setImages, setOpen }: Imag
                 }
             }}
         >
-            <ScrollArea className="max-h-[600px] h-full ">
+            <ScrollArea className="max-h-[600px] h-full" ref={containerRef}>
                 <ul className="flex flex-wrap gap-2 justify-center sm:justify-start">
                     {localImages.map((img, index) => (
-                        <Sortable key={img.id} img={img} index={index} setLocalImages={setLocalImages} />
+                        <Sortable key={img.id} img={img} index={index} setLocalImages={setLocalImages} containerRef={containerRef} />
                     ))}
                 </ul>
             </ScrollArea>
@@ -305,21 +368,41 @@ export default function ImagesDialogContent({ images, setImages, setOpen }: Imag
                         </div>
                         :
                         <div className='flex flex-col gap-3 w-full'>
-                            <Button variant={'default'}>
+                            <Button
+                                onClick={handleSubmit}
+                                variant={'default'}>
                                 Save
                             </Button>
-                            <Button variant={'redditGray'}>
+                            <Button
+                                onClick={handleAddMore}
+                                variant={'redditGray'}>
                                 <Images />
                                 Add more images
                             </Button>
-                            <Button variant={'redditGray'}>
+                            <Button
+                                onClick={handleCancel}
+                                variant={'redditGray'}>
                                 Cancel
                             </Button>
                         </div>
                 }
             </DialogFooter>
+            <AlertDialog open={showAlert}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You have unsaved changes. Are you sure you want to leave? Your changes will be lost.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={handleAlertCancel}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleAlertContinue}>Discard Changes</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
             <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileInput} className="hidden" />
-        </DragDropProvider>
+        </DragDropProvider >
     );
 
 }

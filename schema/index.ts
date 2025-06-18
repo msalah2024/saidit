@@ -193,12 +193,12 @@ export const ImagePostSchema = z.object({
     body: z.string().optional(),
     images: z.array(
         z.object({
-            image: z.string(),
+            image: z.instanceof(File),
             width: z.number().positive(),
             height: z.number().positive(),
-            alt: z.string()
+            alt: z.string(),
+            caption: z.string().max(180).optional()
         })
     ).min(1, { message: "At least one image is required" })
         .max(20, { message: "Maximum of 20 images allowed" })
-
 })

@@ -65,9 +65,10 @@ export default function ImagesForm({ selectedCommunity, setSelectedCommunity }: 
             return
         }
 
+        console.log(values)
+
         try {
             setIsSubmitting(true)
-
             // if (!profile) { return }
 
             // const result = await createTextPost(selectedCommunity.id, profile?.account_id, values)
@@ -115,7 +116,7 @@ export default function ImagesForm({ selectedCommunity, setSelectedCommunity }: 
                     <FormField
                         control={form.control}
                         name="images"
-                        render={({ field }) => (
+                        render={() => (
                             <FormItem>
                                 <FormLabel className="ml-2 text-primary-foreground-muted">
                                     Images <span className="text-red-500">*</span>
