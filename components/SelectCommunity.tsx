@@ -135,7 +135,7 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
     }
 
     return (
-        <Popover open={open} onOpenChange={setOpen} modal={true}>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button
                     variant='outline'
@@ -162,9 +162,6 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
             <PopoverContent
                 className='bg-background rounded-xl p-2 w-[--radix-popover-trigger-width]'
                 align="start"
-                onInteractOutside={(e) => {
-                    e.preventDefault()
-                }}
             >
                 <Command className='bg-background'>
                     <CommandInput

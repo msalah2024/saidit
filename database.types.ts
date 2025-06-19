@@ -146,6 +146,50 @@ export type Database = {
           },
         ]
       }
+      post_attachments: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string
+          file_url: string
+          height: number | null
+          id: string
+          post_id: string
+          updated_at: string | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          file_url: string
+          height?: number | null
+          id?: string
+          post_id: string
+          updated_at?: string | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          file_url?: string
+          height?: number | null
+          id?: string
+          post_id?: string
+          updated_at?: string | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_attachments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           author_id: string | null

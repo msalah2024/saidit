@@ -15,27 +15,30 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { TextPostSchema } from "@/schema"
 import { Button } from '../ui/button'
-import { createTextPost } from '@/app/actions'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { Loader2 } from 'lucide-react'
 import { toast } from "sonner"
 import { useRouter } from 'nextjs-toploader/app'
+import { ImagePostSchema } from '@/schema'
+import ImagesManagement from './images-management'
+import { createClient } from '@/utils/supabase/client'
 
-interface TextContentFormProps {
+interface ImagesFormProps {
     selectedCommunity: Tables<'communities'> | null
 }
 
-export default function TextForm({ selectedCommunity }: TextContentFormProps) {
+export default function ImagesForm({ selectedCommunity }: ImagesFormProps) {
+    const supabase = createClient()
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const { profile } = useGeneralProfile()
+    const { user } = useGeneralProfile()
     const router = useRouter()
-    const form = useForm<z.infer<typeof TextPostSchema>>({
-        resolver: zodResolver(TextPostSchema),
+    const form = useForm<z.infer<typeof ImagePostSchema>>({
+        resolver: zodResolver(ImagePostSchema),
         defaultValues: {
             title: "",
             body: "<p></p>",
+            images: []
         },
     })
 
@@ -54,29 +57,75 @@ export default function TextForm({ selectedCommunity }: TextContentFormProps) {
         return () => window.removeEventListener('beforeunload', handleBeforeUnload)
     }, [isDirty])
 
-    async function onSubmit(values: z.infer<typeof TextPostSchema>) {
+    async function onSubmit(values: z.infer<typeof ImagePostSchema>) {
 
         if (!selectedCommunity) {
             toast.error("You must select a community")
             return
         }
 
+        console.log(values)
+
         try {
             setIsSubmitting(true)
 
-            if (!profile) { return }
+            if (!user) { return }
 
-            const result = await createTextPost(selectedCommunity.id, profile?.account_id, values)
+            const { data: post, error } = await supabase.from('posts').insert({
+                community_id: selectedCommunity.id,
+                author_id: user.id,
+                title: values.title,
+                content: values.body,
+                post_type: 'image',
+            }).select('*').single()
 
-            if (result.success) {
-                router.push(`/s/${selectedCommunity.community_name}`)
-            }
-
-            else {
-                toast.error("An error occurred trying to create your post")
+            if (error) {
+                console.error("Create post error", error.message)
+                toast.error(error.message)
                 return
             }
 
+            else {
+                for (const imgObject of values.images) {
+                    const file = imgObject.image;
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${user?.id}/posts/${post.id}/${Date.now()}.${fileExt}`
+
+                    const { error } = await supabase
+                        .storage
+                        .from('saidit')
+                        .update(fileName, file, {
+                            contentType: `image/${fileExt}`,
+                            upsert: true
+                        })
+
+                    if (error) {
+                        console.error("Create post error", error.message)
+                        toast.error(error.message)
+                        return
+                    }
+
+                    else {
+                        const { data } = supabase.storage.from('saidit').getPublicUrl(fileName)
+                        const { error } = await supabase.from('post_attachments').insert({
+                            post_id: post.id,
+                            file_url: data.publicUrl,
+                            width: imgObject.width,
+                            height: imgObject.height,
+                            alt_text: imgObject.alt,
+                            caption: imgObject.caption
+                        })
+
+                        if (error) {
+                            console.error("Upload image details error", error.message)
+                            toast.error(error.message)
+                            return
+                        }
+                    }
+                }
+
+                router.push(`/s/${selectedCommunity.community_name}`)
+            }
         } catch (error) {
             console.error(error)
         } finally {
@@ -109,10 +158,28 @@ export default function TextForm({ selectedCommunity }: TextContentFormProps) {
                     />
                     <FormField
                         control={form.control}
-                        name="body"
+                        name="images"
                         render={() => (
                             <FormItem>
                                 <FormLabel className="ml-2 text-primary-foreground-muted">
+                                    Images <span className="text-red-500">*</span>
+                                </FormLabel>
+                                <FormControl>
+                                    <ImagesManagement form={form} />
+                                </FormControl>
+                                <div className="flex mx-2 items-center justify-between">
+                                    <FormMessage />
+                                </div>
+                            </FormItem>
+
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="body"
+                        render={() => (
+                            <FormItem>
+                                <FormLabel className="ml-2 mt-2 text-primary-foreground-muted">
                                     Content
                                 </FormLabel>
                                 <FormControl>

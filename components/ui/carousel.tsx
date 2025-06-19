@@ -191,8 +191,11 @@ function CarouselPrevious({
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
-      disabled={!canScrollPrev}
-      onClick={scrollPrev}
+      hidden={!canScrollPrev}
+      onClick={(e) => {
+        e.preventDefault()
+        scrollPrev()
+      }}
       {...props}
     >
       <ChevronLeft />
@@ -221,8 +224,11 @@ function CarouselNext({
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
-      disabled={!canScrollNext}
-      onClick={scrollNext}
+      hidden={!canScrollNext}
+      onClick={(e) => {
+        e.preventDefault()
+        scrollNext()
+      }}
       {...props}
     >
       <ChevronRight />

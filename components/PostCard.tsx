@@ -8,7 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { ArrowBigDown, ArrowBigUp, Ellipsis, Forward, Loader2, MessageCircle, Rows3, Trash } from 'lucide-react';
+import { ArrowBigDown, ArrowBigUp, BadgeCheck, Ellipsis, Forward, Loader2, MessageCircle, Rows3, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
@@ -37,6 +37,9 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { formatRelativeTime } from '@/lib/formatDate';
+import ImagesContent from './posts-content-type/imagesContent';
+import { createClient } from '@/utils/supabase/client';
+import ImagesContentCompact from './posts-content-type/imagesContentCompact';
 
 interface PostCardProps {
     post: PostsWithAuthor
@@ -50,7 +53,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
     const [userVote, setUserVote] = useState<null | vote>(null);
     const deleteDialogRef = React.useRef<HTMLButtonElement>(null);
 
-    const { user } = useGeneralProfile();
+    const { user, profile } = useGeneralProfile();
     const { view } = useView()
     const isAuthor = post.author_id === user?.id
 
@@ -113,8 +116,14 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
         return (
             <Card className='w-full py-4 max-w-full my-2 gap-1 bg-saidit-black'>
                 <div className='flex w-full gap-2'>
-                    <div className='bg-background flex items-center justify-center border rounded-lg w-28 h-20 ml-3'>
-                        <Rows3 size={24} className='text-muted-foreground' />
+                    <div className='bg-background flex items-center justify-center border rounded-lg w-28 h-20 ml-3 overflow-hidden'>
+                        {
+                            post.post_type === 'text' ?
+                                <Rows3 size={24} className='text-muted-foreground' />
+                                : post.post_type === 'image' ?
+                                    <ImagesContentCompact post={post} />
+                                    : null
+                        }
                     </div>
                     <div className='w-full'>
                         <CardHeader className='pl-0'>
@@ -130,6 +139,10 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                     <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline'>
                                         u/{post.users?.username}
                                     </Link>
+                                    {
+                                        profile?.verified &&
+                                        <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
+                                    }
                                 </CardTitle>
                                 <span className='text-muted-foreground'>•</span>
                                 <CardDescription>{formatRelativeTime(post.created_at)}</CardDescription>
@@ -190,15 +203,15 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                         </CardFooter>
                     </div>
                 </div>
-                <ConfirmationDialog triggerRef={deleteDialogRef} postID={post.id} setItems={setItems} />
+                <ConfirmationDialog triggerRef={deleteDialogRef} setItems={setItems} post={post} />
             </Card>
 
         )
     }
 
     return (
-        <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black'>
-            <CardHeader>
+        <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black py-5'>
+            <CardHeader className='px-5'>
                 <div className='flex items-center gap-2'>
                     <CardTitle className='text-primary-foreground-muted flex items-center gap-1'>
                         <Avatar className='h-6 w-6'>
@@ -211,6 +224,10 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                         <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline'>
                             u/{post.users?.username}
                         </Link>
+                        {
+                            profile?.verified &&
+                            <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
+                        }
                     </CardTitle>
                     <span className='text-muted-foreground'>•</span>
                     <CardDescription>{formatRelativeTime(post.created_at)}</CardDescription>
@@ -233,10 +250,16 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                     </DropdownMenu>
                 </CardAction>
             </CardHeader>
-            <CardContent>
-                <TextContent post={post} />
+            <CardContent className='px-5'>
+                {
+                    post.post_type === 'text' ?
+                        <TextContent post={post} />
+                        : post.post_type === 'image' ?
+                            <ImagesContent post={post} />
+                            : null
+                }
             </CardContent>
-            <CardFooter className='mt-2'>
+            <CardFooter className='mt-2 px-5'>
                 <div className='flex items-center gap-2'>
                     <div className='flex items-center h-8 bg-muted rounded-full'>
                         <div
@@ -269,7 +292,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                     </Button>
                 </div>
             </CardFooter>
-            <ConfirmationDialog triggerRef={deleteDialogRef} postID={post.id} setItems={setItems} />
+            <ConfirmationDialog triggerRef={deleteDialogRef} setItems={setItems} post={post} />
         </Card>
     )
 })
@@ -277,24 +300,55 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
 
 type ConfirmationDialogProps = {
     triggerRef: React.RefObject<HTMLButtonElement | null>;
-    postID: string
     setItems: React.Dispatch<React.SetStateAction<PostsWithAuthor[]>>;
+    post: PostsWithAuthor
 };
 
-const ConfirmationDialog = memo(({ triggerRef, postID, setItems }: ConfirmationDialogProps) => {
+const ConfirmationDialog = memo(({ triggerRef, post, setItems }: ConfirmationDialogProps) => {
     const [isDeleting, setIsDeleting] = useState(false)
+    const supabase = createClient()
 
     const handlePostDelete = async () => {
         try {
             setIsDeleting(true)
-            const result = await deletePost(postID)
 
-            if (result.success) {
-                setItems(prevItems => prevItems.filter(item => item.id !== postID));
-            }
+            switch (post.post_type) {
+                case 'text':
+                    const textResult = await deletePost(post.id)
+                    if (textResult.success) {
+                        setItems(prevItems => prevItems.filter(item => item.id !== post.id));
+                    }
+                    else {
+                        toast.error("An error occurred")
+                    }
 
-            else {
-                toast.error("An error occurred")
+                    break;
+
+                case 'image':
+                    const imageResult = await deletePost(post.id)
+                    if (imageResult.success) {
+                        const oldImages = post.post_attachments
+
+                        for (const image of oldImages) {
+                            const clippedAvatarUrl = image.file_url.split('saidit/')[1];
+
+                            const { error: removeError } = await supabase
+                                .storage
+                                .from('saidit')
+                                .remove([clippedAvatarUrl])
+
+                            if (removeError) {
+                                console.error("Image delete error", removeError.message)
+                                toast.error(removeError.message)
+                                return
+                            }
+                        }
+                        setItems(prevItems => prevItems.filter(item => item.id !== post.id));
+                    }
+                    break;
+
+                default:
+                    break;
             }
 
         } catch (error) {
