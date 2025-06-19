@@ -39,6 +39,7 @@ import {
 import { formatRelativeTime } from '@/lib/formatDate';
 import ImagesContent from './posts-content-type/imagesContent';
 import { createClient } from '@/utils/supabase/client';
+import ImagesContentCompact from './posts-content-type/imagesContentCompact';
 
 interface PostCardProps {
     post: PostsWithAuthor
@@ -120,7 +121,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                             post.post_type === 'text' ?
                                 <Rows3 size={24} className='text-muted-foreground' />
                                 : post.post_type === 'image' ?
-                                    <ImagesContent post={post} />
+                                    <ImagesContentCompact post={post} />
                                     : null
                         }
                     </div>
