@@ -1,7 +1,6 @@
 "use client"
 import React, { memo, useEffect, useState, useCallback, useMemo } from 'react'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel"
-import { faker } from '@faker-js/faker'
 import Image from 'next/image'
 import {
     Dialog,
@@ -13,30 +12,22 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from '../ui/button'
-import { X } from 'lucide-react'
+import { Images, X } from 'lucide-react'
+import { PostsWithAuthor } from '@/complexTypes'
+import { useView } from '@/app/context/ViewContext'
 
-const generateRandomImages = (count: number) => {
-    return Array.from({ length: count }, () => {
-        const width = faker.number.int({ min: 800, max: 1920 });
-        const height = faker.number.int({ min: 500, max: 800 });
-        return {
-            url: `https://picsum.photos/seed/${faker.string.uuid()}/${width}/${height}`,
-            width,
-            height,
-            alt: faker.lorem.words(3)
-        };
-    });
-};
+interface ImagesContentProps {
+    post: PostsWithAuthor
+}
 
-const testImages = generateRandomImages(5)
-
-export default memo(function ImagesContent() {
+export default memo(function ImagesContent({ post }: ImagesContentProps) {
     const [api, setApi] = useState<CarouselApi>()
     const [current, setCurrent] = useState(0)
     const [count, setCount] = useState(0)
     const [open, setOpen] = useState(false)
     const [dialogApi, setDialogApi] = useState<CarouselApi>()
     const [clickedImageIndex, setClickedImageIndex] = useState(0)
+    const { view } = useView()
 
     useEffect(() => {
         if (api && current > 0) {
@@ -119,61 +110,159 @@ export default memo(function ImagesContent() {
         [count, current],
     )
 
-    return (
-        <div className='flex flex-col'>
-            <h4 className="scroll-m-20 mb-2 text-lg font-semibold tracking-tight">
-                People stopped telling jokes
-            </h4>
-            <Carousel setApi={setApi} className='border overflow-hidden rounded-xl'>
-                <div className='relative'>
-                    <CarouselContent>
-                        {testImages.map((img, index) => (
-                            <CarouselItem key={index} className='relative flex items-center hover:cursor-pointer'>
-                                <div className="absolute hidden lg:block inset-0 overflow-hidden">
-                                    <div className="w-full h-full scale-120 opacity-30 blur-xl">
+    if (view === 'Card') {
+        return (
+            <div className='flex flex-col'>
+                <h4 className="scroll-m-20 mb-2 text-lg font-semibold tracking-tight">
+                    {post.title}
+                </h4>
+                <Carousel setApi={setApi} className='border overflow-hidden rounded-xl '>
+                    <div className='relative'>
+                        <CarouselContent>
+                            {post.post_attachments.map((img, index) => (
+                                <CarouselItem key={index} className='relative flex items-center justify-center hover:cursor-pointer'>
+                                    <div className="absolute hidden lg:block inset-0 overflow-hidden">
+                                        <div className="w-full h-full scale-120 opacity-30 blur-xl">
+                                            <Image
+                                                src={img.file_url}
+                                                alt={img.alt_text || ""}
+                                                fill
+                                                objectFit='cover'
+                                                quality={5}
+                                                priority={index === 0}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='relative z-10'>
                                         <Image
-                                            src={img.url}
-                                            alt={img.alt}
-                                            fill
+                                            onClick={() => {
+                                                handleImageClick(index)
+                                            }}
+                                            src={img.file_url}
+                                            alt={img.alt_text || ""}
+                                            width={img.width || undefined}
+                                            height={img.height || undefined}
                                             objectFit='cover'
-                                            quality={5}
                                             priority={index === 0}
+                                            style={
+                                                {
+                                                    width: 'auto',
+                                                    maxHeight: '34rem'
+                                                }
+                                            }
                                         />
                                     </div>
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                        <div className='absolute top-[50%] left-14 z-50'>
+                            <CarouselPrevious className='border-none bg-background/80 hover:bg-muted' />
+                        </div>
+                        <div className="absolute top-[50%] right-14 z-50">
+                            <CarouselNext className='border-none bg-background/80 hover:bg-muted' />
+                        </div>
+                        <div className={`flex justify-center absolute bottom-4 left-[50%] -translate-x-1/2 bg-muted/80 p-1 rounded-full space-x-2`}>
+                            {dots}
+                        </div>
+                    </div>
+                </Carousel>
+                <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger className='w-0 h-0 hidden' asChild></DialogTrigger> <DialogContent
+                        showCloseButton={false}
+                        onOpenAutoFocus={(e) => e.preventDefault()}
+                        className='w-vh! h-dvh! max-w-none! p-0 border-none rounded-none'>
+                        <DialogHeader className='hidden'>
+                            <DialogTitle className='hidden'></DialogTitle>
+                            <DialogDescription className='hidden'></DialogDescription>
+                        </DialogHeader>
+                        <Carousel
+                            setApi={setDialogApi}
+                            className='overflow-hidden'
+                            opts={{
+                                startIndex: clickedImageIndex
+                            }}
+                        >
+                            <div className='relative'>
+                                <DialogClose className='absolute right-5 top-5 z-50' asChild>
+                                    <Button variant={'redditGray'} size={'icon'}>
+                                        <X />
+                                    </Button>
+                                </DialogClose>
+                                <CarouselContent className='h-dvh'>
+                                    {post.post_attachments.map((img, index) => (
+                                        <CarouselItem key={index} className='relative flex items-center justify-center'>
+                                            <div className="absolute hidden lg:block inset-0 overflow-hidden">
+                                                <div className="w-full h-full scale-140 opacity-30 blur-lg">
+                                                    <Image
+                                                        src={img.file_url}
+                                                        alt={img.alt_text || ""}
+                                                        fill
+                                                        objectFit='cover'
+                                                        quality={5}
+                                                        priority={index === 0}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className='relative z-10'>
+                                                <Image
+                                                    onClick={() => {
+                                                        setOpen(true)
+                                                    }}
+                                                    src={img.file_url}
+                                                    alt={img.alt_text || ""}
+                                                    width={img.width || undefined}
+                                                    height={img.height || undefined}
+                                                    objectFit='contain'
+                                                    priority={index === clickedImageIndex}
+                                                    style={
+                                                        {
+                                                            width: 'auto',
+                                                            maxHeight: '100dvh',
+                                                        }
+                                                    }
+                                                />
+                                            </div>
+                                        </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                                <div className='absolute top-[50%] left-14 z-50'>
+                                    <CarouselPrevious className='border-none bg-background/80 hover:bg-muted' />
                                 </div>
-                                <div className='relative z-10'>
-                                    <Image
-                                        onClick={() => {
-                                            handleImageClick(index)
-                                        }}
-                                        src={img.url}
-                                        alt={img.alt}
-                                        width={img.width}
-                                        height={img.height}
-                                        objectFit='cover'
-                                        priority={index === 0}
-                                        style={
-                                            {
-                                                width: img.width,
-                                                height: 'auto',
-                                            }
-                                        }
-                                    />
+                                <div className="absolute top-[50%] right-14 z-50">
+                                    <CarouselNext className='border-none bg-background/80 hover:bg-muted' />
                                 </div>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <div className='absolute top-[50%] left-14 z-50'>
-                        <CarouselPrevious className='border-none bg-background/80 hover:bg-muted' />
-                    </div>
-                    <div className="absolute top-[50%] right-14 z-50">
-                        <CarouselNext className='border-none bg-background/80 hover:bg-muted' />
-                    </div>
-                    <div className={`flex justify-center absolute bottom-4 left-[50%] -translate-x-1/2 bg-muted/80 p-1 rounded-full space-x-2`}>
-                        {dots}
-                    </div>
+                                <div className={`flex justify-center absolute bottom-4 left-[50%] -translate-x-1/2 bg-muted/80 p-1 rounded-full space-x-2`}>
+                                    {dialogDots}
+                                </div>
+                            </div>
+                        </Carousel>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        )
+    }
+
+    return (
+        <div className="w-full h-full relative">
+            <Image
+                src={post.post_attachments[0].file_url}
+                alt={post.post_attachments[0].alt_text || ""}
+                fill
+                onClick={() => {
+                    handleImageClick(0)
+                }}
+                draggable={false}
+                className="object-cover cursor-pointer"
+            />
+            {
+                post.post_attachments.length > 1 &&
+                <div className='bg-background/80 flex items-center justify-center gap-1 rounded-full px-2 py-1 absolute bottom-1 left-1'>
+                    <Images size={12} />
+                    <p className='text-xs select-none'>
+                        {post.post_attachments.length}
+                    </p>
                 </div>
-            </Carousel>
+            }
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger className='w-0 h-0 hidden' asChild></DialogTrigger> <DialogContent
                     showCloseButton={false}
@@ -197,13 +286,13 @@ export default memo(function ImagesContent() {
                                 </Button>
                             </DialogClose>
                             <CarouselContent className='h-dvh'>
-                                {testImages.map((img, index) => (
+                                {post.post_attachments.map((img, index) => (
                                     <CarouselItem key={index} className='relative flex items-center justify-center'>
                                         <div className="absolute hidden lg:block inset-0 overflow-hidden">
                                             <div className="w-full h-full scale-140 opacity-30 blur-lg">
                                                 <Image
-                                                    src={img.url}
-                                                    alt={img.alt}
+                                                    src={img.file_url}
+                                                    alt={img.alt_text || ""}
                                                     fill
                                                     objectFit='cover'
                                                     quality={5}
@@ -216,16 +305,16 @@ export default memo(function ImagesContent() {
                                                 onClick={() => {
                                                     setOpen(true)
                                                 }}
-                                                src={img.url}
-                                                alt={img.alt}
-                                                width={img.width}
-                                                height={img.height}
-                                                objectFit='cover'
+                                                src={img.file_url}
+                                                alt={img.alt_text || ""}
+                                                width={img.width || undefined}
+                                                height={img.height || undefined}
+                                                objectFit='contain'
                                                 priority={index === clickedImageIndex}
                                                 style={
                                                     {
-                                                        width: img.width,
-                                                        height: 'auto',
+                                                        width: 'auto',
+                                                        maxHeight: '100dvh',
                                                     }
                                                 }
                                             />
@@ -248,4 +337,5 @@ export default memo(function ImagesContent() {
             </Dialog>
         </div>
     )
+
 })

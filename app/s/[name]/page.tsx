@@ -49,7 +49,7 @@ export default function VirtualScroller() {
             try {
                 const { data, error } = await supabase
                     .from('posts')
-                    .select("*, users(username,avatar_url), posts_votes(vote_type, voter_id, id)")
+                    .select("*, users(username,avatar_url), posts_votes(vote_type, voter_id, id), post_attachments(*)")
                     .order("created_at", { ascending: false })
                     .range(0, PAGE_SIZE - 1)
                     .eq('community_id', community.id)
@@ -97,7 +97,7 @@ export default function VirtualScroller() {
         const from = items.length
         const to = from + PAGE_SIZE - 1
 
-        const { data, error } = await supabase.from('posts').select("*, users(username,avatar_url), posts_votes(vote_type, voter_id, id)").order("created_at", { ascending: false })
+        const { data, error } = await supabase.from('posts').select("*, users(username,avatar_url), posts_votes(vote_type, voter_id, id), post_attachments(*)").order("created_at", { ascending: false })
             .range(from, to).eq('community_id', community.id)
 
         if (error) {

@@ -338,7 +338,7 @@ export default function ImagesDialogContent({ images, setImages, setOpen, showAl
                 }
             }}
         >
-            <ScrollArea className="max-h-[600px] h-full" ref={containerRef}>
+            <ScrollArea className="max-h-[400px] sm:max-h-[600px] h-full" ref={containerRef}>
                 <ul className="flex flex-wrap gap-2 justify-center sm:justify-start">
                     {localImages.map((img, index) => (
                         <Sortable key={img.id} img={img} index={index} setLocalImages={setLocalImages} containerRef={containerRef} />
