@@ -145,7 +145,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                     }
                                 </CardTitle>
                                 <span className='text-muted-foreground'>•</span>
-                                <CardDescription>{formatRelativeTime(post.created_at)}</CardDescription>
+                                <CardDescription className='line-clamp-1'>{formatRelativeTime(post.created_at)}</CardDescription>
                             </div>
                             <CardAction>
                                 <DropdownMenu modal={false}>

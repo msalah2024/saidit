@@ -42,6 +42,7 @@
 -   [x] Create `social_links` table.
 -   [x] Create `posts` table.
 -   [x] Create `posts_votes` table.
+-   [x] Create `posts_attachments` table.
 -   [ ] Create `comments` table.
 -   [ ] Create `notifications` table.
 -   [ ] Create `visited_subreddits` table.
@@ -69,10 +70,9 @@
 
 ## Posts
 
--   [x] Allow users to create posts (~~text~~, link, media).
+-   [x] Allow users to create posts (~~text~~, link, ~~image~~, video, poll).
 -   [x] Display posts on the homepage and community pages.
 -   [x] Implement post deletion.
--   [ ] Implement post editing.
 
 ## Comments
 
