@@ -113,10 +113,10 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
     if (view === 'Card') {
         return (
             <div className='flex flex-col'>
-                <h4 className="scroll-m-20 mb-2 text-lg font-semibold tracking-tight">
+                <h4 className="scroll-m-20 ml-1 mb-2 text-lg font-semibold tracking-tight">
                     {post.title}
                 </h4>
-                <Carousel setApi={setApi} className='border overflow-hidden rounded-xl '>
+                <Carousel setApi={setApi} className='border overflow-hidden rounded-xl'>
                     <div className='relative'>
                         <CarouselContent>
                             {post.post_attachments.map((img, index) => (

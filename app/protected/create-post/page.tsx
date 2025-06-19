@@ -5,6 +5,7 @@ import { Tables } from '@/database.types'
 import TextForm from '@/components/create-post-forms/text-form'
 import ImagesForm from '@/components/create-post-forms/images-form'
 import { useRouter, useSearchParams } from 'next/navigation'
+import SelectCommunity from '@/components/SelectCommunity'
 
 export default function Page() {
     const [selectedCommunity, setSelectedCommunity] = useState<Tables<'communities'> | null>(null)
@@ -53,11 +54,14 @@ export default function Page() {
                             ))
                         }
                     </TabsList>
+                    <div className='mt-3'>
+                        <SelectCommunity selectedCommunity={selectedCommunity} setSelectedCommunity={setSelectedCommunity} />
+                    </div>
                     <TabsContent value="text">
-                        <TextForm selectedCommunity={selectedCommunity} setSelectedCommunity={setSelectedCommunity} />
+                        <TextForm selectedCommunity={selectedCommunity}/>
                     </TabsContent>
                     <TabsContent value="images">
-                        <ImagesForm selectedCommunity={selectedCommunity} setSelectedCommunity={setSelectedCommunity} />
+                        <ImagesForm selectedCommunity={selectedCommunity}/>
                     </TabsContent>
                     <TabsContent value="videos">Video</TabsContent>
                     <TabsContent value="link">Link</TabsContent>

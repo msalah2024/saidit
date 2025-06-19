@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react'
 import TipTap from './TipTap'
 import { Tables } from '@/database.types'
-import SelectCommunity from '../SelectCommunity'
 import {
     Form,
     FormControl,
@@ -26,10 +25,9 @@ import { useRouter } from 'nextjs-toploader/app'
 
 interface TextContentFormProps {
     selectedCommunity: Tables<'communities'> | null
-    setSelectedCommunity: React.Dispatch<React.SetStateAction<Tables<'communities'> | null>>
 }
 
-export default function TextForm({ selectedCommunity, setSelectedCommunity }: TextContentFormProps) {
+export default function TextForm({ selectedCommunity }: TextContentFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const { profile } = useGeneralProfile()
     const router = useRouter()
@@ -88,9 +86,8 @@ export default function TextForm({ selectedCommunity, setSelectedCommunity }: Te
 
     return (
         <div className='flex flex-col gap-4 my-4'>
-            <SelectCommunity selectedCommunity={selectedCommunity} setSelectedCommunity={setSelectedCommunity} />
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 mt-2">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
                     <FormField
                         control={form.control}
                         name="title"

@@ -8,7 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { ArrowBigDown, ArrowBigUp, Ellipsis, Forward, Loader2, MessageCircle, Rows3, Trash } from 'lucide-react';
+import { ArrowBigDown, ArrowBigUp, BadgeCheck, Ellipsis, Forward, Loader2, MessageCircle, Rows3, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
@@ -52,7 +52,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
     const [userVote, setUserVote] = useState<null | vote>(null);
     const deleteDialogRef = React.useRef<HTMLButtonElement>(null);
 
-    const { user } = useGeneralProfile();
+    const { user, profile } = useGeneralProfile();
     const { view } = useView()
     const isAuthor = post.author_id === user?.id
 
@@ -138,6 +138,10 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                     <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline'>
                                         u/{post.users?.username}
                                     </Link>
+                                    {
+                                        profile?.verified &&
+                                        <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
+                                    }
                                 </CardTitle>
                                 <span className='text-muted-foreground'>•</span>
                                 <CardDescription>{formatRelativeTime(post.created_at)}</CardDescription>
@@ -205,8 +209,8 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
     }
 
     return (
-        <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black'>
-            <CardHeader>
+        <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black py-5'>
+            <CardHeader className='px-5'>
                 <div className='flex items-center gap-2'>
                     <CardTitle className='text-primary-foreground-muted flex items-center gap-1'>
                         <Avatar className='h-6 w-6'>
@@ -219,6 +223,10 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                         <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline'>
                             u/{post.users?.username}
                         </Link>
+                        {
+                            profile?.verified &&
+                            <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
+                        }
                     </CardTitle>
                     <span className='text-muted-foreground'>•</span>
                     <CardDescription>{formatRelativeTime(post.created_at)}</CardDescription>
@@ -241,7 +249,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                     </DropdownMenu>
                 </CardAction>
             </CardHeader>
-            <CardContent>
+            <CardContent className='px-5'>
                 {
                     post.post_type === 'text' ?
                         <TextContent post={post} />
@@ -250,7 +258,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                             : null
                 }
             </CardContent>
-            <CardFooter className='mt-2'>
+            <CardFooter className='mt-2 px-5'>
                 <div className='flex items-center gap-2'>
                     <div className='flex items-center h-8 bg-muted rounded-full'>
                         <div

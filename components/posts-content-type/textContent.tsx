@@ -11,7 +11,7 @@ export default memo(function TextContent({ post }: TextContentProps) {
     const isEmptyParagraph = cleanContent.trim() === '<p></p>' || cleanContent.trim() === '';
 
     return (
-        <div className='flex flex-col ml-2 gap-1 cursor-pointer select-none'>
+        <div className='flex flex-col ml-2 gap-0 cursor-pointer select-none'>
             <h4 className="scroll-m-20 text-[1.1rem] font-medium tracking-tight">
                 {post.title}
             </h4>
