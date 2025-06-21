@@ -6,6 +6,7 @@ import TextForm from '@/components/create-post-forms/text-form'
 import ImagesForm from '@/components/create-post-forms/images-form'
 import { useRouter, useSearchParams } from 'next/navigation'
 import SelectCommunity from '@/components/SelectCommunity'
+import LinkForm from '@/components/create-post-forms/link-form'
 
 export default function Page() {
     const [selectedCommunity, setSelectedCommunity] = useState<Tables<'communities'> | null>(null)
@@ -45,7 +46,7 @@ export default function Page() {
                     <TabsList className='h-fit bg-background gap-2 sm:gap-6'>
                         {
                             tabs.map((tab) => (
-                                <TabsTrigger disabled={tab !== "text" && tab !== "images"}
+                                <TabsTrigger disabled={tab !== "text" && tab !== "images" && tab !== "link"}
                                     key={tab} value={tab} className='border-b-background py-2 text-primary-foreground-muted rounded-none 
                         data-[state=active]:border-b-white hover:border-b-primary-foreground-muted
                         data-[state=active]:text-primary-foreground hover:text-primary-foreground'>
@@ -58,13 +59,15 @@ export default function Page() {
                         <SelectCommunity selectedCommunity={selectedCommunity} setSelectedCommunity={setSelectedCommunity} />
                     </div>
                     <TabsContent value="text">
-                        <TextForm selectedCommunity={selectedCommunity}/>
+                        <TextForm selectedCommunity={selectedCommunity} />
                     </TabsContent>
                     <TabsContent value="images">
-                        <ImagesForm selectedCommunity={selectedCommunity}/>
+                        <ImagesForm selectedCommunity={selectedCommunity} />
                     </TabsContent>
                     <TabsContent value="videos">Video</TabsContent>
-                    <TabsContent value="link">Link</TabsContent>
+                    <TabsContent value="link">
+                        <LinkForm selectedCommunity={selectedCommunity} />
+                    </TabsContent>
                     <TabsContent value="poll">Poll</TabsContent>
                 </Tabs>
             </div>

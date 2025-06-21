@@ -155,6 +155,7 @@ export type Database = {
           height: number | null
           id: string
           post_id: string
+          script: Json | null
           updated_at: string | null
           width: number | null
         }
@@ -166,6 +167,7 @@ export type Database = {
           height?: number | null
           id?: string
           post_id: string
+          script?: Json | null
           updated_at?: string | null
           width?: number | null
         }
@@ -177,6 +179,7 @@ export type Database = {
           height?: number | null
           id?: string
           post_id?: string
+          script?: Json | null
           updated_at?: string | null
           width?: number | null
         }

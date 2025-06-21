@@ -40,6 +40,7 @@ import { formatRelativeTime } from '@/lib/formatDate';
 import ImagesContent from './posts-content-type/imagesContent';
 import { createClient } from '@/utils/supabase/client';
 import ImagesContentCompact from './posts-content-type/imagesContentCompact';
+import LinkContent from './posts-content-type/linkContent';
 
 interface PostCardProps {
     post: PostsWithAuthor
@@ -118,7 +119,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                 <div className='flex w-full gap-2'>
                     <div className='bg-background flex items-center justify-center border rounded-lg w-28 h-20 ml-3 overflow-hidden'>
                         {
-                            post.post_type === 'text' ?
+                            post.post_type === 'text' || post.post_type === 'link' ?
                                 <Rows3 size={24} className='text-muted-foreground' />
                                 : post.post_type === 'image' ?
                                     <ImagesContentCompact post={post} />
@@ -166,7 +167,12 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                             </CardAction>
                         </CardHeader>
                         <CardContent className='pl-0'>
-                            <TextContent post={post} />
+                            {
+                                post.post_type === 'text' || post.post_type === 'image' ?
+                                    <TextContent post={post} />
+                                    : post.post_type === 'link' ?
+                                        <LinkContent post={post} /> : null
+                            }
                         </CardContent>
                         <CardFooter className='mt-2 pl-0'>
                             <div className='flex items-center gap-2'>
@@ -256,7 +262,9 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                         <TextContent post={post} />
                         : post.post_type === 'image' ?
                             <ImagesContent post={post} />
-                            : null
+                            : post.post_type === 'link' ?
+                                <LinkContent post={post} /> :
+                                null
                 }
             </CardContent>
             <CardFooter className='mt-2 px-5'>
@@ -344,6 +352,16 @@ const ConfirmationDialog = memo(({ triggerRef, post, setItems }: ConfirmationDia
                             }
                         }
                         setItems(prevItems => prevItems.filter(item => item.id !== post.id));
+                    }
+                    break;
+
+                case 'link':
+                    const linkResult = await deletePost(post.id)
+                    if (linkResult.success) {
+                        setItems(prevItems => prevItems.filter(item => item.id !== post.id));
+                    }
+                    else {
+                        toast.error("An error occurred")
                     }
                     break;
 

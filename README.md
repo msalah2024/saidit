@@ -70,7 +70,7 @@
 
 ## Posts
 
--   [x] Allow users to create posts (~~text~~, link, ~~image~~, video, poll).
+-   [x] Allow users to create posts (~~text~~, ~~link~~, ~~image~~, video, poll).
 -   [x] Display posts on the homepage and community pages.
 -   [x] Implement post deletion.
 
