@@ -202,3 +202,9 @@ export const ImagePostSchema = z.object({
     ).min(1, { message: "At least one image is required" })
         .max(20, { message: "Maximum of 20 images allowed" })
 })
+
+export const LinkPostSchema = z.object({
+    title: z.string().min(3, { message: "The title must be at least 3 characters long" })
+        .max(300, { message: "Title must be less than 300 characters" }),
+    link: z.string().url("Please enter a valid URL")
+})

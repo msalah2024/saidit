@@ -166,9 +166,12 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
                     <div className="absolute top-[50%] right-14 z-50">
                         <CarouselNext className='border-none bg-background/80 hover:bg-muted' />
                     </div>
-                    <div className={`flex justify-center absolute bottom-4 left-[50%] -translate-x-1/2 bg-muted/80 p-1 rounded-full space-x-2`}>
-                        {dots}
-                    </div>
+                    {
+                        post.post_attachments.length > 1 &&
+                        <div className={`flex justify-center absolute bottom-4 left-[50%] -translate-x-1/2 bg-muted/80 p-1 rounded-full space-x-2`}>
+                            {dots}
+                        </div>
+                    }
                 </div>
             </Carousel>
             <Dialog open={open} onOpenChange={setOpen}>
@@ -244,9 +247,12 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
                             <div className="absolute top-[50%] right-14 z-50">
                                 <CarouselNext className='border-none bg-background/80 hover:bg-muted' />
                             </div>
-                            <div className={`flex justify-center absolute bottom-4 left-[50%] -translate-x-1/2 bg-muted/80 p-1 rounded-full space-x-2`}>
-                                {dialogDots}
-                            </div>
+                            {
+                                post.post_attachments.length > 1 &&
+                                <div className={`flex justify-center absolute bottom-4 left-[50%] -translate-x-1/2 bg-muted/80 p-1 rounded-full space-x-2`}>
+                                    {dialogDots}
+                                </div>
+                            }
                         </div>
                     </Carousel>
                 </DialogContent>

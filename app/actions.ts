@@ -17,7 +17,8 @@ import {
   DescriptionSchema,
   CreateCommunitySchema,
   ManageDetailsWidgetSchema,
-  TextPostSchema
+  TextPostSchema,
+  LinkPostSchema
 } from "@/schema";
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
@@ -1291,4 +1292,36 @@ export async function deletePost(postID: string) {
     }
   }
 
+}
+
+export async function createLinkPost(post: z.infer<typeof LinkPostSchema>, authorID: string, communityID: string) {
+  const supabase = await createClient()
+  try {
+
+    const { error } = await supabase.from('posts').insert({
+      community_id: communityID,
+      author_id: authorID,
+      title: post.title,
+      post_type: "link",
+      url: post.link
+    }).select('*').single()
+
+    if (error) {
+      console.error("Create link post error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+    else {
+      return {
+        success: true,
+        message: "Link post created successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Create link post error", error)
+    return {
+      success: false,
+      message: "Create link post error"
+    }
+  }
 }
