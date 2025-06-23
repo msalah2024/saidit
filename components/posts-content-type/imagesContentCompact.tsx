@@ -97,10 +97,11 @@ export default function ImagesContentCompact({ post }: ImagesContentCompactProps
                 </div>
             }
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger className='w-0 h-0 hidden' asChild></DialogTrigger> <DialogContent
+                <DialogTrigger className='w-0 h-0 hidden' asChild></DialogTrigger>
+                <DialogContent
                     showCloseButton={false}
                     onOpenAutoFocus={(e) => e.preventDefault()}
-                    className='w-vh! h-dvh! max-w-none! p-0 border-none rounded-none'>
+                    className='w-vh! h-dvh! max-w-none! p-0 border-none rounded-none transition-none'>
                     <DialogHeader className='hidden'>
                         <DialogTitle className='hidden'></DialogTitle>
                         <DialogDescription className='hidden'></DialogDescription>
