@@ -1,17 +1,17 @@
 "use client"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
-import PostCard from "@/components/PostCard"
 import { createClient } from "@/utils/supabase/client"
-import { PostsWithAuthor } from "@/complexTypes"
+import { PostsWithAuthorAndCommunity } from "@/complexTypes"
 import PulseLogo from "@/components/PulseLogo"
 import { useProfile } from "@/app/context/ProfileContext"
+import FeedPostCard from "@/components/FeedPostCard"
 
 const PAGE_SIZE = 20
 
 export default function VirtualScroller() {
     const supabase = createClient()
-    const [items, setItems] = useState<PostsWithAuthor[]>([])
+    const [items, setItems] = useState<PostsWithAuthorAndCommunity[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [hasMore, setHasMore] = useState(true)
     const { profile } = useProfile()
@@ -50,7 +50,7 @@ export default function VirtualScroller() {
             try {
                 const { data, error } = await supabase
                     .from('posts')
-                    .select("*, users(username,avatar_url), posts_votes(vote_type, voter_id, id), post_attachments(*)")
+                    .select("*, users(username,avatar_url), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url)")
                     .order("created_at", { ascending: false })
                     .range(0, PAGE_SIZE - 1)
                     .eq('author_id', profile?.account_id)
@@ -99,7 +99,7 @@ export default function VirtualScroller() {
         const from = items.length
         const to = from + PAGE_SIZE - 1
 
-        const { data, error } = await supabase.from('posts').select("*, users(username,avatar_url), posts_votes(vote_type, voter_id, id), post_attachments(*)").order("created_at", { ascending: false })
+        const { data, error } = await supabase.from('posts').select("*, users(username,avatar_url), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url)").order("created_at", { ascending: false })
             .range(from, to).eq('author_id', profile?.account_id)
 
         if (error) {
@@ -163,7 +163,7 @@ export default function VirtualScroller() {
                                         transform: `translateY(${virtualItem.start}px)`,
                                     }}
                                 >
-                                    <PostCard post={item} setItems={setItems} />
+                                    <FeedPostCard post={item} setItems={setItems} />
                                 </div>
                             )
                         })}

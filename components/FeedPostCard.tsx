@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
 import TextContent from './posts-content-type/textContent';
-import { PostsWithAuthor } from '@/complexTypes';
+import { PostsWithAuthorAndCommunity } from '@/complexTypes';
 import { deletePost, managePostVotes, removeVote } from '@/app/actions'; // Import removeVote
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext';
 import { toast } from "sonner"
@@ -43,13 +43,13 @@ import ImagesContentCompact from './posts-content-type/imagesContentCompact';
 import LinkContent from './posts-content-type/linkContent';
 
 interface PostCardProps {
-    post: PostsWithAuthor
-    setItems: React.Dispatch<React.SetStateAction<PostsWithAuthor[]>>;
+    post: PostsWithAuthorAndCommunity
+    setItems: React.Dispatch<React.SetStateAction<PostsWithAuthorAndCommunity[]>>;
 }
 
 type vote = { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }
 
-export default memo(function PostCard({ post, setItems }: PostCardProps) {
+export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
     const [votes, setVotes] = useState(0);
     const [userVote, setUserVote] = useState<null | vote>(null);
     const deleteDialogRef = React.useRef<HTMLButtonElement>(null);
@@ -131,7 +131,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
         return (
             <Card className='w-full py-4 max-w-full my-2 gap-1 bg-saidit-black'>
                 <div className='flex w-full gap-2'>
-                    <div className='bg-background flex items-center justify-center border rounded-lg w-28 h-20 ml-3 overflow-hidden'>
+                    <div className='bg-background flex items-center justify-center shrink-0 border rounded-lg w-28 h-20 ml-3 overflow-hidden'>
                         {
                             post.post_type === 'text' || post.post_type === 'link' ?
                                 <Rows3 size={24} className='text-muted-foreground' />
@@ -140,52 +140,37 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                     : null
                         }
                     </div>
-                    <div className='w-full'>
-                        <CardHeader className='pl-0'>
+                    <div className='max-w-[calc(100%-7rem)] pr-8'>
+                        <CardHeader className='px-0'>
                             <div className='flex items-center gap-2'>
                                 <CardTitle className='text-primary-foreground-muted flex items-center gap-1'>
                                     <Avatar className='h-6 w-6'>
-                                        <AvatarImage src={post.users?.avatar_url || undefined}
+                                        <AvatarImage src={post.communities.image_url || undefined}
                                             className='rounded-full'
                                             draggable={false}
                                         />
-                                        <AvatarFallback>CN</AvatarFallback>
+                                        <AvatarFallback>s/</AvatarFallback>
                                     </Avatar>
-                                    <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline'>
-                                        u/{post.users?.username}
+                                    <Link href={`/u/${post.communities.community_name}`} className='text-sm ml-0.5 hover:underline'>
+                                        s/{post.communities.community_name}
                                     </Link>
                                     {
                                         profile?.verified &&
-                                        <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
+                                        <BadgeCheck className="text-background" fill="#477ed8" size={18} />
                                     }
                                 </CardTitle>
                                 <span className='text-muted-foreground'>•</span>
                                 <CardDescription className='line-clamp-1'>{formatRelativeTime(post.created_at)}</CardDescription>
                             </div>
-                            <CardAction>
-                                <DropdownMenu modal={false}>
-                                    <DropdownMenuTrigger asChild disabled={!isAuthor}>
-                                        <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className='mr-6 lg:mr-18'>
-                                        {
-                                            isAuthor &&
-                                            <DropdownMenuItem
-                                                onClick={() => deleteDialogRef.current?.click()}
-                                                className='text-primary-foreground-muted'>
-                                                <Trash className='text-primary-foreground-muted' /> Delete
-                                            </DropdownMenuItem>
-                                        }
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </CardAction>
+
                         </CardHeader>
-                        <CardContent className='pl-0'>
+                        <CardContent className='px-0'>
                             {
                                 post.post_type === 'text' || post.post_type === 'image' ?
                                     <TextContent post={post} />
                                     : post.post_type === 'link' ?
-                                        <LinkContent post={post} /> : null
+                                        <LinkContent post={post} />
+                                        : null
                             }
                         </CardContent>
                         <CardFooter className='mt-2 pl-0'>
@@ -214,11 +199,29 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                         <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>0</p>
                                     </div>
                                 </Button>
-                                <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
-                                    <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
-                                        <Forward size={18} /> Share
-                                    </div>
-                                </Button>
+
+                                <CardAction>
+                                    <DropdownMenu modal={false}>
+                                        <DropdownMenuTrigger asChild disabled={!isAuthor}>
+                                            <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
+                                                <Ellipsis size={18} />
+                                            </div>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className='mr-6 lg:mr-18'>
+                                            {
+                                                isAuthor &&
+                                                <DropdownMenuItem
+                                                    onClick={() => deleteDialogRef.current?.click()}
+                                                    className='text-primary-foreground-muted'>
+                                                    <Trash className='text-primary-foreground-muted' /> Delete
+                                                </DropdownMenuItem>
+                                            }
+                                            <DropdownMenuItem disabled>
+                                                <Forward size={18} /> Share
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </CardAction>
                             </div>
                         </CardFooter>
                     </div>
@@ -230,23 +233,23 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
     }
 
     return (
-        <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black py-5'>
-            <CardHeader className='px-5'>
+        <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black pb-3 pt-4'>
+            <CardHeader className='px-4'>
                 <div className='flex items-center gap-2'>
                     <CardTitle className='text-primary-foreground-muted flex items-center gap-1'>
                         <Avatar className='h-6 w-6'>
-                            <AvatarImage src={post.users?.avatar_url || undefined}
+                            <AvatarImage src={post.communities.image_url || undefined}
                                 className='rounded-full'
                                 draggable={false}
                             />
-                            <AvatarFallback>CN</AvatarFallback>
+                            <AvatarFallback>s/</AvatarFallback>
                         </Avatar>
-                        <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline'>
-                            u/{post.users?.username}
+                        <Link href={`/s/${post.communities.community_name}`} className='text-sm ml-0.5 hover:underline'>
+                            s/{post.communities.community_name}
                         </Link>
                         {
                             profile?.verified &&
-                            <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
+                            <BadgeCheck className="text-background" fill="#477ed8" size={18} />
                         }
                     </CardTitle>
                     <span className='text-muted-foreground'>•</span>
@@ -270,18 +273,20 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                     </DropdownMenu>
                 </CardAction>
             </CardHeader>
-            <CardContent className='px-5'>
+            <CardContent className='px-4'>
                 {
                     post.post_type === 'text' ?
                         <TextContent post={post} />
                         : post.post_type === 'image' ?
-                            <ImagesContent post={post} />
+                            <div className='mb-2'>
+                                <ImagesContent post={post} />
+                            </div>
                             : post.post_type === 'link' ?
                                 <LinkContent post={post} /> :
                                 null
                 }
             </CardContent>
-            <CardFooter className='mt-2 px-5'>
+            <CardFooter className='mt-1 px-4'>
                 <div className='flex items-center gap-2'>
                     <div className='flex items-center h-8 bg-muted rounded-full'>
                         <div
@@ -322,8 +327,8 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
 
 type ConfirmationDialogProps = {
     triggerRef: React.RefObject<HTMLButtonElement | null>;
-    setItems: React.Dispatch<React.SetStateAction<PostsWithAuthor[]>>;
-    post: PostsWithAuthor
+    setItems: React.Dispatch<React.SetStateAction<PostsWithAuthorAndCommunity[]>>;
+    post: PostsWithAuthorAndCommunity
 };
 
 const ConfirmationDialog = memo(({ triggerRef, post, setItems }: ConfirmationDialogProps) => {

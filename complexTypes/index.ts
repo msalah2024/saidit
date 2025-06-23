@@ -28,3 +28,17 @@ export type PostsWithAuthor = Post & {
     posts_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
     post_attachments: PostAttachments[]
 }
+
+export type PostsWithAuthorAndCommunity = Post & {
+    users?: {
+        username: string | null
+        avatar_url: string | null
+    } | null
+    posts_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
+    post_attachments: PostAttachments[]
+    communities: {
+        community_name: string
+        verified: boolean
+        image_url: string | null
+    }
+}
