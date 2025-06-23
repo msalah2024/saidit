@@ -9,7 +9,7 @@ interface linkContentProps {
 export default function LinkContent({ post }: linkContentProps) {
 
     return (
-        <div>
+        <div className='ml-2'>
             <h4 className="scroll-m-20 text-[1.1rem] font-medium tracking-tight">
                 {post.title}
             </h4>

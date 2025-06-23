@@ -9,7 +9,6 @@ interface TextContentProps {
 export default memo(function TextContent({ post }: TextContentProps) {
     const cleanContent = DOMPurify.sanitize(post?.content ?? "");
     const isEmptyParagraph = cleanContent.trim() === '<p></p>' || cleanContent.trim() === '';
-
     return (
         <div className='flex flex-col ml-2 gap-0 cursor-pointer select-none'>
             <h4 className="scroll-m-20 text-[1.1rem] font-medium tracking-tight">
@@ -18,7 +17,7 @@ export default memo(function TextContent({ post }: TextContentProps) {
             {
                 !isEmptyParagraph &&
                 <div
-                    className='text-primary-foreground-muted prose
+                    className='text-primary-foreground-muted prose 
                                 prose-strong:text-primary-foreground-muted
                                 prose-code:text-primary-foreground-muted
                                 prose-li:p:my-0
@@ -29,7 +28,6 @@ export default memo(function TextContent({ post }: TextContentProps) {
                     dangerouslySetInnerHTML={{ __html: cleanContent }}
                 />
             }
-
         </div>
     )
 })

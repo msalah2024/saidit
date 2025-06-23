@@ -275,14 +275,18 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
             <CardContent className='px-4'>
                 {
                     post.post_type === 'text' ?
-                        <TextContent post={post} />
+                        <div className='py-2'>
+                            <TextContent post={post} />
+                        </div>
                         : post.post_type === 'image' ?
                             <div className='mb-2'>
                                 <ImagesContent post={post} />
                             </div>
                             : post.post_type === 'link' ?
-                                <LinkContent post={post} /> :
-                                null
+                                <div className='py-2'>
+                                    <LinkContent post={post} />
+                                </div>
+                                : null
                 }
             </CardContent>
             <CardFooter className='mt-1 px-4'>

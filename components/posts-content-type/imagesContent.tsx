@@ -110,7 +110,7 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
 
     return (
         <div className='flex flex-col'>
-            <h4 className="scroll-m-20 ml-1 mb-2 text-lg font-semibold tracking-tight">
+            <h4 className="scroll-m-20 ml-1 mb-2 text-[1.1rem] font-semibold tracking-tight">
                 {post.title}
             </h4>
             <Carousel setApi={setApi} className='border overflow-hidden rounded-xl'>

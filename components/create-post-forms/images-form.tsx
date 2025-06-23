@@ -23,6 +23,7 @@ import { useRouter } from 'nextjs-toploader/app'
 import { ImagePostSchema } from '@/schema'
 import ImagesManagement from './images-management'
 import { createClient } from '@/utils/supabase/client'
+import { generatePostSlug } from '@/app/actions'
 
 interface ImagesFormProps {
     selectedCommunity: Tables<'communities'> | null
@@ -64,19 +65,21 @@ export default function ImagesForm({ selectedCommunity }: ImagesFormProps) {
             return
         }
 
-        console.log(values)
-
         try {
             setIsSubmitting(true)
 
+
+
             if (!user) { return }
 
+            const slug = await generatePostSlug(values.title)
             const { data: post, error } = await supabase.from('posts').insert({
                 community_id: selectedCommunity.id,
                 author_id: user.id,
                 title: values.title,
                 content: values.body,
                 post_type: 'image',
+                slug: slug
             }).select('*').single()
 
             if (error) {
