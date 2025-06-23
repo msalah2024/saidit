@@ -23,6 +23,8 @@ import {
 import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { Tables } from "@/database.types";
+import { nanoid } from 'nanoid'
+
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
   const email = formData.email.toLowerCase()
@@ -1174,16 +1176,27 @@ export async function selectCommunity(name: string) {
   }
 }
 
+export async function generatePostSlug(title: string) {
+  const slug = title.toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '')
+    .slice(0, 80)
+  const id = nanoid(7)
+  return `${id}-${slug}`
+}
+
 export async function createTextPost(communityID: string, authorID: string, post: z.infer<typeof TextPostSchema>) {
   const supabase = await createClient()
 
   try {
+    const slug = await generatePostSlug(post.title)
     const { error } = await supabase.from('posts').insert({
       community_id: communityID,
       author_id: authorID,
       title: post.title,
       content: post.body,
       post_type: "text",
+      slug: slug
     })
 
     if (error) {
@@ -1297,13 +1310,14 @@ export async function deletePost(postID: string) {
 export async function createLinkPost(post: z.infer<typeof LinkPostSchema>, authorID: string, communityID: string) {
   const supabase = await createClient()
   try {
-
+    const slug = await generatePostSlug(post.title)
     const { error } = await supabase.from('posts').insert({
       community_id: communityID,
       author_id: authorID,
       title: post.title,
       post_type: "link",
-      url: post.link
+      url: post.link,
+      slug: slug
     }).select('*').single()
 
     if (error) {

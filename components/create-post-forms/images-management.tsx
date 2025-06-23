@@ -107,8 +107,6 @@ export default memo(function ImagesManagement({ form }: ImagesManagementProps) {
     return validTypes.includes(file.type)
   }
 
-  console.log(images)
-
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     setIsDragOver(true)
