@@ -1215,7 +1215,7 @@ export async function managePostVotes(voterID: string, postID: string, voteType:
       voter_id: voterID,
       post_id: postID,
       vote_type: voteType,
-    }, { onConflict: 'post_id, voter_id' }).select().single()
+    }, { onConflict: 'post_id, voter_id' }).select('*').single()
 
     if (error) {
       console.error("Vote upsert error", error.message)

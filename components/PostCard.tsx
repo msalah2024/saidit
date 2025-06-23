@@ -79,37 +79,51 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
             return;
         }
 
+        const previousVotes = votes;
+        const previousUserVote = userVote;
+
+        let newVotes = votes;
+        let newUserVote: vote | null = null;
+
         if (userVote && userVote.vote_type === voteType) {
-            try {
-                const result = await removeVote(userVote.id);
-                if (result.success) {
-                    setVotes(prev => voteType === 'upvote' ? prev - 1 : prev + 1);
-                    setUserVote(null);
-                } else {
-                    toast.error("Failed to remove vote");
-                }
-            } catch (error) {
-                console.error(error);
-                toast.error("Failed to remove vote");
-            }
-            return;
+            newVotes = voteType === 'upvote' ? votes - 1 : votes + 1;
+            newUserVote = null;
+        } else if (userVote) {
+            newVotes = voteType === 'upvote' ? votes + 2 : votes - 2;
+            newUserVote = { ...userVote, vote_type: voteType };
+        } else {
+            newVotes = voteType === 'upvote' ? votes + 1 : votes - 1;
+            newUserVote = { vote_type: voteType, voter_id: user.id, id: "pending" };
         }
+
+        setVotes(newVotes);
+        setUserVote(newUserVote);
 
         try {
             const result = await managePostVotes(user.id, post.id, voteType);
-            if (result.success) {
-                if (userVote) {
-                    setVotes(prev => voteType === 'upvote' ? prev + 2 : prev - 2);
-                } else {
-                    setVotes(prev => voteType === 'upvote' ? prev + 1 : prev - 1);
+
+            if (!result.success) {
+                throw new Error(result.message);
+            }
+
+            if (newUserVote === null) {
+                if (userVote?.id && userVote.id !== "pending") {
+                    await removeVote(userVote.id);
                 }
-                setUserVote({ vote_type: voteType, voter_id: user.id, id: result.data?.id }); // Update with new vote
-            } else {
-                toast.error("An error occurred");
+            }
+
+            if (result.data?.id && newUserVote?.id === "pending") {
+                setUserVote({
+                    vote_type: voteType,
+                    voter_id: user.id,
+                    id: result.data.id
+                });
             }
         } catch (error) {
-            console.error(error);
+            setVotes(previousVotes);
+            setUserVote(previousUserVote);
             toast.error("Failed to update vote");
+            console.error("Vote error:", error);
         }
     };
 

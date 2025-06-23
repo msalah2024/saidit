@@ -15,7 +15,7 @@ export default function LinkContent({ post }: linkContentProps) {
             </h4>
             {
                 post.url &&
-                <Link href={post.url} className='text-accent line-clamp-1 hover:underline'>
+                <Link href={post.url} target="_blank" className='text-accent line-clamp-1 hover:underline'>
                     {post.url}
                 </Link>
             }
