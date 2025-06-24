@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
 import TextContent from './posts-content-type/textContent';
-import { PostsWithAuthor } from '@/complexTypes';
+import { PostsWithAuthorAndCommunity } from '@/complexTypes';
 import { deletePost, managePostVotes, removeVote } from '@/app/actions'; // Import removeVote
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext';
 import { toast } from "sonner"
@@ -43,8 +43,8 @@ import ImagesContentCompact from './posts-content-type/imagesContentCompact';
 import LinkContent from './posts-content-type/linkContent';
 
 interface PostCardProps {
-    post: PostsWithAuthor
-    setItems: React.Dispatch<React.SetStateAction<PostsWithAuthor[]>>;
+    post: PostsWithAuthorAndCommunity
+    setItems: React.Dispatch<React.SetStateAction<PostsWithAuthorAndCommunity[]>>;
 }
 
 type vote = { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }
@@ -54,7 +54,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
     const [userVote, setUserVote] = useState<null | vote>(null);
     const deleteDialogRef = React.useRef<HTMLButtonElement>(null);
 
-    const { user, profile } = useGeneralProfile();
+    const { user } = useGeneralProfile();
     const { view } = useView()
     const isAuthor = post.author_id === user?.id
 
@@ -129,9 +129,9 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
 
     if (view === "Compact") {
         return (
-            <Card className='w-full py-4 max-w-full my-2 gap-1 bg-saidit-black'>
+            <Card className='w-full relative py-4 max-w-full my-2 gap-1 bg-saidit-black'>
                 <div className='flex w-full gap-2'>
-                    <div className='bg-background flex items-center justify-center shrink-0 border rounded-lg w-28 h-20 ml-3 overflow-hidden'>
+                    <div className='bg-background flex items-center justify-center shrink-0 relative border rounded-lg w-28 h-20 ml-3 overflow-hidden'>
                         {
                             post.post_type === 'text' || post.post_type === 'link' ?
                                 <Rows3 size={24} className='text-muted-foreground' />
@@ -140,7 +140,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                     : null
                         }
                     </div>
-                    <div className='max-w-[calc(100%-7rem)] pr-8'>
+                    <div className='max-w-[calc(100%-7rem)] w-full pr-8'>
                         <CardHeader className='px-0'>
                             <div className='flex items-center gap-2'>
                                 <CardTitle className='text-primary-foreground-muted flex items-center gap-1'>
@@ -151,11 +151,11 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                         />
                                         <AvatarFallback>CN</AvatarFallback>
                                     </Avatar>
-                                    <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline'>
+                                    <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline z-10'>
                                         u/{post.users?.username}
                                     </Link>
                                     {
-                                        profile?.verified &&
+                                        post.users?.verified &&
                                         <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
                                     }
                                 </CardTitle>
@@ -174,7 +174,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                         </CardContent>
                         <CardFooter className='mt-2 pl-0'>
                             <div className='flex items-center gap-2'>
-                                <div className='flex items-center h-8 bg-muted rounded-full'>
+                                <div className='flex items-center h-8 bg-muted rounded-full z-10'>
                                     <div
                                         onClick={() => {
                                             handleVote("upvote")
@@ -193,13 +193,13 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                             className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''} />
                                     </div>
                                 </div>
-                                <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
+                                <Button disabled className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'}>
                                     <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'><MessageCircle size={18} />
                                         <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>0</p>
                                     </div>
                                 </Button>
 
-                                <CardAction>
+                                <CardAction className='z-10 hover:cursor-pointer'>
                                     <DropdownMenu modal={false}>
                                         <DropdownMenuTrigger asChild disabled={!isAuthor}>
                                             <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
@@ -226,13 +226,17 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                     </div>
                 </div>
                 <ConfirmationDialog triggerRef={deleteDialogRef} setItems={setItems} post={post} />
+                <Link
+                    href={`/s/${post.communities.community_name}/comments/${post.slug}`}
+                    className="absolute inset-0 z-0"
+                />
             </Card>
 
         )
     }
 
     return (
-        <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black pb-3 pt-4'>
+        <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black pb-3 pt-4 relative'>
             <CardHeader className='px-4'>
                 <div className='flex items-center gap-2'>
                     <CardTitle className='text-primary-foreground-muted flex items-center gap-1'>
@@ -243,11 +247,11 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                             />
                             <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
-                        <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline'>
+                        <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline z-10'>
                             u/{post.users?.username}
                         </Link>
                         {
-                            profile?.verified &&
+                            post.users?.verified &&
                             <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
                         }
                     </CardTitle>
@@ -277,7 +281,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                     post.post_type === 'text' ?
                         <TextContent post={post} />
                         : post.post_type === 'image' ?
-                            <div className='mb-2'>
+                            <div className='mb-2 relative'>
                                 <ImagesContent post={post} />
                             </div>
                             : post.post_type === 'link' ?
@@ -285,9 +289,9 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                 : null
                 }
             </CardContent>
-            <CardFooter className='mt-1 px-4'>
+            <CardFooter className='mt-1 px-4 '>
                 <div className='flex items-center gap-2'>
-                    <div className='flex items-center h-8 bg-muted rounded-full'>
+                    <div className='flex items-center h-8 bg-muted rounded-full z-10'>
                         <div
                             onClick={() => {
                                 handleVote("upvote")
@@ -306,12 +310,12 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                 className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''} />
                         </div>
                     </div>
-                    <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
+                    <Button disabled className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'}>
                         <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'><MessageCircle size={18} />
                             <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>0</p>
                         </div>
                     </Button>
-                    <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
+                    <Button disabled className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'}>
                         <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
                             <Forward size={18} /> Share
                         </div>
@@ -319,6 +323,10 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                 </div>
             </CardFooter>
             <ConfirmationDialog triggerRef={deleteDialogRef} setItems={setItems} post={post} />
+            <Link
+                href={`/s/${post.communities.community_name}/comments/${post.slug}`}
+                className="absolute inset-0 z-0"
+            />
         </Card>
     )
 })
@@ -326,8 +334,8 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
 
 type ConfirmationDialogProps = {
     triggerRef: React.RefObject<HTMLButtonElement | null>;
-    setItems: React.Dispatch<React.SetStateAction<PostsWithAuthor[]>>;
-    post: PostsWithAuthor
+    setItems: React.Dispatch<React.SetStateAction<PostsWithAuthorAndCommunity[]>>;
+    post: PostsWithAuthorAndCommunity
 };
 
 const ConfirmationDialog = memo(({ triggerRef, post, setItems }: ConfirmationDialogProps) => {

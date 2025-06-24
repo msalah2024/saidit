@@ -201,6 +201,7 @@ export type Database = {
           created_at: string
           id: string
           post_type: Database["public"]["Enums"]["post_type"]
+          slug: string
           title: string
           updated_at: string | null
           url: string | null
@@ -212,6 +213,7 @@ export type Database = {
           created_at?: string
           id?: string
           post_type: Database["public"]["Enums"]["post_type"]
+          slug: string
           title: string
           updated_at?: string | null
           url?: string | null
@@ -223,6 +225,7 @@ export type Database = {
           created_at?: string
           id?: string
           post_type?: Database["public"]["Enums"]["post_type"]
+          slug?: string
           title?: string
           updated_at?: string | null
           url?: string | null

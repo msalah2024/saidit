@@ -109,15 +109,19 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
     )
 
     return (
-        <div className='flex flex-col'>
+        <div className='flex flex-col relative'>
             <h4 className="scroll-m-20 ml-1 mb-2 text-[1.1rem] font-semibold tracking-tight">
                 {post.title}
             </h4>
-            <Carousel setApi={setApi} className='border overflow-hidden rounded-xl'>
+            <Carousel setApi={setApi} className='border overflow-hidden rounded-xl z-10'>
                 <div className='relative'>
                     <CarouselContent>
                         {post.post_attachments.map((img, index) => (
-                            <CarouselItem key={index} className='relative flex items-center justify-center hover:cursor-pointer'>
+                            <CarouselItem
+                                onClick={() => {
+                                    handleImageClick(index)
+                                }}
+                                key={index} className='relative flex items-center justify-center hover:cursor-pointer '>
                                 <div className="absolute hidden lg:block inset-0 overflow-hidden">
                                     <div className="w-full h-full scale-120 opacity-30 blur-xl">
                                         <Image
@@ -132,9 +136,7 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
                                 </div>
                                 <div className='relative z-10'>
                                     <Image
-                                        onClick={() => {
-                                            handleImageClick(index)
-                                        }}
+
                                         src={img.file_url}
                                         alt={img.alt_text || ""}
                                         width={img.width || undefined}
