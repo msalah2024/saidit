@@ -10,7 +10,7 @@ export default function PostBackButton() {
         <Button variant={'redditGray'}
             onClick={() => {
                 router.back()
-            }} size={'icon'} className='hidden lg:flex'>
+            }} size={'icon'} >
             <ArrowLeft />
         </Button>
     )

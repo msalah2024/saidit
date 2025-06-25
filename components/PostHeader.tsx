@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import PostVote from './PostVote'
 import { Button } from './ui/button'
+import PostBackButton from './PostBackButton'
 
 const TextContentComments = dynamic(
     () => import('./posts-content-type/textContentComments'),
@@ -56,7 +57,10 @@ export default function PostHeader() {
         <div className='flex flex-col gap-2 w-full'>
             <div className='flex justify-between items-center'>
                 <div className='flex gap-1 font-medium'>
-                    <Avatar className='h-8 w-8'>
+                    <div className='lg:hidden flex mr-2'>
+                        <PostBackButton />
+                    </div>
+                    <Avatar className='h-9 w-9'>
                         <AvatarImage src={post.communities.image_url || undefined}
                             className='rounded-full'
                             draggable={false}

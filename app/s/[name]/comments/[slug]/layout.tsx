@@ -21,7 +21,9 @@ export default async function Layout({ children, params }: any) {
     return (
         <div className='flex gap-4'>
             <PostProvider post={post.data}>
-                <PostBackButton />
+                <div className='hidden lg:flex'>
+                    <PostBackButton />
+                </div>
                 <div className='flex flex-col gap-4 w-full'>
                     <PostHeader />
                     <hr />
