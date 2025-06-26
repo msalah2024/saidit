@@ -19,7 +19,7 @@ export default async function Layout({ children, params }: any) {
     }
 
     return (
-        <div className='flex gap-4'>
+        <div className='flex gap-4 '>
             <PostProvider post={post.data}>
                 <div className='hidden lg:flex'>
                     <PostBackButton />

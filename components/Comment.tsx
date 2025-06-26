@@ -1,10 +1,10 @@
 
 "use client"
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
-import React from 'react'
+import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import Link from 'next/link'
-import { BadgeCheck, CirclePlus, Forward, MessageCircle } from 'lucide-react'
+import { BadgeCheck, CircleMinus, CirclePlus, Forward, MessageCircle } from 'lucide-react'
 import { Button } from './ui/button'
 
 type CommentType = {
@@ -80,8 +80,18 @@ const LShape = ({
 
 export default function Comment({ comment, depth = 0 }: CommentProps) {
     const { profile } = useGeneralProfile()
-
+    const [collapsed, setCollapsed] = useState(false)
     // Mock data - in a real app this would come from props or API
+
+    const handleCollapse = () => {
+        if (collapsed) {
+            setCollapsed(false)
+        }
+        else {
+            setCollapsed(true)
+        }
+    }
+
     const mockReplies: CommentType[] = [
         {
             id: '2',
@@ -190,17 +200,22 @@ export default function Comment({ comment, depth = 0 }: CommentProps) {
     return (
         <div className='relative my-3'>
             <div className='flex gap-2'>
-                <div className='flex flex-col items-center'>
-                    <Avatar className='h-8 w-8'>
-                        <AvatarImage
-                            src={comment.author.avatar_url || profile?.avatar_url || undefined}
-                            className='rounded-full'
-                            draggable={false}
-                        />
-                        <AvatarFallback>
-                            {comment.author.username.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                    </Avatar>
+                <div className={`flex flex-col items-center ${collapsed ? 'justify-center' : ''}`}>
+                    {
+                        !collapsed ?
+                            <Avatar className='h-8 w-8'>
+                                <AvatarImage
+                                    src={comment.author.avatar_url || profile?.avatar_url || undefined}
+                                    className='rounded-full'
+                                    draggable={false}
+                                />
+                                <AvatarFallback>
+                                    {comment.author.username.slice(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+                            :
+                            <CirclePlus className='text-white hover:cursor-pointer mt-1' size={16} onClick={handleCollapse} />
+                    }
                     {replies.length > 0 && (
                         <div className='absolute h-[calc(100%-5rem)] top-8 flex items-center flex-col'>
                             <div className="w-px bg-muted h-[calc(100%-4rem)]"></div>
@@ -208,7 +223,12 @@ export default function Comment({ comment, depth = 0 }: CommentProps) {
                     )}
 
                     {replies.length > 0 && (
-                        <CirclePlus className='text-white z-10 absolute top-15 shrink-0' size={16} />
+                        <div className='z-10 bg-background absolute top-15.5 shrink-0 hover:cursor-pointer' onClick={handleCollapse}>
+                            {
+                                !collapsed &&
+                                <CircleMinus className='text-white' size={16} />
+                            }
+                        </div>
                     )}
                     {
                         depth !== 0 &&
@@ -233,27 +253,33 @@ export default function Comment({ comment, depth = 0 }: CommentProps) {
                         <span className='text-muted-foreground'>•</span>
                         <div className='text-sm text-muted-foreground'>{comment.createdAt}</div>
                     </div>
-                    <div>
-                        <p className='text-primary-foreground-muted text-sm'>{comment.content}</p>
-                    </div>
-                    <div className='flex items-center mt-1 mb-2 gap-1'>
-                        <Button className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
-                            <div className='flex items-center select-none h-7 text-xs px-3 bg-background text-primary-foreground-muted rounded-full'>
-                                <MessageCircle size={16} />
-                                Reply
+                    {
+                        !collapsed &&
+                        <div className='flex flex-col gap-1 w-full'>
+                            <div>
+                                <p className='text-primary-foreground-muted text-sm'>{comment.content}</p>
                             </div>
-                        </Button>
-                        <Button className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
-                            <div className='flex items-center select-none gap-1 h-7 px-3 bg-background text-xs text-primary-foreground-muted rounded-full'>
-                                <Forward size={16} /> Share
+                            <div className='flex items-center mt-1 mb-2 gap-1'>
+                                <Button className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
+                                    <div className='flex items-center select-none h-7 text-xs px-3 bg-background text-primary-foreground-muted rounded-full'>
+                                        <MessageCircle size={16} />
+                                        Reply
+                                    </div>
+                                </Button>
+                                <Button className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
+                                    <div className='flex items-center select-none gap-1 h-7 px-3 bg-background text-xs text-primary-foreground-muted rounded-full'>
+                                        <Forward size={16} /> Share
+                                    </div>
+                                </Button>
                             </div>
-                        </Button>
-                    </div>
+                        </div>
+                    }
+
                 </div>
             </div>
 
             {/* Recursive rendering of replies */}
-            {replies.length > 0 && (
+            {replies.length > 0 && !collapsed && (
                 <div className='ml-10'>
                     {replies.map((reply) => (
                         <Comment
