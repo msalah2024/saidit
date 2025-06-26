@@ -27,38 +27,54 @@ interface CommentProps {
 
 
 const LShape = ({
-    size = 64,          // Overall container size
     verticalLength = 64, // Height of vertical part
     horizontalLength = 64, // Width of horizontal part
-    thickness = 4,      // Uniform thickness for both parts
-    color = "blue-500",
+    thickness = 1,      // Border thickness
+    color = "white",    // Border color
     className = "",
+    cornerRadius = 15,   // Radius for the rounded corner
 }) => {
     return (
-        <svg
-            width={size}
-            height={size}
-            viewBox={`0 0 ${size} ${size}`}
-            className={`text-${color} ${className}`}
+        <div
+            className={`relative ${className}`}
+            style={{
+                width: `${horizontalLength}px`,
+                height: `${verticalLength}px`,
+            }}
         >
-            {/* Vertical part (anchored to bottom) */}
-            <rect
-                x="0"
-                y={size - verticalLength}
-                width={thickness}
-                height={verticalLength}
-                fill="currentColor"
+            {/* Vertical line */}
+            <div
+                className="absolute left-0 top-0"
+                style={{
+                    width: `${thickness}px`,
+                    height: `calc(100% - ${cornerRadius}px)`,
+                    backgroundColor: color,
+                }}
             />
 
-            {/* Horizontal part (anchored to left) */}
-            <rect
-                x="0"
-                y={size - thickness}
-                width={horizontalLength}
-                height={thickness}
-                fill="currentColor"
+            {/* Horizontal line with rounded corner */}
+            <div
+                className="absolute bottom-0 left-3"
+                style={{
+                    width: `calc(100% - ${cornerRadius}px)`,
+                    height: `${thickness}px`,
+                    backgroundColor: color,
+                    // borderBottomLeftRadius: `${cornerRadius}px`,
+                }}
             />
-        </svg>
+
+            {/* Corner rounding element */}
+            <div
+                className="absolute bottom-0 left-0"
+                style={{
+                    width: `${cornerRadius}px`,
+                    height: `${cornerRadius}px`,
+                    borderBottomLeftRadius: `${cornerRadius}px`,
+                    borderLeft: `${thickness}px solid ${color}`,
+                    borderBottom: `${thickness}px solid ${color}`,
+                }}
+            />
+        </div>
     );
 };
 
@@ -86,12 +102,78 @@ export default function Comment({ comment, depth = 0 }: CommentProps) {
                     },
                     content: 'Nested reply here!',
                     createdAt: '12 hours ago',
+                    replies: [
+                        {
+                            id: '15',
+                            author: {
+                                username: 'user3',
+                                avatar_url: null,
+                                verified: true,
+                            },
+                            content: 'Nested reply here!',
+                            createdAt: '12 hours ago',
+                        }
+                        ,
+                        {
+                            id: '16',
+                            author: {
+                                username: 'user3',
+                                avatar_url: null,
+                                verified: true,
+                            },
+                            content: 'Nested reply here!',
+                            createdAt: '12 hours ago',
+                        }
+                        ,
+                        {
+                            id: '17',
+                            author: {
+                                username: 'user3',
+                                avatar_url: null,
+                                verified: true,
+                            },
+                            content: 'Nested reply here!',
+                            createdAt: '12 hours ago',
+                        }
+                    ]
                 }
-
+                ,
+                {
+                    id: '7',
+                    author: {
+                        username: 'user3',
+                        avatar_url: null,
+                        verified: true,
+                    },
+                    content: 'Nested reply here!',
+                    createdAt: '12 hours ago',
+                }
+                ,
+                {
+                    id: '9',
+                    author: {
+                        username: 'user3',
+                        avatar_url: null,
+                        verified: true,
+                    },
+                    content: 'Nested reply here!',
+                    createdAt: '12 hours ago',
+                }
             ]
         },
         {
             id: '4',
+            author: {
+                username: 'user4',
+                avatar_url: null,
+                verified: false,
+            },
+            content: 'Another reply to the original comment',
+            createdAt: '5 hours ago',
+        }
+        ,
+        {
+            id: '12',
             author: {
                 username: 'user4',
                 avatar_url: null,
@@ -120,19 +202,18 @@ export default function Comment({ comment, depth = 0 }: CommentProps) {
                         </AvatarFallback>
                     </Avatar>
                     {replies.length > 0 && (
-                        <div className='absolute h-[calc(100%-6.5rem)] top-8 flex items-center flex-col'>
-                            <div className="w-px bg-white h-[calc(100%-4rem)]"></div>
-                            <CirclePlus className='text-white shrink-0' size={16} />
+                        <div className='absolute h-[calc(100%-5rem)] top-8 flex items-center flex-col'>
+                            <div className="w-px bg-muted h-[calc(100%-4rem)]"></div>
                         </div>
                     )}
-                    {/* <div className='absolute h-[calc(100%-6rem)] top-8 flex items-center flex-col'>
-                        <div className="w-px bg-white h-[calc(100%-4rem)]"></div>
-                        <CirclePlus className='text-white shrink-0' size={16} />
-                    </div> */}
+
+                    {replies.length > 0 && (
+                        <CirclePlus className='text-white z-10 absolute top-15 shrink-0' size={16} />
+                    )}
                     {
                         depth !== 0 &&
-                        <div className='absolute -left-[1.55rem] -top-12'>
-                            <LShape color='white' thickness={1} horizontalLength={22} verticalLength={45} />
+                        <div className='absolute -left-[1.55rem] -top-7'>
+                            <LShape color='#171b1f' thickness={1} horizontalLength={28} verticalLength={43} />
                         </div>
                     }
                 </div>
@@ -155,15 +236,15 @@ export default function Comment({ comment, depth = 0 }: CommentProps) {
                     <div>
                         <p className='text-primary-foreground-muted text-sm'>{comment.content}</p>
                     </div>
-                    <div className='flex items-center mt-1 mb-2 gap-2'>
-                        <Button className='p-0 m-0 h-7 gap-1 rounded-full hover:cursor-pointer' variant={'ghost'} asChild>
-                            <div className='flex items-center select-none h-7 text-xs px-3 bg-muted text-primary-foreground-muted rounded-full'>
+                    <div className='flex items-center mt-1 mb-2 gap-1'>
+                        <Button className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
+                            <div className='flex items-center select-none h-7 text-xs px-3 bg-background text-primary-foreground-muted rounded-full'>
                                 <MessageCircle size={16} />
                                 Reply
                             </div>
                         </Button>
-                        <Button className='p-0 m-0 h-7 gap-1 rounded-full hover:cursor-pointer' variant={'ghost'} asChild>
-                            <div className='flex items-center select-none gap-1 h-7 px-3 bg-muted text-xs text-primary-foreground-muted rounded-full'>
+                        <Button className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
+                            <div className='flex items-center select-none gap-1 h-7 px-3 bg-background text-xs text-primary-foreground-muted rounded-full'>
                                 <Forward size={16} /> Share
                             </div>
                         </Button>
