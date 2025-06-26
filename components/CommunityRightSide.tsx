@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { createClient } from '@/utils/supabase/client'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
+import { usePathname } from 'next/navigation'
 
 
 export default function CommunityRightSide() {
@@ -36,10 +37,13 @@ export default function CommunityRightSide() {
   const [isFormDirty, setIsFormDirty] = useState(false)
   const [showAlert, setShowAlert] = useState(false)
   const [viewerCount, setViewerCount] = useState(0)
+  const pathname = usePathname()
 
   const createAtFormatted = format(new Date(community.created_at), 'dd/MM/yyyy');
 
   const isOwner = community.users.account_id === user?.id
+
+  const isPostPage = pathname.includes("/comments")
 
   const handleDialogOpenChange = (nextOpen: boolean) => {
     if (!nextOpen && isFormDirty) {
@@ -81,7 +85,7 @@ export default function CommunityRightSide() {
   }, [supabase, community.id, user?.id])
 
   return (
-    <div className='bg-black w-full p-5 rounded-2xl flex flex-col h-fit gap-4 -mt-12'>
+    <div className={`bg-black w-full p-5 rounded-2xl flex flex-col h-fit gap-4 ${isPostPage ? 'mt-8' : '-mt-12'} `}>
       <div className='flex flex-col gap-2'>
         <div className='flex items-center justify-between'>
           <p className='font-medium text-primary-foreground-muted'>{community.display_name || community.community_name}</p>

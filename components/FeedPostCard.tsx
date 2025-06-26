@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo, useState } from 'react'
 import {
     Card,
     CardAction,
@@ -8,13 +8,13 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { ArrowBigDown, ArrowBigUp, BadgeCheck, Ellipsis, Forward, Loader2, MessageCircle, Rows3, Trash } from 'lucide-react';
+import { BadgeCheck, Ellipsis, Forward, Loader2, MessageCircle, Rows3, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
 import TextContent from './posts-content-type/textContent';
 import { PostsWithAuthorAndCommunity } from '@/complexTypes';
-import { deletePost, managePostVotes, removeVote } from '@/app/actions'; // Import removeVote
+import { deletePost } from '@/app/actions'; // Import removeVote
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext';
 import { toast } from "sonner"
 import { useView } from '@/app/context/ViewContext';
@@ -41,95 +41,22 @@ import ImagesContent from './posts-content-type/imagesContent';
 import { createClient } from '@/utils/supabase/client';
 import ImagesContentCompact from './posts-content-type/imagesContentCompact';
 import LinkContent from './posts-content-type/linkContent';
+import PostVote from './PostVote';
 
 interface PostCardProps {
     post: PostsWithAuthorAndCommunity
     setItems: React.Dispatch<React.SetStateAction<PostsWithAuthorAndCommunity[]>>;
 }
 
-type vote = { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }
-
 export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
-    const [votes, setVotes] = useState(0);
-    const [userVote, setUserVote] = useState<null | vote>(null);
     const deleteDialogRef = React.useRef<HTMLButtonElement>(null);
-
-    const { user, profile } = useGeneralProfile();
+    const { user } = useGeneralProfile();
     const { view } = useView()
     const isAuthor = post.author_id === user?.id
 
-    useEffect(() => {
-        let upVotes = 0;
-        let downVotes = 0;
-        let currentUserVote: vote | null = null;
-
-        post.posts_votes.forEach((vote) => {
-            if (vote.vote_type === 'upvote') upVotes++;
-            else downVotes++;
-            if (vote.voter_id === user?.id) currentUserVote = vote;
-        });
-
-        setVotes(upVotes - downVotes);
-        setUserVote(currentUserVote);
-    }, [post.posts_votes, user?.id]);
-
-    const handleVote = async (voteType: 'upvote' | 'downvote') => {
-        if (!user) {
-            toast.error("Please log in to vote");
-            return;
-        }
-
-        const previousVotes = votes;
-        const previousUserVote = userVote;
-
-        let newVotes = votes;
-        let newUserVote: vote | null = null;
-
-        if (userVote && userVote.vote_type === voteType) {
-            newVotes = voteType === 'upvote' ? votes - 1 : votes + 1;
-            newUserVote = null;
-        } else if (userVote) {
-            newVotes = voteType === 'upvote' ? votes + 2 : votes - 2;
-            newUserVote = { ...userVote, vote_type: voteType };
-        } else {
-            newVotes = voteType === 'upvote' ? votes + 1 : votes - 1;
-            newUserVote = { vote_type: voteType, voter_id: user.id, id: "pending" };
-        }
-
-        setVotes(newVotes);
-        setUserVote(newUserVote);
-
-        try {
-            const result = await managePostVotes(user.id, post.id, voteType);
-
-            if (!result.success) {
-                throw new Error(result.message);
-            }
-
-            if (newUserVote === null) {
-                if (userVote?.id && userVote.id !== "pending") {
-                    await removeVote(userVote.id);
-                }
-            }
-
-            if (result.data?.id && newUserVote?.id === "pending") {
-                setUserVote({
-                    vote_type: voteType,
-                    voter_id: user.id,
-                    id: result.data.id
-                });
-            }
-        } catch (error) {
-            setVotes(previousVotes);
-            setUserVote(previousUserVote);
-            toast.error("Failed to update vote");
-            console.error("Vote error:", error);
-        }
-    };
-
     if (view === "Compact") {
         return (
-            <Card className='w-full py-4 max-w-full my-2 gap-1 bg-saidit-black'>
+            <Card className='w-full relative py-4 max-w-full my-2 gap-1 bg-saidit-black'>
                 <div className='flex w-full gap-2'>
                     <div className='bg-background flex items-center justify-center shrink-0 border rounded-lg w-28 h-20 ml-3 overflow-hidden'>
                         {
@@ -140,7 +67,7 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
                                     : null
                         }
                     </div>
-                    <div className='max-w-[calc(100%-7rem)] pr-8'>
+                    <div className='max-w-[calc(100%-7rem)] w-full pr-8'>
                         <CardHeader className='px-0'>
                             <div className='flex items-center gap-2'>
                                 <CardTitle className='text-primary-foreground-muted flex items-center gap-1'>
@@ -151,11 +78,11 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
                                         />
                                         <AvatarFallback>s/</AvatarFallback>
                                     </Avatar>
-                                    <Link href={`/u/${post.communities.community_name}`} className='text-sm ml-0.5 hover:underline'>
+                                    <Link href={`/s/${post.communities.community_name}`} className='text-sm ml-0.5 hover:underline z-10'>
                                         s/{post.communities.community_name}
                                     </Link>
                                     {
-                                        profile?.verified &&
+                                        post.communities.verified &&
                                         <BadgeCheck className="text-background" fill="#477ed8" size={18} />
                                     }
                                 </CardTitle>
@@ -175,32 +102,15 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
                         </CardContent>
                         <CardFooter className='mt-2 pl-0'>
                             <div className='flex items-center gap-2'>
-                                <div className='flex items-center h-8 bg-muted rounded-full'>
-                                    <div
-                                        onClick={() => {
-                                            handleVote("upvote")
-                                        }}
-                                        className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'>
-                                        <ArrowBigUp size={18} fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
-                                            className={userVote?.vote_type === 'upvote' ? 'text-primary' : ''} />
-                                    </div>
-                                    <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{votes}</p>
-                                    <div
-                                        onClick={() => {
-                                            handleVote("downvote")
-                                        }}
-                                        className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'>
-                                        <ArrowBigDown size={18} fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
-                                            className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''} />
-                                    </div>
-                                </div>
-                                <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
+                                <PostVote postId={post.id}
+                                    initialVotes={post.posts_votes}
+                                />
+                                <Button disabled className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'}>
                                     <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'><MessageCircle size={18} />
                                         <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>0</p>
                                     </div>
                                 </Button>
-
-                                <CardAction>
+                                <CardAction className='z-10 hover:cursor-pointer'>
                                     <DropdownMenu modal={false}>
                                         <DropdownMenuTrigger asChild disabled={!isAuthor}>
                                             <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
@@ -227,13 +137,17 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
                     </div>
                 </div>
                 <ConfirmationDialog triggerRef={deleteDialogRef} setItems={setItems} post={post} />
+                <Link
+                    href={`/s/${post.communities.community_name}/comments/${post.slug}`}
+                    className="absolute inset-0 z-0"
+                />
             </Card>
 
         )
     }
 
     return (
-        <Card className='w-full max-w-4xl my-2 gap-1 bg-saidit-black pb-3 pt-4'>
+        <Card className='w-full relative max-w-4xl my-2 gap-1 bg-saidit-black pb-3 pt-4'>
             <CardHeader className='px-4'>
                 <div className='flex items-center gap-2'>
                     <CardTitle className='text-primary-foreground-muted flex items-center gap-1'>
@@ -244,18 +158,18 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
                             />
                             <AvatarFallback>s/</AvatarFallback>
                         </Avatar>
-                        <Link href={`/s/${post.communities.community_name}`} className='text-sm ml-0.5 hover:underline'>
+                        <Link href={`/s/${post.communities.community_name}`} className='text-sm ml-0.5 hover:underline z-10'>
                             s/{post.communities.community_name}
                         </Link>
                         {
-                            profile?.verified &&
+                            post.communities.verified &&
                             <BadgeCheck className="text-background" fill="#477ed8" size={18} />
                         }
                     </CardTitle>
                     <span className='text-muted-foreground'>•</span>
                     <CardDescription>{formatRelativeTime(post.created_at)}</CardDescription>
                 </div>
-                <CardAction>
+                <CardAction className='z-10 hover:cursor-pointer'>
                     <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild disabled={!isAuthor}>
                             <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
@@ -288,31 +202,15 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
             </CardContent>
             <CardFooter className='mt-1 px-4'>
                 <div className='flex items-center gap-2'>
-                    <div className='flex items-center h-8 bg-muted rounded-full'>
-                        <div
-                            onClick={() => {
-                                handleVote("upvote")
-                            }}
-                            className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'>
-                            <ArrowBigUp size={18} fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
-                                className={userVote?.vote_type === 'upvote' ? 'text-primary' : ''} />
-                        </div>
-                        <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{votes}</p>
-                        <div
-                            onClick={() => {
-                                handleVote("downvote")
-                            }}
-                            className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'>
-                            <ArrowBigDown size={18} fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
-                                className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''} />
-                        </div>
-                    </div>
-                    <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
+                    <PostVote postId={post.id}
+                        initialVotes={post.posts_votes}
+                    />
+                    <Button disabled className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'}>
                         <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'><MessageCircle size={18} />
                             <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>0</p>
                         </div>
                     </Button>
-                    <Button disabled className='p-0 m-0 h-8 rounded-full' variant={'ghost'}>
+                    <Button disabled className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'}>
                         <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
                             <Forward size={18} /> Share
                         </div>
@@ -320,6 +218,10 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
                 </div>
             </CardFooter>
             <ConfirmationDialog triggerRef={deleteDialogRef} setItems={setItems} post={post} />
+            <Link
+                href={`/s/${post.communities.community_name}/comments/${post.slug}`}
+                className="absolute inset-0 z-0"
+            />
         </Card>
     )
 })

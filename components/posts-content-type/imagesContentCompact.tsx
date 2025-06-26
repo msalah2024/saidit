@@ -76,7 +76,7 @@ export default function ImagesContentCompact({ post }: ImagesContentCompactProps
     )
 
     return (
-        <div className="w-full h-full relative">
+        <div className="w-full h-full relative z-10">
             <Image
                 src={post.post_attachments[0].file_url}
                 alt={post.post_attachments[0].alt_text || ""}

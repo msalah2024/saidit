@@ -14,6 +14,8 @@ import {
 import { Button } from '../ui/button'
 import { X } from 'lucide-react'
 import { PostsWithAuthor } from '@/complexTypes'
+import { usePathname } from 'next/navigation'
+import DOMPurify from 'dompurify';
 
 interface ImagesContentProps {
     post: PostsWithAuthor
@@ -26,6 +28,11 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
     const [open, setOpen] = useState(false)
     const [dialogApi, setDialogApi] = useState<CarouselApi>()
     const [clickedImageIndex, setClickedImageIndex] = useState(0)
+    const pathname = usePathname()
+    const cleanContent = DOMPurify.sanitize(post?.content ?? "");
+    const isEmptyParagraph = cleanContent.trim() === '<p></p>' || cleanContent.trim() === '';
+
+    const isPostPage = pathname.includes("/comments")
 
     useEffect(() => {
         if (api && current > 0) {
@@ -109,15 +116,19 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
     )
 
     return (
-        <div className='flex flex-col'>
-            <h4 className="scroll-m-20 ml-1 mb-2 text-[1.1rem] font-semibold tracking-tight">
+        <div className='flex flex-col relative'>
+            <h1 className={`scroll-m-20 ml-1 mb-2 ${isPostPage ? 'text-2xl' : 'text-lg'}  font-medium tracking-tight`}>
                 {post.title}
-            </h4>
-            <Carousel setApi={setApi} className='border overflow-hidden rounded-xl'>
+            </h1>
+            <Carousel setApi={setApi} className='border overflow-hidden rounded-xl z-10'>
                 <div className='relative'>
                     <CarouselContent>
                         {post.post_attachments.map((img, index) => (
-                            <CarouselItem key={index} className='relative flex items-center justify-center hover:cursor-pointer'>
+                            <CarouselItem
+                                onClick={() => {
+                                    handleImageClick(index)
+                                }}
+                                key={index} className='relative flex items-center justify-center hover:cursor-pointer '>
                                 <div className="absolute hidden lg:block inset-0 overflow-hidden">
                                     <div className="w-full h-full scale-120 opacity-30 blur-xl">
                                         <Image
@@ -132,9 +143,7 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
                                 </div>
                                 <div className='relative z-10'>
                                     <Image
-                                        onClick={() => {
-                                            handleImageClick(index)
-                                        }}
+
                                         src={img.file_url}
                                         alt={img.alt_text || ""}
                                         width={img.width || undefined}
@@ -258,6 +267,25 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
                     </Carousel>
                 </DialogContent>
             </Dialog>
+            {
+                isPostPage && !isEmptyParagraph &&
+                <div
+                    className='ml-2 mt-2 text-primary-foreground-muted prose 
+                                prose-strong:text-primary-foreground-muted
+                                prose-code:text-primary-foreground-muted
+                                prose-li:p:my-0
+                                prose-p:my-0
+                                text-base
+                                prose-h1:text-2xl
+                                prose-h2:text-xl
+                                prose-h3:text-lg
+                                prose-blockquote:p:text-primary-foreground-muted
+                                prose-blockquote:border-l-primary
+                                prose-headings:text-primary-foreground-muted'
+                    dangerouslySetInnerHTML={{ __html: cleanContent }}
+                />
+
+            }
         </div>
     )
 })

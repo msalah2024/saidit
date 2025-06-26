@@ -23,7 +23,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { createCommunityMembership, removeCommunityMembership } from '@/app/actions'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import CommunityDrawer from './CommunityDrawer'
 import {
@@ -54,6 +54,7 @@ export default function CommunityHeader() {
     const { community } = useCommunity()
     const { user, profile } = useGeneralProfile()
     const { view, setView } = useView()
+    const pathname = usePathname()
 
     const [globalAvatar, setGlobalAvatar] = useState<string | null>(null)
     const [globalBanner, setGlobalBanner] = useState<string | null>(null)
@@ -68,6 +69,8 @@ export default function CommunityHeader() {
 
     const isOwner = community.users.account_id === user?.id
     const isMember = profile?.community_memberships.some((cm) => (cm.community_id === community.id))
+
+    const isPostPage = pathname.includes("/comments")
 
     const createAtFormatted = format(new Date(community.created_at), 'dd/MM/yyyy');
     const verifiedSinceFormatted = community.verified_since
@@ -166,7 +169,7 @@ export default function CommunityHeader() {
     }
 
     return (
-        <div className='flex flex-col gap-4'>
+        <div className={`flex flex-col gap-4 ${isPostPage ? 'hidden' : ''}`}>
             <div
                 className={`h-30 bg-cover bg-center relative bg-no-repeat bg-gradient-to-r lg:rounded-md lg:mt-4 ${"from-[oklch(67.59%_0.1591_140.34)] to-[oklch(55%_0.17_230)]"}`}
                 style={globalBanner ? { backgroundImage: `url(${globalBanner})` } : community.banner_url ? { backgroundImage: `url(${community.banner_url})` } : { backgroundImage: `bg-muted` }}

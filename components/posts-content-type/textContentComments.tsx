@@ -3,16 +3,16 @@ import { Tables } from '@/database.types'
 import React, { memo } from 'react'
 import DOMPurify from 'dompurify';
 
-interface TextContentProps {
+interface TextContentCommentsProps {
     post: Tables<'posts'>
 }
 
-export default memo(function TextContent({ post }: TextContentProps) {
+export default memo(function TextContentComments({ post }: TextContentCommentsProps) {
     const cleanContent = DOMPurify.sanitize(post?.content ?? "");
     const isEmptyParagraph = cleanContent.trim() === '<p></p>' || cleanContent.trim() === '';
     return (
-        <div className='flex flex-col ml-2 gap-0'>
-            <h1 className="text-lg font-medium tracking-tight">
+        <div className='flex flex-col ml-2 gap-2'>
+            <h1 className="text-2xl font-bold tracking-tight">
                 {post.title}
             </h1>
             {
@@ -23,13 +23,13 @@ export default memo(function TextContent({ post }: TextContentProps) {
                                 prose-code:text-primary-foreground-muted
                                 prose-li:p:my-0
                                 prose-p:my-0
-                                text-sm
-                                prose-h1:text-lg
-                                prose-h2:text-md
-                                prose-h3:text-sm
+                                text-base
+                                prose-h1:text-2xl
+                                prose-h2:text-xl
+                                prose-h3:text-lg
                                 prose-blockquote:p:text-primary-foreground-muted
                                 prose-blockquote:border-l-primary
-                                prose-headings:text-primary-foreground-muted line-clamp-6'
+                                prose-headings:text-primary-foreground-muted'
                     dangerouslySetInnerHTML={{ __html: cleanContent }}
                 />
             }

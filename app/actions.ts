@@ -1339,3 +1339,33 @@ export async function createLinkPost(post: z.infer<typeof LinkPostSchema>, autho
     }
   }
 }
+
+export async function fetchPostBySlug(slug: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from('posts')
+      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url)")
+      .eq('slug', slug).maybeSingle()
+
+    if (error) {
+      console.error("Post fetch error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: 'Post fetched successfully',
+        data: data
+      }
+    }
+
+  } catch (error) {
+    console.error("Post fetch error", error)
+    return {
+      success: false,
+      message: "Post fetch error"
+    }
+  }
+}
