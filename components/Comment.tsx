@@ -141,7 +141,7 @@ export default function Comment({ comment, depth = 0 }: CommentProps) {
             <div className='absolute top-8 left-2 shrink-0 flex h-full flex-col items-center'>
                 {replies.length > 0 && !collapsed && (
                     <div className='bg-background z-20 mt-7'>
-                        <CircleMinus className='text-white shrink-0' onClick={handleCollapse} size={16} />
+                        <CircleMinus className='text-white shrink-0 hover:cursor-pointer' onClick={handleCollapse} size={16} />
                     </div>
                 )}
                 {depth !== 0 && connectorHeight && (
@@ -153,6 +153,7 @@ export default function Comment({ comment, depth = 0 }: CommentProps) {
                         }}
                     >
                         <LShape
+                            color='#171b1f'
                             width={24}
                             height={connectorHeight}
                             thickness={1}

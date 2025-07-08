@@ -26,7 +26,6 @@ export default async function Layout({ children, params }: any) {
                 </div>
                 <div className='flex flex-col gap-4 w-full'>
                     <PostHeader />
-                    <hr />
                     {children}
                 </div>
             </PostProvider>

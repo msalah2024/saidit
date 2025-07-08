@@ -1345,7 +1345,7 @@ export async function fetchPostBySlug(slug: string) {
 
   try {
     const { data, error } = await supabase.from('posts')
-      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url)")
+      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(*)")
       .eq('slug', slug).maybeSingle()
 
     if (error) {

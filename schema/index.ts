@@ -208,3 +208,7 @@ export const LinkPostSchema = z.object({
         .max(300, { message: "Title must be less than 300 characters" }),
     link: z.string().url("Please enter a valid URL")
 })
+
+export const CreateComment = z.object({
+    body: z.string({ message: 'The field is required and cannot be empty' }),
+})
