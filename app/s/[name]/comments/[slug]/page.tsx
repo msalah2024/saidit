@@ -8,6 +8,7 @@ import React, { useState } from 'react'
 export default function Page() {
     const [showTipTap, setShowTipTap] = useState(false)
     const { post } = usePost()
+    console.log(post)
     return (
         <div className='overflow-hidden'>
             <CommentRefreshProvider>
@@ -23,19 +24,7 @@ export default function Page() {
                         <CommentForm setShowTipTap={setShowTipTap} />
                     }
                 </div>
-                {/* <Comment
-                    comment={{
-                        id: '1',
-                        author: {
-                            username: 'user1',
-                            avatar_url: null,
-                            verified: true,
-                        },
-                        content: 'This is the main comment',
-                        createdAt: '2 days ago',
-                        isOP: true,
-                    }}
-                /> */}
+                <Comment comments={post.comments} />
             </CommentRefreshProvider>
         </div>
     )

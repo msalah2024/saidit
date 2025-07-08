@@ -1,3 +1,4 @@
+import Comment from '@/components/Comment';
 import { Database } from '@/database.types';
 
 type User = Database['public']['Tables']['users']['Row'];
@@ -45,6 +46,14 @@ export type PostsWithAuthorAndCommunity = Post & {
     }
 }
 
+export type CommentWithAuthor = Comment & {
+    users?: {
+        username: string | null
+        avatar_url: string | null
+        verified: boolean
+    } | null
+}
+
 export type PostsWithComments = Post & {
     users?: {
         username: string | null
@@ -58,5 +67,5 @@ export type PostsWithComments = Post & {
         verified: boolean
         image_url: string | null
     }
-    comments: Comment[]
+    comments: CommentWithAuthor[]
 }
