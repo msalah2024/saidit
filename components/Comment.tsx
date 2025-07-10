@@ -1,15 +1,15 @@
 "use client"
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
-import React, { useRef, useState, useEffect, useMemo } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import Link from 'next/link'
 import { BadgeCheck, CircleMinus, CirclePlus, Forward, MessageCircle } from 'lucide-react'
 import { Button } from './ui/button'
 import LShape from './Lshape'
 import { useCommentRefresh } from '@/app/context/CommentRefreshContext';
-import { CommentWithAuthor } from '@/complexTypes'
-import { formatDistanceToNow } from 'date-fns'
-import { usePost } from '@/app/context/PostContext'
+import ReplyForm from './create-comment-form/reply-form'
+import CommentVote from './CommentVote'
+import { toast } from 'sonner'
 
 interface NormalizedComment {
     id: string;
@@ -22,10 +22,11 @@ interface NormalizedComment {
     createdAt: string;
     replies?: NormalizedComment[];
     isOP?: boolean;
+    comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
 }
 
 interface CommentProps {
-    comments: CommentWithAuthor[];
+    comments: NormalizedComment[];
     depth?: number;
 }
 
@@ -33,55 +34,11 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
     const avatarRef = useRef<HTMLDivElement>(null)
     const commentRef = useRef<HTMLDivElement>(null)
     const { profile } = useGeneralProfile()
-    const { post } = usePost()
-    const [collapsed, setCollapsed] = useState(false)
+    const [collapsedMap, setCollapsedMap] = useState<{ [id: string]: boolean }>({});
     const [connectorHeight, setConnectorHeight] = useState<number | null>(null);
     const { refreshVersion, triggerRefresh } = useCommentRefresh();
-
-
-
-    // Normalize the comments data
-    const normalizedComments = useMemo(() => {
-        const commentMap = new Map<string, NormalizedComment>();
-        const rootComments: NormalizedComment[] = [];
-
-        // First pass: create all comment nodes
-        comments.forEach(comment => {
-            const normalized: NormalizedComment = {
-                id: comment.id,
-                author: {
-                    username: comment.users?.username || null,
-                    avatar_url: comment.users?.avatar_url || null,
-                    verified: comment.users?.verified || false,
-                },
-                content: comment.body || '',
-                createdAt: formatDistanceToNow(new Date(comment.created_at), { addSuffix: true }),
-                isOP: comment.creator_id === post.author_id
-            };
-
-            commentMap.set(comment.id, normalized);
-        });
-
-        // Second pass: build the hierarchy
-        comments.forEach(comment => {
-            const normalized = commentMap.get(comment.id);
-            if (!normalized) return;
-
-            if (comment.parent_id) {
-                const parent = commentMap.get(comment.parent_id);
-                if (parent) {
-                    if (!parent.replies) {
-                        parent.replies = [];
-                    }
-                    parent.replies.push(normalized);
-                }
-            } else {
-                rootComments.push(normalized);
-            }
-        });
-
-        return rootComments;
-    }, [comments, post.author_id]);
+    const [replyingTo, setReplyingTo] = useState<string | null>(null)
+    const { user } = useGeneralProfile()
 
     useEffect(() => {
         if (commentRef.current && depth > 0) {
@@ -96,28 +53,44 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                 }
             }
         }
-    }, [collapsed, depth, refreshVersion]);
+    }, [collapsedMap, depth, refreshVersion]);
 
-    const handleCollapse = () => {
-        setCollapsed(!collapsed);
+    const handleCollapse = (id: string) => {
+        setCollapsedMap(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
         triggerRefresh();
     }
 
-    if (normalizedComments.length === 0) {
+    if (comments.length === 0) {
         return null;
+    }
+
+    const handleAuthDialog = () => {
+        window.dispatchEvent(new CustomEvent('openAuthDialog'))
+    }
+
+    const handleReplyClick = (commentID: string) => {
+        if (user) {
+            setReplyingTo(commentID)
+        }
+
+        else {
+            toast.error("Please log in to make a reply");
+            handleAuthDialog()
+        }
     }
 
     return (
         <>
-            {normalizedComments.map((comment) => {
+            {comments.map((comment) => {
+                // Use per-comment collapsed state
+                const collapsed = collapsedMap[comment.id] || false;
                 return (
                     <div key={comment.id} className='relative' ref={commentRef}>
                         <div className='absolute top-8 left-2 shrink-0 flex h-full flex-col items-center'>
-                            {comment.replies && comment.replies.length > 0 && !collapsed && (
-                                <div className='bg-background z-20 mt-7'>
-                                    <CircleMinus className='text-white shrink-0 hover:cursor-pointer' onClick={handleCollapse} size={16} />
-                                </div>
-                            )}
+
                             {depth !== 0 && connectorHeight && (
                                 <div
                                     className='absolute'
@@ -149,7 +122,7 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                                         </AvatarFallback>
                                     </Avatar>
                                 ) : (
-                                    <CirclePlus className='text-white hover:cursor-pointer mt-1' size={16} onClick={handleCollapse} />
+                                    <CirclePlus className='text-white hover:cursor-pointer mt-1' size={16} onClick={() => handleCollapse(comment.id)} />
                                 )}
                             </div>
                             <div className='flex flex-col gap-1 font-medium w-full'>
@@ -171,7 +144,6 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                                 {!collapsed && (
                                     <div className='flex flex-col gap-1 w-full'>
                                         <div>
-                                            {/* <p className='text-primary-foreground-muted text-sm'>{comment.content}</p> */}
                                             <div
                                                 className='prose prose-sm prose-invert
                                                 text-primary-foreground-muted  
@@ -179,6 +151,8 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                                                 prose-code:text-primary-foreground-muted
                                                 prose-li:p:my-0
                                                 prose-p:my-0
+                                                prose-code:mb-1
+                                                prose-code:pb-1
                                                 prose-blockquote:p:text-primary-foreground-muted
                                                 prose-blockquote:border-l-primary
                                                 prose-headings:text-primary-foreground-muted'
@@ -186,8 +160,11 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                                             >
                                             </div>
                                         </div>
-                                        <div className='flex items-center mt-1 mb-2 gap-1'>
-                                            <Button className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
+                                        <div className='flex items-center relative mt-1 mb-2 gap-1'>
+                                            <CommentVote commentID={comment.id} initialVotes={comment.comments_votes} />
+                                            <Button
+                                                onClick={() => { handleReplyClick(comment.id) }}
+                                                className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
                                                 <div className='flex items-center select-none h-7 text-xs px-3 bg-background text-primary-foreground-muted rounded-full'>
                                                     <MessageCircle size={16} />
                                                     Reply
@@ -198,6 +175,17 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                                                     <Forward size={16} /> Share
                                                 </div>
                                             </Button>
+                                            {comment.replies && comment.replies.length > 0 && !collapsed && (
+                                                <div className='bg-background z-20 absolute -left-8'>
+                                                    <CircleMinus className='text-white shrink-0 hover:cursor-pointer' onClick={() => handleCollapse(comment.id)} size={16} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className='mb-3'>
+                                            {
+                                                replyingTo === comment.id &&
+                                                <ReplyForm setShowTipTap={() => setReplyingTo(null)} parentID={comment.id} />
+                                            }
                                         </div>
                                     </div>
                                 )}
@@ -208,7 +196,7 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                         {comment.replies && comment.replies.length > 0 && !collapsed && (
                             <div className='ml-10'>
                                 <Comment
-                                    comments={comments} // Pass the original comments array
+                                    comments={comment.replies}
                                     depth={depth + 1}
                                 />
                             </div>

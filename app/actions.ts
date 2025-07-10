@@ -1345,7 +1345,7 @@ export async function fetchPostBySlug(slug: string) {
 
   try {
     const { data, error } = await supabase.from('posts')
-      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(*, users(username,avatar_url, verified))")
+      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(*, users(username,avatar_url, verified), comments_votes(*))")
       .eq('slug', slug).maybeSingle()
 
     if (error) {
@@ -1366,6 +1366,66 @@ export async function fetchPostBySlug(slug: string) {
     return {
       success: false,
       message: "Post fetch error"
+    }
+  }
+}
+
+
+export async function manageCommentVotes(voterID: string, commentID: string, voteType: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from('comments_votes').upsert({
+      voter_id: voterID,
+      comment_id: commentID,
+      vote_type: voteType,
+    }, { onConflict: 'comment_id, voter_id' }).select('*').single()
+
+    if (error) {
+      console.error("Vote upsert error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Vote upsert successful",
+        data: data
+      }
+    }
+
+  } catch (error) {
+    console.error("Vote upsert error", error)
+    return {
+      success: false,
+      message: "Vote upsert error"
+    }
+  }
+}
+
+export async function removeCommentVote(voteID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('comments_votes').delete().eq('id', voteID)
+
+    if (error) {
+      console.error("Vote remove error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Vote removed successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Vote remove error", error)
+    return {
+      success: false,
+      message: "Vote remove error"
     }
   }
 }

@@ -52,6 +52,7 @@ export type CommentWithAuthor = Comment & {
         avatar_url: string | null
         verified: boolean
     } | null
+    comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
 }
 
 export type PostsWithComments = Post & {

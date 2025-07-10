@@ -8,6 +8,7 @@ import { Card, CardContent } from '../ui/card'
 import { usePathname } from 'next/navigation'
 import { Button } from '../ui/button'
 import { Loader2 } from 'lucide-react'
+import { useCommentRefresh } from '@/app/context/CommentRefreshContext'
 
 interface TipTapProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,6 +18,7 @@ interface TipTapProps {
 }
 
 export default memo(function TipTap({ form, setShowTipTap, isSubmittingComment }: TipTapProps) {
+  const { triggerRefresh } = useCommentRefresh();
 
   const pathname = usePathname()
 
@@ -60,7 +62,7 @@ export default memo(function TipTap({ form, setShowTipTap, isSubmittingComment }
           isCommentMode &&
           <div className='flex gap-2 justify-end p-2 pr-1'>
             <Button
-              onClick={() => { if (setShowTipTap !== undefined) setShowTipTap(false) }}
+              onClick={() => { if (setShowTipTap !== undefined) setShowTipTap(false); triggerRefresh() }}
               variant={'redditGray'}>
               Cancel
             </Button>
