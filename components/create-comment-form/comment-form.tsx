@@ -17,6 +17,7 @@ import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { manageCommentVotes } from '@/app/actions'
 
 interface CommentFormComponentProps {
     setShowTipTap: React.Dispatch<React.SetStateAction<boolean>>
@@ -39,21 +40,28 @@ function CommentFormComponent({ setShowTipTap }: CommentFormComponentProps) {
 
     async function onSubmit(values: z.infer<typeof CreateComment>) {
         try {
+            if (!profile) { return }
             setIsSubmitting(true)
 
-            const { error } = await supabase.from('comments').insert({
+            const { data, error } = await supabase.from('comments').insert({
                 creator_id: profile?.account_id,
                 post_id: post.id,
                 body: values.body,
-            })
+            }).select().single()
 
             if (error) {
                 toast.error("An error occurred")
             }
 
             else {
-                setShowTipTap(false)
-                router.refresh()
+                const result = await manageCommentVotes(profile?.account_id, data.id, 'upvote')
+                if (!result.success) {
+                    toast.error("An error occurred")
+                }
+                else {
+                    setShowTipTap(false)
+                    router.refresh()
+                }
             }
 
             console.log(values)

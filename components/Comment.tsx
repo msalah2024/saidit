@@ -10,6 +10,8 @@ import { useCommentRefresh } from '@/app/context/CommentRefreshContext';
 import ReplyForm from './create-comment-form/reply-form'
 import CommentVote from './CommentVote'
 import { toast } from 'sonner'
+import Image from 'next/image'
+import saiditLogo from '@/public/assets/images/saidit-face.svg'
 
 interface NormalizedComment {
     id: string;
@@ -63,10 +65,6 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
         triggerRefresh();
     }
 
-    if (comments.length === 0) {
-        return null;
-    }
-
     const handleAuthDialog = () => {
         window.dispatchEvent(new CustomEvent('openAuthDialog'))
     }
@@ -80,6 +78,20 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
             toast.error("Please log in to make a reply");
             handleAuthDialog()
         }
+    }
+
+    if (comments.length === 0) {
+        return (
+            <div className='flex flex-col gap-1 p-2 w-full items-center text-center'>
+                <Image src={saiditLogo} width={60} height={60} alt='saidit logo' draggable={false} />
+                <h3 className="scroll-m-20 text-2xl mt-3 font-semibold tracking-tight select-none">
+                    Be the first to comment
+                </h3>
+                <p className='text-muted-foreground select-none'>
+                    Nobody&#39;s responded to this post yet. Add your thoughts and get the conversation going.
+                </p>
+            </div>
+        )
     }
 
     return (

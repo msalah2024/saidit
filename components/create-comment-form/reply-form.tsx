@@ -1,5 +1,5 @@
 "use client"
-import React, { memo, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { memo, useLayoutEffect, useRef, useState } from 'react'
 import TipTap from '../create-post-forms/TipTap'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -18,6 +18,7 @@ import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useCommentRefresh } from '@/app/context/CommentRefreshContext'
+import { manageCommentVotes } from '@/app/actions'
 
 interface ReplyFormComponentProps {
     setShowTipTap: React.Dispatch<React.SetStateAction<boolean>>
@@ -30,7 +31,7 @@ function ReplyFormComponent({ setShowTipTap, parentID }: ReplyFormComponentProps
     const router = useRouter()
     const supabase = createClient()
 
-    const { refreshVersion, triggerRefresh } = useCommentRefresh();
+    const { triggerRefresh } = useCommentRefresh();
 
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -57,26 +58,34 @@ function ReplyFormComponent({ setShowTipTap, parentID }: ReplyFormComponentProps
         });
         observer.observe(formRef.current);
         return () => observer.disconnect();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formRef.current, triggerRefresh]);
 
     async function onSubmit(values: z.infer<typeof CreateComment>) {
         try {
+            if (!profile) { return }
             setIsSubmitting(true)
 
-            const { error } = await supabase.from('comments').insert({
+            const { data, error } = await supabase.from('comments').insert({
                 creator_id: profile?.account_id,
                 post_id: post.id,
                 parent_id: parentID,
                 body: values.body,
-            })
+            }).select().single()
 
             if (error) {
                 toast.error("An error occurred")
             }
 
             else {
-                setShowTipTap(false)
-                router.refresh()
+                const result = await manageCommentVotes(profile?.account_id, data.id, 'upvote')
+                if (!result.success) {
+                    toast.error("An error occurred")
+                }
+                else {
+                    setShowTipTap(false)
+                    router.refresh()
+                }
             }
 
             console.log(values)

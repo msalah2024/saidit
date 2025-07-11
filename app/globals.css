@@ -195,8 +195,14 @@ input:autofill {
     margin-bottom: 0;
 }
 
-.ProseMirror h1,
-h2,
-h3 {
+.ProseMirror h1 {
+    color: var(--primary-foreground-muted);
+}
+
+.ProseMirror h2 {
+    color: var(--primary-foreground-muted);
+}
+
+.ProseMirror h2 {
     color: var(--primary-foreground-muted);
 }
