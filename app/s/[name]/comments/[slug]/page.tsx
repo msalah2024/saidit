@@ -3,10 +3,14 @@ import { CommentRefreshProvider } from '@/app/context/CommentRefreshContext'
 import { usePost } from '@/app/context/PostContext'
 import Comment from '@/components/Comment'
 import CommentForm from '@/components/create-comment-form/comment-form'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { CommentWithAuthor } from '@/complexTypes'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { toast } from 'sonner'
+import SortComments from '@/components/SortComments'
+import PulseLogo from '@/components/PulseLogo'
+import { fetchPostSorted } from '@/app/actions'
+import { useSearchParams } from 'next/navigation'
 
 interface NormalizedComment {
     id: string;
@@ -66,17 +70,41 @@ function normalizeComments(comments: CommentWithAuthor[], authorId: string): Nor
 }
 
 export default function Page() {
+    const searchParams = useSearchParams()
+    const sortParam = searchParams.get('sortCommentBy')
+    const initialSortBy = (sortParam === 'best' || sortParam === 'new' || sortParam === 'old' || sortParam === 'controversial')
+        ? sortParam
+        : 'best'
+
     const [showTipTap, setShowTipTap] = useState(false)
     const { post } = usePost()
     const { user } = useGeneralProfile()
+    const [sortBy, setSortBy] = useState<'best' | 'new' | 'old' | 'controversial'>(initialSortBy)
+    const [comments, setComments] = useState<CommentWithAuthor[]>([])
+    const [isLoading, setIsLoading] = useState(false)
+
+    useEffect(() => {
+        const loadComments = async () => {
+            setIsLoading(true)
+            const result = await fetchPostSorted(sortBy, post.id)
+            if (result && result.success) {
+                setComments(result.data)
+            } else {
+                toast.error("Failed to load comments")
+            }
+            setIsLoading(false)
+        }
+
+        loadComments()
+    }, [sortBy, post.id])
 
     const handleAuthDialog = () => {
         window.dispatchEvent(new CustomEvent('openAuthDialog'))
     }
 
     const normalizedComments = useMemo(() => {
-        return normalizeComments(post.comments || [], post.author_id || "");
-    }, [post.comments, post.author_id]);
+        return normalizeComments(comments, post.author_id || "")
+    }, [comments, post.author_id])
 
     const handleEditorClick = () => {
         if (user) {
@@ -100,10 +128,19 @@ export default function Page() {
                     }
                     {
                         showTipTap &&
-                        <CommentForm setShowTipTap={setShowTipTap} normalizedComments={normalizedComments}/>
+                        <CommentForm setShowTipTap={setShowTipTap} normalizedComments={normalizedComments} />
                     }
+                    <SortComments sortBy={sortBy} setSortBy={setSortBy} />
                 </div>
-                <Comment comments={normalizedComments} />
+                {isLoading &&
+                    <div className="flex justify-center py-8">
+                        <PulseLogo />
+                    </div>
+                }
+                {
+                    !isLoading &&
+                    <Comment comments={normalizedComments} />
+                }
             </CommentRefreshProvider>
         </div>
     )

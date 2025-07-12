@@ -43,9 +43,10 @@
 -   [x] Create `posts` table.
 -   [x] Create `posts_votes` table.
 -   [x] Create `posts_attachments` table.
--   [ ] Create `comments` table.
+-   [x] Create `comments` table.
+-   [x] Create `comments_votes` table.
 -   [ ] Create `notifications` table.
--   [ ] Create `visited_subreddits` table.
+-   [ ] Create `visited_communities` table.
 -   [x] Create `moderators` table.
 -   [ ] Create `reports` table.
 -   [ ] Enable Row-Level Security (RLS) for all tables.
@@ -76,8 +77,8 @@
 
 ## Comments
 
--   [ ] Allow users to comment on posts.
--   [ ] Implement nested comment threads.
+-   [x] Allow users to comment on posts.
+-   [x] Implement nested comment threads.
 -   [ ] Allow comment editing and deletion.
 
 ## Verification
@@ -87,7 +88,7 @@
 ## Voting
 
 -   [x] Implement upvote/downvote for posts.
--   [ ] Implement upvote/downvote for comments.
+-   [x] Implement upvote/downvote for comments.
 -   [ ] Display vote counts in real-time.
 
 ## Notifications
@@ -130,6 +131,41 @@ Saidit uses a smart, scalable karma system to reflect how well posts are receive
   - Calculates the new karma with `calculate_karma`.  
   - Updates the post author’s total `post_karma` in the `users` table.  
 - This keeps user karma always updated in real time, automatically 🎉.
+
+## 📊 Comment Sorting Algorithms
+
+Saidit supports multiple ways to sort comments: **Best**, **New**, **Old**, and **Controversial**. Below are the formulas used for sorting:
+
+### 🥇 Best
+
+We use a Reddit-inspired “hotness” ranking formula that balances vote count and recency:
+
+```
+score = net_votes / (age_in_hours + 2)^1.8
+```
+
+- `net_votes` = upvotes - downvotes  
+- `age_in_hours` = hours since the comment was posted  
+- `1.8` is a gravity constant that reduces the weight of older comments
+
+This ensures that high-voted, newer comments rise to the top — keeping threads fresh and relevant.
+
+---
+
+### ⚔️ Controversial
+
+Controversial comments are those that receive a lot of votes, but with split opinions (i.e. many upvotes **and** many downvotes). The formula is:
+
+```
+score = total_votes / abs(upvotes - downvotes + 1)
+```
+
+- `total_votes` = upvotes + downvotes  
+- The smaller the gap between upvotes and downvotes, the higher the score  
+- This promotes comments with heavy engagement but mixed sentiment
+
+This makes polarizing comments more visible, just like on Reddit.
+
 
 ## **🔐 License**
 

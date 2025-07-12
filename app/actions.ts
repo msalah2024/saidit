@@ -1345,7 +1345,7 @@ export async function fetchPostBySlug(slug: string) {
 
   try {
     const { data, error } = await supabase.from('posts')
-      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(*, users(username,avatar_url, verified), comments_votes(*))")
+      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url)")
       .eq('slug', slug).maybeSingle()
 
     if (error) {
@@ -1428,4 +1428,60 @@ export async function removeCommentVote(voteID: string) {
       message: "Vote remove error"
     }
   }
+}
+
+export async function fetchPostSorted(sortBy: 'best' | 'new' | 'old' | 'controversial', postID: string) {
+  const supabase = await createClient()
+
+  switch (sortBy) {
+
+    case 'best':
+      const { data: sortByBest, error: sortByBestError } = await supabase
+        .rpc('get_comments_by_best', { post: postID })
+
+      if (sortByBestError) {
+        console.error("Best comments error", sortByBestError)
+        return { success: false, data: [] }
+      }
+
+      return { success: true, data: sortByBest }
+
+    case 'new':
+      const { data: sortByNew, error: sortByNewError } = await supabase.from('comments')
+        .select(`*, users(username, avatar_url, verified), comments_votes(vote_type, voter_id, id)`)
+        .eq('post_id', postID).order('created_at', { ascending: false })
+
+      if (sortByNewError) {
+        console.error("Fallback comments error", sortByNewError)
+        return { success: false, data: [] }
+      }
+
+      return { success: true, data: sortByNew }
+
+    case 'old':
+      const { data: sortByOld, error: sortByOldError } = await supabase.from('comments')
+        .select(`*, users(username, avatar_url, verified), comments_votes(vote_type, voter_id, id)`)
+        .eq('post_id', postID).order('created_at', { ascending: true })
+
+      if (sortByOldError) {
+        console.error("Fallback comments error", sortByOldError)
+        return { success: false, data: [] }
+      }
+
+      return { success: true, data: sortByOld }
+
+    case 'controversial':
+      const { data: sortByControversial, error: sortByControversialError } = await supabase
+        .rpc('get_comments_by_controversial', { post: postID })
+
+      if (sortByControversialError) {
+        console.error("Controversial comments error", sortByControversialError)
+        return { success: false, data: [] }
+      }
+      return { success: true, data: sortByControversial }
+
+    default:
+      break;
+  }
+
 }
