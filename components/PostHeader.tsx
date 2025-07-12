@@ -88,7 +88,7 @@ export default function PostHeader() {
                 </div>
                 <div>
                     <DropdownMenu modal={false}>
-                        <DropdownMenuTrigger asChild disabled={!isAuthor}>
+                        <DropdownMenuTrigger asChild disabled>
                             <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className='mr-6 lg:mr-18'>

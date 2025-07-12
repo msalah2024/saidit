@@ -168,7 +168,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                     <span className='text-muted-foreground'>•</span>
                     <CardDescription>{formatRelativeTime(post.created_at)}</CardDescription>
                 </div>
-                <CardAction>
+                <CardAction className='z-10'>
                     <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild disabled={!isAuthor}>
                             <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
