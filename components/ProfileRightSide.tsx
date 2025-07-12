@@ -115,7 +115,7 @@ export default function ProfileRightSide() {
                         </div>
                         <div className='space-y-4'>
                             <div>
-                                <p className='leading-7 [&:not(:first-child)]:mt-6'>0</p>
+                                <p className='leading-7 [&:not(:first-child)]:mt-6'>{profile.comment_karma}</p>
                                 <small className="text-sm font-medium text-muted-foreground leading-none">Comment karma</small>
                             </div>
                             <div>

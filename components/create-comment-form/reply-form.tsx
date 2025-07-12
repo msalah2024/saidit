@@ -16,19 +16,32 @@ import { usePost } from '@/app/context/PostContext'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
 import { useCommentRefresh } from '@/app/context/CommentRefreshContext'
 import { manageCommentVotes } from '@/app/actions'
+
+interface NormalizedComment {
+    id: string;
+    author: {
+        username: string | null;
+        avatar_url: string | null;
+        verified: boolean;
+    };
+    content: string;
+    createdAt: string;
+    replies?: NormalizedComment[];
+    isOP?: boolean;
+    comments_votes: { vote_type: 'upvote' | 'downvote' | null, voter_id: string | null, id: string }[]
+}
 
 interface ReplyFormComponentProps {
     setShowTipTap: React.Dispatch<React.SetStateAction<boolean>>
     parentID: string
+    replies?: NormalizedComment[];
 }
 
-function ReplyFormComponent({ setShowTipTap, parentID }: ReplyFormComponentProps) {
+function ReplyFormComponent({ setShowTipTap, parentID, replies }: ReplyFormComponentProps) {
     const { post } = usePost()
     const { profile } = useGeneralProfile()
-    const router = useRouter()
     const supabase = createClient()
 
     const { triggerRefresh } = useCommentRefresh();
@@ -83,12 +96,31 @@ function ReplyFormComponent({ setShowTipTap, parentID }: ReplyFormComponentProps
                     toast.error("An error occurred")
                 }
                 else {
-                    setShowTipTap(false)
-                    router.refresh()
+                    const { data: commentVotes, error } = await supabase.from('comments_votes').select('id, vote_type, voter_id').eq('comment_id', data.id)
+
+                    if (error) {
+                        toast.error("An error occurred")
+                    }
+                    else {
+                        setShowTipTap(false)
+                        const newReply: NormalizedComment = {
+                            id: data.id,
+                            author: {
+                                username: profile.username ?? null,
+                                avatar_url: profile.avatar_url ?? null,
+                                verified: profile.verified ?? false,
+                            },
+                            content: data.body || "",
+                            createdAt: data.created_at,
+                            replies: [],
+                            isOP: profile.account_id === data.creator_id,
+                            comments_votes: commentVotes
+                        }
+                        replies?.unshift(newReply)
+                    }
                 }
             }
 
-            console.log(values)
         } catch (error) {
             console.error(error)
         } finally {

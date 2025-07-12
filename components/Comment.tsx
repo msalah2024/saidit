@@ -12,6 +12,7 @@ import CommentVote from './CommentVote'
 import { toast } from 'sonner'
 import Image from 'next/image'
 import saiditLogo from '@/public/assets/images/saidit-face.svg'
+import { formatDistanceToNow } from 'date-fns'
 
 interface NormalizedComment {
     id: string;
@@ -33,29 +34,36 @@ interface CommentProps {
 }
 
 export default function Comment({ comments, depth = 0 }: CommentProps) {
-    const avatarRef = useRef<HTMLDivElement>(null)
-    const commentRef = useRef<HTMLDivElement>(null)
+    const avatarRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
+    const commentRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const { profile } = useGeneralProfile()
     const [collapsedMap, setCollapsedMap] = useState<{ [id: string]: boolean }>({});
-    const [connectorHeight, setConnectorHeight] = useState<number | null>(null);
+    const [connectorHeights, setConnectorHeights] = useState<{ [id: string]: number | null }>({});
     const { refreshVersion, triggerRefresh } = useCommentRefresh();
     const [replyingTo, setReplyingTo] = useState<string | null>(null)
     const { user } = useGeneralProfile()
 
     useEffect(() => {
-        if (commentRef.current && depth > 0) {
-            const parentComment = commentRef.current.closest('.relative')?.parentElement?.previousElementSibling as HTMLElement;
-
-            if (parentComment) {
-                const parentRect = parentComment.getBoundingClientRect();
-                const childRect = commentRef.current.getBoundingClientRect();
-                const heightBetween = childRect.top - parentRect.top;
-                if (heightBetween > 0) {
-                    setConnectorHeight(heightBetween + 16);
+        if (depth > 0) {
+            const newHeights: { [id: string]: number | null } = {};
+            comments.forEach(comment => {
+                const commentElem = commentRefs.current[comment.id];
+                const parentComment = commentElem?.closest('.relative')?.parentElement?.previousElementSibling as HTMLElement;
+                if (commentElem && parentComment) {
+                    const parentRect = parentComment.getBoundingClientRect();
+                    const childRect = commentElem.getBoundingClientRect();
+                    const heightBetween = childRect.top - parentRect.top;
+                    if (heightBetween > 0) {
+                        newHeights[comment.id] = heightBetween + 16;
+                    } else {
+                        newHeights[comment.id] = null;
+                    }
                 }
-            }
+            });
+            setConnectorHeights(newHeights);
         }
-    }, [collapsedMap, depth, refreshVersion]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [collapsedMap, depth, refreshVersion, comments.length]);
 
     const handleCollapse = (id: string) => {
         setCollapsedMap(prev => ({
@@ -72,6 +80,7 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
     const handleReplyClick = (commentID: string) => {
         if (user) {
             setReplyingTo(commentID)
+            triggerRefresh()
         }
 
         else {
@@ -100,28 +109,35 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                 // Use per-comment collapsed state
                 const collapsed = collapsedMap[comment.id] || false;
                 return (
-                    <div key={comment.id} className='relative' ref={commentRef}>
+                    <div
+                        key={comment.id}
+                        className='relative'
+                        ref={el => { commentRefs.current[comment.id] = el; }}
+                    >
                         <div className='absolute top-8 left-2 shrink-0 flex h-full flex-col items-center'>
 
-                            {depth !== 0 && connectorHeight && (
+                            {depth !== 0 && connectorHeights[comment.id] && (
                                 <div
                                     className='absolute'
                                     style={{
-                                        top: `-${connectorHeight + 15}px`,
+                                        top: `-${connectorHeights[comment.id]! + 15}px`,
                                         left: '-33px',
                                     }}
                                 >
                                     <LShape
                                         color='#171b1f'
                                         width={24}
-                                        height={connectorHeight}
+                                        height={connectorHeights[comment.id]!}
                                         thickness={1}
                                     />
                                 </div>
                             )}
                         </div>
                         <div className='flex gap-2'>
-                            <div ref={avatarRef} className={`flex flex-col mb-3 items-center ${collapsed ? 'justify-center' : ''}`}>
+                            <div
+                                ref={el => { avatarRefs.current[comment.id] = el; }}
+                                className={`flex flex-col mb-3 items-center ${collapsed ? 'justify-center' : ''}`}
+                            >
                                 {!collapsed ? (
                                     <Avatar className='h-8 w-8 z-20'>
                                         <AvatarImage
@@ -151,7 +167,9 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                                         )}
                                     </div>
                                     <span className='text-muted-foreground'>•</span>
-                                    <div className='text-sm text-muted-foreground'>{comment.createdAt}</div>
+                                    <div className='text-sm text-muted-foreground'>{
+                                        formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
+                                    }</div>
                                 </div>
                                 {!collapsed && (
                                     <div className='flex flex-col gap-1 w-full'>
@@ -196,7 +214,7 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                                         <div className='mb-3'>
                                             {
                                                 replyingTo === comment.id &&
-                                                <ReplyForm setShowTipTap={() => setReplyingTo(null)} parentID={comment.id} />
+                                                <ReplyForm setShowTipTap={() => setReplyingTo(null)} parentID={comment.id} replies={comment.replies} />
                                             }
                                         </div>
                                     </div>

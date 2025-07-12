@@ -16,17 +16,30 @@ import { usePost } from '@/app/context/PostContext'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
 import { manageCommentVotes } from '@/app/actions'
+
+interface NormalizedComment {
+    id: string;
+    author: {
+        username: string | null;
+        avatar_url: string | null;
+        verified: boolean;
+    };
+    content: string;
+    createdAt: string;
+    replies?: NormalizedComment[];
+    isOP?: boolean;
+    comments_votes: { vote_type: 'upvote' | 'downvote' | null, voter_id: string | null, id: string }[]
+}
 
 interface CommentFormComponentProps {
     setShowTipTap: React.Dispatch<React.SetStateAction<boolean>>
+    normalizedComments: NormalizedComment[]
 }
 
-function CommentFormComponent({ setShowTipTap }: CommentFormComponentProps) {
+function CommentFormComponent({ setShowTipTap, normalizedComments }: CommentFormComponentProps) {
     const { post } = usePost()
     const { profile } = useGeneralProfile()
-    const router = useRouter()
     const supabase = createClient()
 
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -59,12 +72,30 @@ function CommentFormComponent({ setShowTipTap }: CommentFormComponentProps) {
                     toast.error("An error occurred")
                 }
                 else {
-                    setShowTipTap(false)
-                    router.refresh()
+                    const { data: commentVotes, error } = await supabase.from('comments_votes').select('id, vote_type, voter_id').eq('comment_id', data.id)
+
+                    if (error) {
+                        toast.error("An error occurred")
+                    }
+                    else {
+                        setShowTipTap(false)
+                        const newComment: NormalizedComment = {
+                            id: data.id,
+                            author: {
+                                username: profile.username ?? null,
+                                avatar_url: profile.avatar_url ?? null,
+                                verified: profile.verified ?? false,
+                            },
+                            content: data.body || "",
+                            createdAt: data.created_at,
+                            replies: [],
+                            isOP: profile.account_id === data.creator_id,
+                            comments_votes: commentVotes
+                        }
+                        normalizedComments.unshift(newComment)
+                    }
                 }
             }
-
-            console.log(values)
         } catch (error) {
             console.error(error)
         } finally {
@@ -96,3 +127,4 @@ function CommentFormComponent({ setShowTipTap }: CommentFormComponentProps) {
 
 const CommentForm = memo(CommentFormComponent);
 export default CommentForm;
+

@@ -4,7 +4,6 @@ import { usePost } from '@/app/context/PostContext'
 import Comment from '@/components/Comment'
 import CommentForm from '@/components/create-comment-form/comment-form'
 import React, { useState, useMemo } from 'react'
-import { formatDistanceToNow } from 'date-fns'
 import { CommentWithAuthor } from '@/complexTypes'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { toast } from 'sonner'
@@ -37,7 +36,7 @@ function normalizeComments(comments: CommentWithAuthor[], authorId: string): Nor
                 verified: comment.users?.verified || false,
             },
             content: comment.body || '',
-            createdAt: formatDistanceToNow(new Date(comment.created_at), { addSuffix: true }),
+            createdAt: comment.created_at,
             isOP: comment.creator_id === authorId,
             comments_votes: comment.comments_votes || []
         };
@@ -101,7 +100,7 @@ export default function Page() {
                     }
                     {
                         showTipTap &&
-                        <CommentForm setShowTipTap={setShowTipTap} />
+                        <CommentForm setShowTipTap={setShowTipTap} normalizedComments={normalizedComments}/>
                     }
                 </div>
                 <Comment comments={normalizedComments} />

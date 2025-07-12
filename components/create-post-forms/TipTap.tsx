@@ -31,6 +31,7 @@ export default memo(function TipTap({ form, setShowTipTap, isSubmittingComment }
         placeholder: `${isCommentMode ? '' : 'What are your thoughts? (this part is optional)'}`,
       }),
     ],
+    immediatelyRender: true,
     content: form.getValues('body'),
     editorProps: {
       attributes: {
