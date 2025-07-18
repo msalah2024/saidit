@@ -26,20 +26,23 @@ interface NormalizedComment {
         avatar_url: string | null;
         verified: boolean;
     };
+
+    creator_id: string | null,
     content: string;
     createdAt: string;
     replies?: NormalizedComment[];
     isOP?: boolean;
-    comments_votes: { vote_type: 'upvote' | 'downvote' | null, voter_id: string | null, id: string }[]
+    comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
+    deleted: boolean
 }
 
 interface ReplyFormComponentProps {
     setShowTipTap: React.Dispatch<React.SetStateAction<boolean>>
     parentID: string
-    replies?: NormalizedComment[];
+    setNormalizedComments: React.Dispatch<React.SetStateAction<NormalizedComment[]>>
 }
 
-function ReplyFormComponent({ setShowTipTap, parentID, replies }: ReplyFormComponentProps) {
+function ReplyFormComponent({ setShowTipTap, parentID, setNormalizedComments }: ReplyFormComponentProps) {
     const { post } = usePost()
     const { profile } = useGeneralProfile()
     const supabase = createClient()
@@ -113,10 +116,29 @@ function ReplyFormComponent({ setShowTipTap, parentID, replies }: ReplyFormCompo
                             createdAt: data.created_at,
                             replies: [],
                             isOP: profile.account_id === data.creator_id,
-                            comments_votes: commentVotes
+                            comments_votes: commentVotes,
+                            creator_id: profile.account_id,
+                            deleted: false
                         }
-                        replies?.unshift(newReply)
-                        triggerRefresh()
+                        setNormalizedComments(prevComments => {
+                            const updateCommentWithReply = (comments: NormalizedComment[]): NormalizedComment[] => {
+                                return comments.map(comment => {
+                                    if (comment.id === parentID) {
+                                        return {
+                                            ...comment,
+                                            replies: [newReply, ...(comment.replies || [])]
+                                        };
+                                    } else if (comment.replies && comment.replies.length > 0) {
+                                        return {
+                                            ...comment,
+                                            replies: updateCommentWithReply(comment.replies)
+                                        };
+                                    }
+                                    return comment;
+                                });
+                            };
+                            return updateCommentWithReply(prevComments);
+                        });
                     }
                 }
             }
