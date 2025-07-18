@@ -11,7 +11,7 @@ import ReplyForm from './create-comment-form/reply-form'
 import CommentVote from './CommentVote'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
-import { useMediaQuery } from '@/hooks/use-media-query'
+// import { useMediaQuery } from '@/hooks/use-media-query'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -54,7 +54,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
     const [replyingTo, setReplyingTo] = useState<string | null>(null)
     const { user } = useGeneralProfile()
 
-    const isDesktop = useMediaQuery("(min-width: 768px)")
+    // const isDesktop = useMediaQuery("(min-width: 768px)")
 
     useEffect(() => {
         if (depth > 0) {
