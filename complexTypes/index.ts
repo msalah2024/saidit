@@ -44,6 +44,7 @@ export type PostsWithAuthorAndCommunity = Post & {
         verified: boolean
         image_url: string | null
     }
+    comments: { count: number }[]
 }
 
 export type CommentWithAuthor = Comment & {
@@ -68,5 +69,5 @@ export type PostsWithComments = Post & {
         verified: boolean
         image_url: string | null
     }
-    comments: CommentWithAuthor[]
+    comments: { count: number }[]
 }

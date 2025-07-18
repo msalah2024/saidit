@@ -3,14 +3,16 @@ import { CommentRefreshProvider } from '@/app/context/CommentRefreshContext'
 import { usePost } from '@/app/context/PostContext'
 import Comment from '@/components/Comment'
 import CommentForm from '@/components/create-comment-form/comment-form'
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { CommentWithAuthor } from '@/complexTypes'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { toast } from 'sonner'
 import SortComments from '@/components/SortComments'
 import PulseLogo from '@/components/PulseLogo'
-import { fetchPostSorted } from '@/app/actions'
+import { fetchCommentSorted } from '@/app/actions'
 import { useSearchParams } from 'next/navigation'
+import Image from 'next/image';
+import saiditLogo from '@/public/assets/images/saidit-face.svg'
 
 interface NormalizedComment {
     id: string;
@@ -19,11 +21,13 @@ interface NormalizedComment {
         avatar_url: string | null;
         verified: boolean;
     };
+    creator_id: string | null,
     content: string;
     createdAt: string;
     replies?: NormalizedComment[];
     isOP?: boolean;
     comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
+    deleted: boolean
 }
 
 function normalizeComments(comments: CommentWithAuthor[], authorId: string): NormalizedComment[] {
@@ -39,10 +43,12 @@ function normalizeComments(comments: CommentWithAuthor[], authorId: string): Nor
                 avatar_url: comment.users?.avatar_url || null,
                 verified: comment.users?.verified || false,
             },
+            creator_id: comment.creator_id,
             content: comment.body || '',
             createdAt: comment.created_at,
             isOP: comment.creator_id === authorId,
-            comments_votes: comment.comments_votes || []
+            comments_votes: comment.comments_votes || [],
+            deleted: comment.deleted
         };
 
         commentMap.set(comment.id, normalized);
@@ -82,11 +88,13 @@ export default function Page() {
     const [sortBy, setSortBy] = useState<'best' | 'new' | 'old' | 'controversial'>(initialSortBy)
     const [comments, setComments] = useState<CommentWithAuthor[]>([])
     const [isLoading, setIsLoading] = useState(false)
+    const [hasFetched, setHasFetched] = useState(false)
+    const [normalizedComments, setNormalizedComments] = useState<NormalizedComment[]>([])
 
     useEffect(() => {
         const loadComments = async () => {
             setIsLoading(true)
-            const result = await fetchPostSorted(sortBy, post.id)
+            const result = await fetchCommentSorted(sortBy, post.id)
             if (result && result.success) {
                 setComments(result.data)
             } else {
@@ -98,13 +106,15 @@ export default function Page() {
         loadComments()
     }, [sortBy, post.id])
 
+    useEffect(() => {
+        if (comments.length === 0 && !hasFetched) return; 
+        setNormalizedComments(normalizeComments(comments, post.author_id || ""));
+        setHasFetched(true);
+    }, [comments, post.author_id, hasFetched]);
+
     const handleAuthDialog = () => {
         window.dispatchEvent(new CustomEvent('openAuthDialog'))
     }
-
-    const normalizedComments = useMemo(() => {
-        return normalizeComments(comments, post.author_id || "")
-    }, [comments, post.author_id])
 
     const handleEditorClick = () => {
         if (user) {
@@ -128,7 +138,7 @@ export default function Page() {
                     }
                     {
                         showTipTap &&
-                        <CommentForm setShowTipTap={setShowTipTap} normalizedComments={normalizedComments} />
+                        <CommentForm setShowTipTap={setShowTipTap} setNormalizedComments={setNormalizedComments} />
                     }
                     <SortComments sortBy={sortBy} setSortBy={setSortBy} />
                 </div>
@@ -138,8 +148,22 @@ export default function Page() {
                     </div>
                 }
                 {
-                    !isLoading &&
-                    <Comment comments={normalizedComments} />
+                    !isLoading && hasFetched && normalizedComments.length === 0 && (
+                        <div className='flex flex-col gap-1 p-2 w-full items-center text-center'>
+                            <Image src={saiditLogo} width={60} height={60} alt='saidit logo' draggable={false} />
+                            <h3 className="scroll-m-20 text-2xl mt-3 font-semibold tracking-tight select-none">
+                                Be the first to comment
+                            </h3>
+                            <p className='text-muted-foreground select-none'>
+                                Nobody&#39;s responded to this post yet. Add your thoughts and get the conversation going.
+                            </p>
+                        </div>
+                    )
+                }
+                {
+                    !isLoading && normalizedComments.length > 0 && (
+                        <Comment comments={normalizedComments} setNormalizedComments={setNormalizedComments} />
+                    )
                 }
             </CommentRefreshProvider>
         </div>

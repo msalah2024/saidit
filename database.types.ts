@@ -19,8 +19,12 @@ export type Database = {
           body: string | null
           created_at: string
           creator_id: string | null
+          deleted: boolean
+          deleted_at: string | null
           id: string
+          karma_score: number
           modified_at: string | null
+          net_votes: number
           parent_id: string | null
           post_id: string | null
         }
@@ -28,8 +32,12 @@ export type Database = {
           body?: string | null
           created_at?: string
           creator_id?: string | null
+          deleted?: boolean
+          deleted_at?: string | null
           id?: string
+          karma_score?: number
           modified_at?: string | null
+          net_votes?: number
           parent_id?: string | null
           post_id?: string | null
         }
@@ -37,8 +45,12 @@ export type Database = {
           body?: string | null
           created_at?: string
           creator_id?: string | null
+          deleted?: boolean
+          deleted_at?: string | null
           id?: string
+          karma_score?: number
           modified_at?: string | null
+          net_votes?: number
           parent_id?: string | null
           post_id?: string | null
         }
@@ -65,7 +77,7 @@ export type Database = {
           created_at: string
           id: string
           updated_at: string | null
-          vote_type: Database["public"]["Enums"]["vote_type"] | null
+          vote_type: Database["public"]["Enums"]["vote_type"]
           voter_id: string | null
         }
         Insert: {
@@ -73,7 +85,7 @@ export type Database = {
           created_at?: string
           id?: string
           updated_at?: string | null
-          vote_type?: Database["public"]["Enums"]["vote_type"] | null
+          vote_type: Database["public"]["Enums"]["vote_type"]
           voter_id?: string | null
         }
         Update: {
@@ -81,7 +93,7 @@ export type Database = {
           created_at?: string
           id?: string
           updated_at?: string | null
-          vote_type?: Database["public"]["Enums"]["vote_type"] | null
+          vote_type?: Database["public"]["Enums"]["vote_type"]
           voter_id?: string | null
         }
         Relationships: [
@@ -292,6 +304,8 @@ export type Database = {
           content: string | null
           created_at: string
           id: string
+          karma_score: number
+          net_votes: number
           post_type: Database["public"]["Enums"]["post_type"]
           slug: string
           title: string
@@ -304,6 +318,8 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          karma_score?: number
+          net_votes?: number
           post_type: Database["public"]["Enums"]["post_type"]
           slug: string
           title: string
@@ -316,6 +332,8 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          karma_score?: number
+          net_votes?: number
           post_type?: Database["public"]["Enums"]["post_type"]
           slug?: string
           title?: string
@@ -494,6 +512,35 @@ export type Database = {
       calculate_karma: {
         Args: { score: number }
         Returns: number
+      }
+      get_comments_by_best: {
+        Args: { post: string }
+        Returns: {
+          id: string
+          body: string
+          created_at: string
+          net_votes: number
+          creator_id: string
+          parent_id: string
+          post_id: string
+          comments_votes: Json
+          users: Json
+        }[]
+      }
+      get_comments_by_controversial: {
+        Args: { post: string }
+        Returns: {
+          id: string
+          body: string
+          created_at: string
+          net_votes: number
+          creator_id: string
+          parent_id: string
+          post_id: string
+          comments_votes: Json
+          users: Json
+          controversial_score: number
+        }[]
       }
     }
     Enums: {

@@ -3,16 +3,23 @@ import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import React, { useRef, useState, useEffect } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import Link from 'next/link'
-import { BadgeCheck, CircleMinus, CirclePlus, Forward, MessageCircle } from 'lucide-react'
+import { BadgeCheck, Bell, Bookmark, CircleMinus, CirclePlus, Ellipsis, Forward, MessageCircle, Pencil, Trash2 } from 'lucide-react'
 import { Button } from './ui/button'
 import LShape from './Lshape'
 import { useCommentRefresh } from '@/app/context/CommentRefreshContext';
 import ReplyForm from './create-comment-form/reply-form'
 import CommentVote from './CommentVote'
 import { toast } from 'sonner'
-import Image from 'next/image'
-import saiditLogo from '@/public/assets/images/saidit-face.svg'
 import { formatDistanceToNow } from 'date-fns'
+import { useMediaQuery } from '@/hooks/use-media-query'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { deleteComment, flagCommentAsDeleted } from '@/app/actions'
+
 
 interface NormalizedComment {
     id: string;
@@ -21,19 +28,23 @@ interface NormalizedComment {
         avatar_url: string | null;
         verified: boolean;
     };
+
+    creator_id: string | null,
     content: string;
     createdAt: string;
     replies?: NormalizedComment[];
     isOP?: boolean;
     comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
+    deleted: boolean
 }
 
 interface CommentProps {
     comments: NormalizedComment[];
     depth?: number;
+    setNormalizedComments: React.Dispatch<React.SetStateAction<NormalizedComment[]>>
 }
 
-export default function Comment({ comments, depth = 0 }: CommentProps) {
+export default function Comment({ comments, depth = 0, setNormalizedComments }: CommentProps) {
     const avatarRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const commentRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const { profile } = useGeneralProfile()
@@ -42,6 +53,8 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
     const { refreshVersion, triggerRefresh } = useCommentRefresh();
     const [replyingTo, setReplyingTo] = useState<string | null>(null)
     const { user } = useGeneralProfile()
+
+    const isDesktop = useMediaQuery("(min-width: 768px)")
 
     useEffect(() => {
         if (depth > 0) {
@@ -62,7 +75,7 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
             });
             setConnectorHeights(newHeights);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [collapsedMap, depth, refreshVersion, comments.length]);
 
     const handleCollapse = (id: string) => {
@@ -80,7 +93,9 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
     const handleReplyClick = (commentID: string) => {
         if (user) {
             setReplyingTo(commentID)
-            triggerRefresh()
+            requestAnimationFrame(() => {
+                triggerRefresh()
+            })
         }
 
         else {
@@ -89,25 +104,48 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
         }
     }
 
-    if (comments.length === 0) {
-        return (
-            <div className='flex flex-col gap-1 p-2 w-full items-center text-center'>
-                <Image src={saiditLogo} width={60} height={60} alt='saidit logo' draggable={false} />
-                <h3 className="scroll-m-20 text-2xl mt-3 font-semibold tracking-tight select-none">
-                    Be the first to comment
-                </h3>
-                <p className='text-muted-foreground select-none'>
-                    Nobody&#39;s responded to this post yet. Add your thoughts and get the conversation going.
-                </p>
-            </div>
-        )
+    function updateComments(
+        comments: NormalizedComment[],
+        commentId: string,
+        hasReplies: boolean | undefined
+    ): NormalizedComment[] {
+        return comments.reduce<NormalizedComment[]>((acc, comment) => {
+            if (comment.id === commentId) {
+                if (hasReplies) {
+                    acc.push({ ...comment, deleted: true });
+                }
+            } else {
+                const updatedReplies = comment.replies
+                    ? updateComments(comment.replies, commentId, hasReplies)
+                    : undefined;
+
+                acc.push({ ...comment, replies: updatedReplies });
+            }
+            return acc;
+        }, []);
+    }
+
+    const handleCommentDelete = async (comment: NormalizedComment) => {
+        const hasReplies = comment.replies && comment.replies.length > 0;
+        const result = hasReplies
+            ? await flagCommentAsDeleted(comment.id)
+            : await deleteComment(comment.id);
+
+        if (result.success) {
+            setNormalizedComments(prev => updateComments(prev, comment.id, hasReplies));
+            triggerRefresh()
+        } else {
+            toast.error("An error occurred");
+        }
     }
 
     return (
         <>
             {comments.map((comment) => {
-                // Use per-comment collapsed state
+
+                const isAuthor = profile?.account_id === comment.creator_id
                 const collapsed = collapsedMap[comment.id] || false;
+
                 return (
                     <div
                         key={comment.id}
@@ -141,12 +179,12 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                                 {!collapsed ? (
                                     <Avatar className='h-8 w-8 z-20'>
                                         <AvatarImage
-                                            src={comment.author.avatar_url || profile?.avatar_url || undefined}
+                                            src={(!comment.deleted && comment.author.avatar_url) || undefined}
                                             className='rounded-full'
                                             draggable={false}
                                         />
                                         <AvatarFallback>
-                                            {comment.author.username?.slice(0, 2).toUpperCase() || ''}
+                                            {(!comment.deleted && comment.author.username?.slice(0, 2).toUpperCase()) || 'DE'}
                                         </AvatarFallback>
                                     </Avatar>
                                 ) : (
@@ -155,27 +193,40 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                             </div>
                             <div className='flex flex-col gap-1 font-medium w-full'>
                                 <div className='flex items-center gap-2'>
-                                    <div className='text-primary-foreground-muted flex items-center gap-1'>
-                                        <Link href={`/u/${comment.author.username}`} className='text-sm hover:underline z-10'>
-                                            u/{comment.author.username}
-                                        </Link>
-                                        {comment.author.verified && (
-                                            <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
-                                        )}
-                                        {comment.isOP && (
-                                            <p className='text-sm text-secondary'>OP</p>
-                                        )}
-                                    </div>
+                                    {
+                                        comment.deleted ?
+                                            <div className='text-primary-foreground-muted'>
+                                                [deleted]
+                                            </div>
+                                            :
+                                            <div className='text-primary-foreground-muted flex items-center gap-1'>
+                                                <Link href={`/u/${comment.author.username}`} className='text-sm hover:underline z-10'>
+                                                    u/{comment.author.username}
+                                                </Link>
+                                                {comment.author.verified && (
+                                                    <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
+                                                )}
+                                                {comment.isOP && (
+                                                    <p className='text-sm text-secondary'>OP</p>
+                                                )}
+                                            </div>
+                                    }
                                     <span className='text-muted-foreground'>•</span>
-                                    <div className='text-sm text-muted-foreground'>{
-                                        formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
-                                    }</div>
+                                    <div className='text-sm text-muted-foreground'>
+                                        {
+                                            formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
+                                        }
+                                    </div>
                                 </div>
                                 {!collapsed && (
                                     <div className='flex flex-col gap-1 w-full'>
-                                        <div>
-                                            <div
-                                                className='prose prose-sm prose-invert
+                                        {comment.deleted ? <div className='text-primary-foreground-muted'>
+                                            [deleted]
+                                        </div>
+                                            :
+                                            <div>
+                                                <div
+                                                    className='prose prose-sm prose-invert
                                                 text-primary-foreground-muted  
                                                 prose-strong:text-primary-foreground-muted
                                                 prose-code:text-primary-foreground-muted
@@ -186,25 +237,55 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                                                 prose-blockquote:p:text-primary-foreground-muted
                                                 prose-blockquote:border-l-primary
                                                 prose-headings:text-primary-foreground-muted'
-                                                dangerouslySetInnerHTML={{ __html: comment.content }}
-                                            >
+                                                    dangerouslySetInnerHTML={{ __html: comment.content }}
+                                                >
+                                                </div>
                                             </div>
-                                        </div>
+                                        }
+
                                         <div className='flex items-center relative mt-1 mb-2 gap-1'>
-                                            <CommentVote commentID={comment.id} initialVotes={comment.comments_votes} />
+
+                                            <CommentVote commentID={comment.id} initialVotes={comment.comments_votes} deleted={comment.deleted} />
                                             <Button
                                                 onClick={() => { handleReplyClick(comment.id) }}
-                                                className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
-                                                <div className='flex items-center select-none h-7 text-xs px-3 bg-background text-primary-foreground-muted rounded-full'>
-                                                    <MessageCircle size={16} />
-                                                    Reply
-                                                </div>
+                                                disabled={comment.deleted}
+                                                className='p-0 m-0 h-7 text-primary-foreground-muted gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
+                                                <MessageCircle size={16} />
+                                                Reply
                                             </Button>
-                                            <Button className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
-                                                <div className='flex items-center select-none gap-1 h-7 px-3 bg-background text-xs text-primary-foreground-muted rounded-full'>
-                                                    <Forward size={16} /> Share
-                                                </div>
+                                            <Button
+                                                disabled={comment.deleted}
+                                                className='p-0 m-0 h-7 text-primary-foreground-muted gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
+                                                <Forward size={16} /> Share
                                             </Button>
+                                            {
+                                                comment.deleted ?
+                                                    <Button disabled={comment.deleted} className='p-1 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
+                                                        <Ellipsis size={16} />
+                                                    </Button>
+                                                    :
+                                                    <DropdownMenu modal={false}>
+                                                        <DropdownMenuTrigger className='p-0 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer'>
+                                                            <Button className='p-1 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
+                                                                <div className='flex items-center select-none gap-1 h-7 px-3 bg-background text-xs text-primary-foreground-muted rounded-full'>
+                                                                    <Ellipsis size={16} />
+                                                                </div>
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent>
+                                                            <DropdownMenuItem disabled><Bell className='text-primary-foreground' />Follow comment</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled><Bookmark className='text-primary-foreground' />Save</DropdownMenuItem>
+                                                            {
+                                                                isAuthor &&
+                                                                <>
+                                                                    <DropdownMenuItem><Pencil className='text-primary-foreground' />Edit comment</DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => handleCommentDelete(comment)}><Trash2 className='text-primary-foreground' />Delete comment</DropdownMenuItem>
+                                                                </>
+                                                            }
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                            }
+
                                             {comment.replies && comment.replies.length > 0 && !collapsed && (
                                                 <div className='bg-background z-20 absolute -left-8'>
                                                     <CircleMinus className='text-white shrink-0 hover:cursor-pointer' onClick={() => handleCollapse(comment.id)} size={16} />
@@ -228,6 +309,7 @@ export default function Comment({ comments, depth = 0 }: CommentProps) {
                                 <Comment
                                     comments={comment.replies}
                                     depth={depth + 1}
+                                    setNormalizedComments={setNormalizedComments}
                                 />
                             </div>
                         )}

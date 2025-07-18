@@ -14,9 +14,10 @@ interface VotingProps {
     commentID: string;
     initialVotes: Vote[];
     onVoteUpdate?: (newVotes: number) => void;
+    deleted: boolean
 }
 
-export default function Voting({ commentID, initialVotes, onVoteUpdate }: VotingProps) {
+export default function Voting({ commentID, initialVotes, onVoteUpdate, deleted }: VotingProps) {
     const [votes, setVotes] = useState(0);
     const [userVote, setUserVote] = useState<Vote | null>(null);
     const { user } = useGeneralProfile();
@@ -93,28 +94,51 @@ export default function Voting({ commentID, initialVotes, onVoteUpdate }: Voting
     };
 
     return (
-        <div className='flex items-center h-7 rounded-full z-10'>
-            <div
-                onClick={() => handleVote("upvote")}
-                className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'
-            >
-                <ArrowBigUp
-                    size={18}
-                    fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
-                    className={userVote?.vote_type === 'upvote' ? 'text-primary' : ''}
-                />
-            </div>
-            <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{votes}</p>
-            <div
-                onClick={() => handleVote("downvote")}
-                className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'
-            >
-                <ArrowBigDown
-                    size={18}
-                    fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
-                    className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''}
-                />
-            </div>
-        </div>
+        <>
+            {deleted ? <div>
+                <div className='flex gap-2 items-center h-7 rounded-full z-10'>
+                    <div
+                        className='rounded-full text-center text-muted-foreground'
+                    >
+                        <ArrowBigUp
+                            size={18}
+                        />
+                    </div>
+                    <div
+                        className='rounded-full text-center text-muted-foreground'
+                    >
+                        <ArrowBigDown
+                            size={18}
+                        />
+                    </div>
+                </div>
+            </div> :
+                <div className='flex items-center h-7 rounded-full z-10'>
+                    <div
+                        onClick={() => handleVote("upvote")}
+                        className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'
+                    >
+                        <ArrowBigUp
+                            size={18}
+                            fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
+                            className={userVote?.vote_type === 'upvote' ? 'text-primary' : ''}
+                        />
+                    </div>
+                    <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{votes}</p>
+                    <div
+                        onClick={() => handleVote("downvote")}
+                        className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'
+                    >
+                        <ArrowBigDown
+                            size={18}
+                            fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
+                            className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''}
+                        />
+                    </div>
+                </div>
+
+            }
+        </>
+
     );
 }

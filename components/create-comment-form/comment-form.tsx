@@ -25,19 +25,21 @@ interface NormalizedComment {
         avatar_url: string | null;
         verified: boolean;
     };
+    creator_id: string | null,
     content: string;
     createdAt: string;
     replies?: NormalizedComment[];
     isOP?: boolean;
-    comments_votes: { vote_type: 'upvote' | 'downvote' | null, voter_id: string | null, id: string }[]
+    comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
+    deleted: boolean
 }
 
 interface CommentFormComponentProps {
     setShowTipTap: React.Dispatch<React.SetStateAction<boolean>>
-    normalizedComments: NormalizedComment[]
+    setNormalizedComments: React.Dispatch<React.SetStateAction<NormalizedComment[]>>
 }
 
-function CommentFormComponent({ setShowTipTap, normalizedComments }: CommentFormComponentProps) {
+function CommentFormComponent({ setShowTipTap, setNormalizedComments }: CommentFormComponentProps) {
     const { post } = usePost()
     const { profile } = useGeneralProfile()
     const supabase = createClient()
@@ -90,9 +92,11 @@ function CommentFormComponent({ setShowTipTap, normalizedComments }: CommentForm
                             createdAt: data.created_at,
                             replies: [],
                             isOP: profile.account_id === data.creator_id,
-                            comments_votes: commentVotes
+                            creator_id: data.creator_id,
+                            comments_votes: commentVotes,
+                            deleted: data.deleted
                         }
-                        normalizedComments.unshift(newComment)
+                        setNormalizedComments(prev => [newComment, ...prev])
                     }
                 }
             }

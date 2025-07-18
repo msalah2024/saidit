@@ -1190,14 +1190,14 @@ export async function createTextPost(communityID: string, authorID: string, post
 
   try {
     const slug = await generatePostSlug(post.title)
-    const { error } = await supabase.from('posts').insert({
+    const { data, error } = await supabase.from('posts').insert({
       community_id: communityID,
       author_id: authorID,
       title: post.title,
       content: post.body,
       post_type: "text",
       slug: slug
-    })
+    }).select('slug').single()
 
     if (error) {
       console.error("Create text post error", error.message)
@@ -1207,7 +1207,8 @@ export async function createTextPost(communityID: string, authorID: string, post
     else {
       return {
         success: true,
-        message: "Text post created successfully"
+        message: "Text post created successfully",
+        data
       }
     }
 
@@ -1311,7 +1312,7 @@ export async function createLinkPost(post: z.infer<typeof LinkPostSchema>, autho
   const supabase = await createClient()
   try {
     const slug = await generatePostSlug(post.title)
-    const { error } = await supabase.from('posts').insert({
+    const { data, error } = await supabase.from('posts').insert({
       community_id: communityID,
       author_id: authorID,
       title: post.title,
@@ -1327,7 +1328,8 @@ export async function createLinkPost(post: z.infer<typeof LinkPostSchema>, autho
     else {
       return {
         success: true,
-        message: "Link post created successfully"
+        message: "Link post created successfully",
+        data
       }
     }
 
@@ -1345,7 +1347,7 @@ export async function fetchPostBySlug(slug: string) {
 
   try {
     const { data, error } = await supabase.from('posts')
-      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url)")
+      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(count)")
       .eq('slug', slug).maybeSingle()
 
     if (error) {
@@ -1430,7 +1432,7 @@ export async function removeCommentVote(voteID: string) {
   }
 }
 
-export async function fetchPostSorted(sortBy: 'best' | 'new' | 'old' | 'controversial', postID: string) {
+export async function fetchCommentSorted(sortBy: 'best' | 'new' | 'old' | 'controversial', postID: string) {
   const supabase = await createClient()
 
   switch (sortBy) {
@@ -1482,6 +1484,63 @@ export async function fetchPostSorted(sortBy: 'best' | 'new' | 'old' | 'controve
 
     default:
       break;
+  }
+
+}
+
+export async function flagCommentAsDeleted(commentID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('comments').update({
+      deleted: true
+    }).eq('id', commentID)
+
+    if (error) {
+      console.error("Comment delete error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Comment deleted successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Comment delete error", error)
+    return {
+      success: false,
+      message: "Comment delete error"
+    }
+  }
+}
+
+export async function deleteComment(commentID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('comments').delete().eq('id', commentID)
+
+    if (error) {
+      console.error("Comment delete error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Comment deleted successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Comment delete error", error)
+    return {
+      success: false,
+      message: "Comment delete error"
+    }
   }
 
 }

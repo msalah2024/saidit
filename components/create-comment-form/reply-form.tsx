@@ -43,7 +43,6 @@ function ReplyFormComponent({ setShowTipTap, parentID, replies }: ReplyFormCompo
     const { post } = usePost()
     const { profile } = useGeneralProfile()
     const supabase = createClient()
-
     const { triggerRefresh } = useCommentRefresh();
 
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -117,6 +116,7 @@ function ReplyFormComponent({ setShowTipTap, parentID, replies }: ReplyFormCompo
                             comments_votes: commentVotes
                         }
                         replies?.unshift(newReply)
+                        triggerRefresh()
                     }
                 }
             }

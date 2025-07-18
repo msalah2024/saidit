@@ -127,7 +127,7 @@ export default function ImagesForm({ selectedCommunity }: ImagesFormProps) {
                     }
                 }
 
-                router.push(`/s/${selectedCommunity.community_name}`)
+                router.push(`/s/${selectedCommunity.community_name}/comments/${slug}`)
             }
         } catch (error) {
             console.error(error)

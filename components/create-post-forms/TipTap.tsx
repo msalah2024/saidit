@@ -18,11 +18,12 @@ interface TipTapProps {
 }
 
 export default memo(function TipTap({ form, setShowTipTap, isSubmittingComment }: TipTapProps) {
-  const { triggerRefresh } = useCommentRefresh();
-
   const pathname = usePathname()
 
   const isCommentMode = pathname.includes('/comments')
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { triggerRefresh } = isCommentMode ? useCommentRefresh() : { triggerRefresh: () => { } };
 
   const editor = useEditor({
     extensions: [
@@ -31,7 +32,6 @@ export default memo(function TipTap({ form, setShowTipTap, isSubmittingComment }
         placeholder: `${isCommentMode ? '' : 'What are your thoughts? (this part is optional)'}`,
       }),
     ],
-    immediatelyRender: true,
     content: form.getValues('body'),
     editorProps: {
       attributes: {
