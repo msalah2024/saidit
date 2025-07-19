@@ -90,7 +90,6 @@ export default function Page() {
     const [hasFetched, setHasFetched] = useState(false)
     const [normalizedComments, setNormalizedComments] = useState<NormalizedComment[]>([])
 
-
     useEffect(() => {
         const loadComments = async () => {
             setIsLoading(true)

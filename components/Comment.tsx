@@ -11,7 +11,7 @@ import ReplyForm from './create-comment-form/reply-form'
 import CommentVote from './CommentVote'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
-// import { useMediaQuery } from '@/hooks/use-media-query'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -56,7 +56,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
     const [editingCommentID, setEditingCommentID] = useState<string | null>(null);
     const { user } = useGeneralProfile()
 
-    // const isDesktop = useMediaQuery("(min-width: 768px)")
+    const isDesktop = useMediaQuery("(min-width: 768px)")
 
     useEffect(() => {
         if (depth > 0) {
@@ -105,6 +105,11 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
             handleAuthDialog()
         }
     }
+
+    useEffect(() => {
+        triggerRefresh()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [comments])
 
     function updateComments(
         comments: NormalizedComment[],
@@ -214,7 +219,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                             </div>
                                     }
                                     <span className='text-muted-foreground'>•</span>
-                                    <div className='text-sm text-muted-foreground'>
+                                    <div className='text-sm text-muted-foreground line-clamp-1'>
                                         {
                                             formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
                                         }
@@ -259,13 +264,21 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                                 disabled={comment.deleted}
                                                 className='p-0 m-0 h-7 text-primary-foreground-muted gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
                                                 <MessageCircle size={16} />
-                                                Reply
+                                                {
+                                                    isDesktop &&
+                                                    <>
+                                                        Reply
+                                                    </>
+                                                }
                                             </Button>
-                                            <Button
-                                                disabled={comment.deleted}
-                                                className='p-0 m-0 h-7 text-primary-foreground-muted gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
-                                                <Forward size={16} /> Share
-                                            </Button>
+                                            {
+                                                isDesktop &&
+                                                <Button
+                                                    disabled={comment.deleted}
+                                                    className='p-0 m-0 h-7 text-primary-foreground-muted gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
+                                                    <Forward size={16} /> Share
+                                                </Button>
+                                            }
                                             {
                                                 comment.deleted ?
                                                     <Button disabled={comment.deleted} className='p-1 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
@@ -282,6 +295,12 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent>
                                                             <DropdownMenuItem disabled><Bell className='text-primary-foreground' />Follow comment</DropdownMenuItem>
+                                                            {
+                                                                !isDesktop &&
+                                                                <DropdownMenuItem>
+                                                                    <Forward className='text-primary-foreground' /> Share
+                                                                </DropdownMenuItem>
+                                                            }
                                                             <DropdownMenuItem disabled><Bookmark className='text-primary-foreground' />Save</DropdownMenuItem>
                                                             {
                                                                 isAuthor &&
