@@ -1,5 +1,5 @@
 "use client"
-import React, { memo, useLayoutEffect, useRef, useState } from 'react'
+import React, { memo, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import TipTap from '../create-post-forms/TipTap'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -57,6 +57,21 @@ function ReplyFormComponent({ setShowTipTap, parentID, setNormalizedComments }: 
         },
     })
 
+    const { isDirty } = form.formState
+
+    useEffect(() => {
+        if (!isDirty) return
+
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            e.preventDefault()
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?'
+            return e.returnValue
+        }
+
+        window.addEventListener('beforeunload', handleBeforeUnload)
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+    }, [isDirty])
+
     const formRef = useRef<HTMLFormElement>(null);
 
     useLayoutEffect(() => {
@@ -79,6 +94,13 @@ function ReplyFormComponent({ setShowTipTap, parentID, setNormalizedComments }: 
     async function onSubmit(values: z.infer<typeof CreateComment>) {
         try {
             if (!profile) { return }
+            if (values.body === "" || values.body === "<p></p>") {
+                form.setError('body', {
+                    type: 'manual',
+                    message: 'The field is required and cannot be empty'
+                })
+                return
+            }
             setIsSubmitting(true)
 
             const { data, error } = await supabase.from('comments').insert({
@@ -164,9 +186,9 @@ function ReplyFormComponent({ setShowTipTap, parentID, setNormalizedComments }: 
                         render={() => (
                             <FormItem>
                                 <FormControl>
-                                    <TipTap form={form} setShowTipTap={setShowTipTap} isSubmittingComment={isSubmitting} />
+                                    <TipTap form={form} setShowTipTap={setShowTipTap} isSubmittingComment={isSubmitting} isDirty={isDirty}/>
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className='ml-2' />
                             </FormItem>
                         )}
                     />

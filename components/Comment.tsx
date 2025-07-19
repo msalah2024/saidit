@@ -19,6 +19,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { deleteComment, flagCommentAsDeleted } from '@/app/actions'
+import EditForm from './create-comment-form/edit-form'
 
 
 interface NormalizedComment {
@@ -52,6 +53,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
     const [connectorHeights, setConnectorHeights] = useState<{ [id: string]: number | null }>({});
     const { refreshVersion, triggerRefresh } = useCommentRefresh();
     const [replyingTo, setReplyingTo] = useState<string | null>(null)
+    const [editingCommentID, setEditingCommentID] = useState<string | null>(null);
     const { user } = useGeneralProfile()
 
     // const isDesktop = useMediaQuery("(min-width: 768px)")
@@ -188,7 +190,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                         </AvatarFallback>
                                     </Avatar>
                                 ) : (
-                                    <CirclePlus className='text-white hover:cursor-pointer mt-1' size={16} onClick={() => handleCollapse(comment.id)} />
+                                    <CirclePlus className='text-white hover:cursor-pointer mt-1 ml-2' size={16} onClick={() => handleCollapse(comment.id)} />
                                 )}
                             </div>
                             <div className='flex flex-col gap-1 font-medium w-full'>
@@ -223,10 +225,16 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                         {comment.deleted ? <div className='text-primary-foreground-muted'>
                                             [deleted]
                                         </div>
-                                            :
-                                            <div>
-                                                <div
-                                                    className='prose prose-sm prose-invert
+                                            : editingCommentID === comment.id ?
+                                                <EditForm commentID={comment.id}
+                                                    content={comment.content}
+                                                    setShowTipTap={() => setEditingCommentID(null)}
+                                                    setNormalizedComments={setNormalizedComments}
+                                                />
+                                                :
+                                                <div>
+                                                    <div
+                                                        className='prose prose-sm prose-invert
                                                 text-primary-foreground-muted  
                                                 prose-strong:text-primary-foreground-muted
                                                 prose-code:text-primary-foreground-muted
@@ -237,10 +245,10 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                                 prose-blockquote:p:text-primary-foreground-muted
                                                 prose-blockquote:border-l-primary
                                                 prose-headings:text-primary-foreground-muted'
-                                                    dangerouslySetInnerHTML={{ __html: comment.content }}
-                                                >
+                                                        dangerouslySetInnerHTML={{ __html: comment.content }}
+                                                    >
+                                                    </div>
                                                 </div>
-                                            </div>
                                         }
 
                                         <div className='flex items-center relative mt-1 mb-2 gap-1'>
@@ -278,7 +286,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                                             {
                                                                 isAuthor &&
                                                                 <>
-                                                                    <DropdownMenuItem><Pencil className='text-primary-foreground' />Edit comment</DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => setEditingCommentID(comment.id)}><Pencil className='text-primary-foreground' />Edit comment</DropdownMenuItem>
                                                                     <DropdownMenuItem onClick={() => handleCommentDelete(comment)}><Trash2 className='text-primary-foreground' />Delete comment</DropdownMenuItem>
                                                                 </>
                                                             }
@@ -295,7 +303,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                         <div className='mb-3'>
                                             {
                                                 replyingTo === comment.id &&
-                                                <ReplyForm setShowTipTap={() => setReplyingTo(null)} parentID={comment.id} setNormalizedComments={setNormalizedComments}  />
+                                                <ReplyForm setShowTipTap={() => setReplyingTo(null)} parentID={comment.id} setNormalizedComments={setNormalizedComments} />
                                             }
                                         </div>
                                     </div>

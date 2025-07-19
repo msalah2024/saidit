@@ -71,7 +71,6 @@ function normalizeComments(comments: CommentWithAuthor[], authorId: string): Nor
             rootComments.push(normalized);
         }
     });
-
     return rootComments;
 }
 
@@ -91,6 +90,7 @@ export default function Page() {
     const [hasFetched, setHasFetched] = useState(false)
     const [normalizedComments, setNormalizedComments] = useState<NormalizedComment[]>([])
 
+
     useEffect(() => {
         const loadComments = async () => {
             setIsLoading(true)
@@ -107,7 +107,7 @@ export default function Page() {
     }, [sortBy, post.id])
 
     useEffect(() => {
-        if (comments.length === 0 && !hasFetched) return; 
+        if (comments.length === 0 && !hasFetched) return;
         setNormalizedComments(normalizeComments(comments, post.author_id || ""));
         setHasFetched(true);
     }, [comments, post.author_id, hasFetched]);
