@@ -37,6 +37,7 @@ interface NormalizedComment {
     isOP?: boolean;
     comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
     deleted: boolean
+    slug: string
 }
 
 interface CommentProps {
@@ -275,6 +276,9 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                                 isDesktop &&
                                                 <Button
                                                     disabled={comment.deleted}
+                                                    onClick={() => {
+                                                        console.log(comment.slug)
+                                                    }}
                                                     className='p-0 m-0 h-7 text-primary-foreground-muted gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
                                                     <Forward size={16} /> Share
                                                 </Button>

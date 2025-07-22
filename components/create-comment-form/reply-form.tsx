@@ -17,7 +17,7 @@ import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import { useCommentRefresh } from '@/app/context/CommentRefreshContext'
-import { manageCommentVotes } from '@/app/actions'
+import { generateSlug, manageCommentVotes } from '@/app/actions'
 
 interface NormalizedComment {
     id: string;
@@ -34,6 +34,7 @@ interface NormalizedComment {
     isOP?: boolean;
     comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
     deleted: boolean
+    slug: string
 }
 
 interface ReplyFormComponentProps {
@@ -103,11 +104,14 @@ function ReplyFormComponent({ setShowTipTap, parentID, setNormalizedComments }: 
             }
             setIsSubmitting(true)
 
+            const slug = await generateSlug(values.body)
+
             const { data, error } = await supabase.from('comments').insert({
                 creator_id: profile?.account_id,
                 post_id: post.id,
                 parent_id: parentID,
                 body: values.body,
+                slug: slug
             }).select().single()
 
             if (error) {
@@ -140,7 +144,8 @@ function ReplyFormComponent({ setShowTipTap, parentID, setNormalizedComments }: 
                             isOP: profile.account_id === data.creator_id,
                             comments_votes: commentVotes,
                             creator_id: profile.account_id,
-                            deleted: false
+                            deleted: false,
+                            slug: slug
                         }
                         setNormalizedComments(prevComments => {
                             const updateCommentWithReply = (comments: NormalizedComment[]): NormalizedComment[] => {
@@ -186,7 +191,7 @@ function ReplyFormComponent({ setShowTipTap, parentID, setNormalizedComments }: 
                         render={() => (
                             <FormItem>
                                 <FormControl>
-                                    <TipTap form={form} setShowTipTap={setShowTipTap} isSubmittingComment={isSubmitting} isDirty={isDirty}/>
+                                    <TipTap form={form} setShowTipTap={setShowTipTap} isSubmittingComment={isSubmitting} isDirty={isDirty} />
                                 </FormControl>
                                 <FormMessage className='ml-2' />
                             </FormItem>

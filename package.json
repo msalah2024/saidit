@@ -95,7 +95,7 @@
     "@types/react-virtualized": "^9.22.2",
     "eslint": "^9",
     "eslint-config-next": "15.2.1",
-    "supabase": "^2.24.3",
+    "supabase": "^2.31.8",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -1176,7 +1176,7 @@ export async function selectCommunity(name: string) {
   }
 }
 
-export async function generatePostSlug(title: string) {
+export async function generateSlug(title: string) {
   const slug = title.toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '')
@@ -1189,7 +1189,7 @@ export async function createTextPost(communityID: string, authorID: string, post
   const supabase = await createClient()
 
   try {
-    const slug = await generatePostSlug(post.title)
+    const slug = await generateSlug(post.title)
     const { data, error } = await supabase.from('posts').insert({
       community_id: communityID,
       author_id: authorID,
@@ -1311,7 +1311,7 @@ export async function deletePost(postID: string) {
 export async function createLinkPost(post: z.infer<typeof LinkPostSchema>, authorID: string, communityID: string) {
   const supabase = await createClient()
   try {
-    const slug = await generatePostSlug(post.title)
+    const slug = await generateSlug(post.title)
     const { data, error } = await supabase.from('posts').insert({
       community_id: communityID,
       author_id: authorID,
@@ -1540,6 +1540,36 @@ export async function deleteComment(commentID: string) {
     return {
       success: false,
       message: "Comment delete error"
+    }
+  }
+
+}
+
+export async function fetchCommentBySlug(slug: string) {
+  const supabase = await createClient()
+
+  try {
+
+    const { data, error } = await supabase.from('comments').select('*').eq('slug', slug).maybeSingle()
+
+    if (error) {
+      console.error("Comment fetch error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Comment fetched successfully",
+        data: data
+      }
+    }
+
+  } catch (error) {
+    console.error("Comment fetch error", error)
+    return {
+      success: false,
+      message: "Comment fetch error"
     }
   }
 

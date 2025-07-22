@@ -28,6 +28,7 @@ interface NormalizedComment {
     isOP?: boolean;
     comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
     deleted: boolean
+    slug: string
 }
 
 function normalizeComments(comments: CommentWithAuthor[], authorId: string): NormalizedComment[] {
@@ -48,7 +49,8 @@ function normalizeComments(comments: CommentWithAuthor[], authorId: string): Nor
             createdAt: comment.created_at,
             isOP: comment.creator_id === authorId,
             comments_votes: comment.comments_votes || [],
-            deleted: comment.deleted
+            deleted: comment.deleted,
+            slug: comment.slug
         };
 
         commentMap.set(comment.id, normalized);
@@ -168,3 +170,4 @@ export default function Page() {
         </div>
     )
 }
+

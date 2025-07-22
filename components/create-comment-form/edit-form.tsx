@@ -31,6 +31,7 @@ interface NormalizedComment {
     isOP?: boolean;
     comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
     deleted: boolean
+    slug: string
 }
 
 interface EditFormProps {

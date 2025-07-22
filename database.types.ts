@@ -27,6 +27,7 @@ export type Database = {
           net_votes: number
           parent_id: string | null
           post_id: string | null
+          slug: string
         }
         Insert: {
           body?: string | null
@@ -40,6 +41,7 @@ export type Database = {
           net_votes?: number
           parent_id?: string | null
           post_id?: string | null
+          slug: string
         }
         Update: {
           body?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           net_votes?: number
           parent_id?: string | null
           post_id?: string | null
+          slug?: string
         }
         Relationships: [
           {
@@ -523,6 +526,7 @@ export type Database = {
           creator_id: string
           parent_id: string
           post_id: string
+          deleted: boolean
           comments_votes: Json
           users: Json
         }[]
@@ -537,6 +541,7 @@ export type Database = {
           creator_id: string
           parent_id: string
           post_id: string
+          deleted: boolean
           comments_votes: Json
           users: Json
           controversial_score: number

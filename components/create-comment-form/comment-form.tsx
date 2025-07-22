@@ -16,7 +16,7 @@ import { usePost } from '@/app/context/PostContext'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
-import { manageCommentVotes } from '@/app/actions'
+import { generateSlug, manageCommentVotes } from '@/app/actions'
 
 interface NormalizedComment {
     id: string;
@@ -32,6 +32,7 @@ interface NormalizedComment {
     isOP?: boolean;
     comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
     deleted: boolean
+    slug: string
 }
 
 interface CommentFormComponentProps {
@@ -80,10 +81,13 @@ function CommentFormComponent({ setShowTipTap, setNormalizedComments }: CommentF
             }
             setIsSubmitting(true)
 
+            const slug = await generateSlug(values.body)
+
             const { data, error } = await supabase.from('comments').insert({
                 creator_id: profile?.account_id,
                 post_id: post.id,
                 body: values.body,
+                slug: slug
             }).select().single()
 
             if (error) {
@@ -116,7 +120,8 @@ function CommentFormComponent({ setShowTipTap, setNormalizedComments }: CommentF
                             isOP: profile.account_id === data.creator_id,
                             creator_id: data.creator_id,
                             comments_votes: commentVotes,
-                            deleted: data.deleted
+                            deleted: data.deleted,
+                            slug: data.slug
                         }
                         setNormalizedComments(prev => [newComment, ...prev])
                     }
