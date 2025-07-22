@@ -108,7 +108,7 @@ export default function Page() {
     }, [sortBy, post.id])
 
     useEffect(() => {
-        if (comments.length === 0 && !hasFetched) return;
+        if (comments.length === 0 && !hasFetched) { setHasFetched(true); return };
         setNormalizedComments(normalizeComments(comments, post.author_id || ""));
         setHasFetched(true);
     }, [comments, post.author_id, hasFetched]);
