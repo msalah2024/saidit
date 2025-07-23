@@ -512,9 +512,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      build_reply_tree: {
+        Args: { comment_id: string }
+        Returns: Json
+      }
       calculate_karma: {
         Args: { score: number }
         Returns: number
+      }
+      fetch_comment_with_replies_by_slug: {
+        Args: { slug: string }
+        Returns: Json
+      }
+      fetch_replies: {
+        Args: { parent_id: string }
+        Returns: Json
       }
       get_comments_by_best: {
         Args: { post: string }
@@ -527,6 +539,7 @@ export type Database = {
           parent_id: string
           post_id: string
           deleted: boolean
+          slug: string
           comments_votes: Json
           users: Json
         }[]
@@ -542,6 +555,7 @@ export type Database = {
           parent_id: string
           post_id: string
           deleted: boolean
+          slug: string
           comments_votes: Json
           users: Json
           controversial_score: number

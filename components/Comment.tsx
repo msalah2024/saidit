@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { deleteComment, flagCommentAsDeleted } from '@/app/actions'
 import EditForm from './create-comment-form/edit-form'
+import { usePost } from '@/app/context/PostContext'
 
 
 interface NormalizedComment {
@@ -50,11 +51,14 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
     const avatarRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const commentRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const { profile } = useGeneralProfile()
+    const { post } = usePost()
     const [collapsedMap, setCollapsedMap] = useState<{ [id: string]: boolean }>({});
     const [connectorHeights, setConnectorHeights] = useState<{ [id: string]: number | null }>({});
     const { refreshVersion, triggerRefresh } = useCommentRefresh();
     const [replyingTo, setReplyingTo] = useState<string | null>(null)
     const [editingCommentID, setEditingCommentID] = useState<string | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [isCopied, setIsCopied] = useState(false)
     const { user } = useGeneralProfile()
 
     const isDesktop = useMediaQuery("(min-width: 768px)")
@@ -146,6 +150,29 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
             toast.error("An error occurred");
         }
     }
+
+    const copyToClipboard = async (communityName: string, postSlug: string, commentSlug: string) => {
+        const text = `https://www.saidit.app/s/${communityName}/comments/${postSlug}/${commentSlug}`
+        if (!navigator.clipboard) {
+            // Fallback for older browsers
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        } else {
+            try {
+                await navigator.clipboard.writeText(text);
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                return;
+            }
+        }
+        setIsCopied(true);
+        toast.success("Link copied!");
+        setTimeout(() => setIsCopied(false), 2000);
+    };
 
     return (
         <>
@@ -277,7 +304,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                                 <Button
                                                     disabled={comment.deleted}
                                                     onClick={() => {
-                                                        console.log(comment.slug)
+                                                        copyToClipboard(post.communities.community_name, post.slug, comment.slug)
                                                     }}
                                                     className='p-0 m-0 h-7 text-primary-foreground-muted gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
                                                     <Forward size={16} /> Share

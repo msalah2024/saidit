@@ -1,5 +1,4 @@
 "use client"
-import { CommentRefreshProvider } from '@/app/context/CommentRefreshContext'
 import { usePost } from '@/app/context/PostContext'
 import Comment from '@/components/Comment'
 import CommentForm from '@/components/create-comment-form/comment-form'
@@ -129,7 +128,6 @@ export default function Page() {
 
     return (
         <div className='overflow-hidden'>
-            <CommentRefreshProvider>
                 <div className='mb-6 mt-1'>
                     {
                         !showTipTap &&
@@ -166,7 +164,6 @@ export default function Page() {
                         <Comment comments={normalizedComments} setNormalizedComments={setNormalizedComments} />
                     )
                 }
-            </CommentRefreshProvider>
         </div>
     )
 }
