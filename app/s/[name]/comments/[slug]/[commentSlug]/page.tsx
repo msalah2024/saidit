@@ -7,6 +7,8 @@ import Comment from '@/components/Comment'
 import PulseLogo from '@/components/PulseLogo';
 import Image from 'next/image';
 import saiditLogo from '@/public/assets/images/saidit-face.svg'
+import Link from 'next/link';
+import { usePost } from '@/app/context/PostContext';
 
 interface NormalizedComment {
     id: string;
@@ -28,6 +30,7 @@ interface NormalizedComment {
 export default function Page() {
     const supabase = createClient()
     const { profile } = useGeneralProfile()
+    const { post } = usePost()
     const [isLoading, setIsLoading] = useState(false)
     const [hasFetched, setHasFetched] = useState(false)
     const [comments, setComments] = useState<NormalizedComment[]>([])
@@ -90,7 +93,13 @@ export default function Page() {
     console.log(comments)
 
     return (
-        <div>
+        <div className='mb-10'>
+            <div className='flex justify-between items-center mb-5 mt-2'>
+                <p className='text-muted-foreground text-sm shrink-0'>Single comment thread</p>
+                <hr className='w-full mx-2' />
+                <Link href={`https://www.saidit.app/s/${post.communities.community_name}/comments/${post.slug}`}
+                    className='text-primary text-sm hover:underline shrink-0'>See full discussion</Link>
+            </div>
             {isLoading &&
                 <div className="flex justify-center py-8">
                     <PulseLogo />

@@ -127,7 +127,7 @@ export default function Page() {
     }
 
     return (
-        <div className='overflow-hidden'>
+        <div className='overflow-hidden mb-10'>
                 <div className='mb-6 mt-1'>
                     {
                         !showTipTap &&
