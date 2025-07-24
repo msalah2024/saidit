@@ -12,6 +12,7 @@ import { fetchCommentSorted } from '@/app/actions'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image';
 import saiditLogo from '@/public/assets/images/saidit-face.svg'
+import SearchComments from '@/components/SearchComments'
 
 interface NormalizedComment {
     id: string;
@@ -170,7 +171,10 @@ export default function Page() {
                     showTipTap &&
                     <CommentForm setShowTipTap={setShowTipTap} showTipTap={showTipTap} setNormalizedComments={setNormalizedComments} />
                 }
-                <SortComments sortBy={sortBy} setSortBy={setSortBy} />
+                <div className='flex items-center flex-wrap gap-4 w-full'>
+                    <SortComments sortBy={sortBy} setSortBy={setSortBy} />
+                    <SearchComments />
+                </div>
             </div>
             {isLoading &&
                 <div className="flex justify-center py-8">
