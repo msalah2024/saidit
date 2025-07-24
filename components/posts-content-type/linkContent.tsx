@@ -19,7 +19,7 @@ export default function LinkContent({ post }: linkContentProps) {
             </h1>
             {
                 post.url &&
-                <Link href={post.url} target="_blank" className='text-accent line-clamp-1 hover:underline sm:w-fit z-10 relative'>
+                <Link href={post.url} target="_blank" className='text-accent break-all hover:underline sm:w-fit sm:line-clamp-1 z-10 relative'>
                     {post.url}
                 </Link>
             }
