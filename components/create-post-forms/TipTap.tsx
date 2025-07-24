@@ -1,6 +1,6 @@
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import React, { memo, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import Placeholder from "@tiptap/extension-placeholder"
 import MenuBar from './TipTapBar'
 import { Card, CardContent } from '../ui/card'
@@ -25,9 +25,10 @@ interface TipTapProps {
   setShowTipTap?: React.Dispatch<React.SetStateAction<boolean>>
   isSubmittingComment?: boolean
   isDirty?: boolean
+  showTipTap?: boolean
 }
 
-export default memo(function TipTap({ form, setShowTipTap, isSubmittingComment, isDirty }: TipTapProps) {
+export default memo(function TipTap({ form, setShowTipTap, isSubmittingComment, isDirty, showTipTap }: TipTapProps) {
   const [showAlert, setShowAlert] = useState(false)
 
   const pathname = usePathname()
@@ -60,6 +61,12 @@ export default memo(function TipTap({ form, setShowTipTap, isSubmittingComment, 
     },
   })
 
+  useEffect(() => {
+    if (showTipTap === true && editor) {
+      editor.commands.focus('end')
+    }
+  }, [showTipTap, editor])
+
   if (!editor) {
     return (
       <p className='ml-2 text-sm text-primary-foreground-muted'>Loading editor...</p>
@@ -67,7 +74,7 @@ export default memo(function TipTap({ form, setShowTipTap, isSubmittingComment, 
   }
 
   const handleCancelClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); 
+    e.preventDefault();
 
     if (isDirty) {
       setShowAlert(true)

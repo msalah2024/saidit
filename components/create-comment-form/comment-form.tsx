@@ -38,9 +38,10 @@ interface NormalizedComment {
 interface CommentFormComponentProps {
     setShowTipTap: React.Dispatch<React.SetStateAction<boolean>>
     setNormalizedComments: React.Dispatch<React.SetStateAction<NormalizedComment[]>>
+    showTipTap?: boolean
 }
 
-function CommentFormComponent({ setShowTipTap, setNormalizedComments }: CommentFormComponentProps) {
+function CommentFormComponent({ setShowTipTap, showTipTap, setNormalizedComments }: CommentFormComponentProps) {
     const { post } = usePost()
     const { profile } = useGeneralProfile()
     const supabase = createClient()
@@ -144,7 +145,7 @@ function CommentFormComponent({ setShowTipTap, setNormalizedComments }: CommentF
                         render={() => (
                             <FormItem>
                                 <FormControl>
-                                    <TipTap form={form} setShowTipTap={setShowTipTap} isSubmittingComment={isSubmitting} isDirty={isDirty} />
+                                    <TipTap form={form} showTipTap={showTipTap} setShowTipTap={setShowTipTap} isSubmittingComment={isSubmitting} isDirty={isDirty} />
                                 </FormControl>
                                 <FormMessage className='ml-2' />
                             </FormItem>

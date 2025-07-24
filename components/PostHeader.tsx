@@ -11,6 +11,8 @@ import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import PostVote from './PostVote'
 import { Button } from './ui/button'
 import PostBackButton from './PostBackButton'
+import { useParams } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 
 const TextContentComments = dynamic(
     () => import('./posts-content-type/textContentComments'),
@@ -29,6 +31,10 @@ export default function PostHeader() {
     const { post } = usePost()
     const { user } = useGeneralProfile()
     const isAuthor = post.author_id === user?.id
+    const params = useParams()
+    const router = useRouter()
+
+    const isSingleThreadPage = params.commentSlug !== undefined && params.commentSlug !== null
 
     const postContent = () => {
         switch (post.post_type) {
@@ -50,6 +56,16 @@ export default function PostHeader() {
                 )
             default:
                 return null
+        }
+    }
+
+    const handleCommentClick = () => {
+        if (isSingleThreadPage) {
+            router.push(`/s/${post.communities.community_name}/comments/${post.slug}?openEditor=true`);
+        }
+
+        else {
+            window.dispatchEvent(new CustomEvent('showTipTap', { detail: true }));
         }
     }
 
@@ -109,7 +125,7 @@ export default function PostHeader() {
                 <PostVote postId={post.id}
                     initialVotes={post.posts_votes}
                 />
-                <Button className='p-0 m-0 h-8 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
+                <Button onClick={handleCommentClick} className='p-0 m-0 h-8 rounded-full z-10 hover:cursor-pointer' variant={'ghost'} asChild>
                     <div className='flex items-center h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'><MessageCircle size={18} />
                         <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{post.comments[0].count}</p>
                     </div>

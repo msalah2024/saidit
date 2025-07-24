@@ -191,7 +191,7 @@ function ReplyFormComponent({ setShowTipTap, parentID, setNormalizedComments }: 
                         render={() => (
                             <FormItem>
                                 <FormControl>
-                                    <TipTap form={form} setShowTipTap={setShowTipTap} isSubmittingComment={isSubmitting} isDirty={isDirty} />
+                                    <TipTap form={form} showTipTap={true} setShowTipTap={setShowTipTap} isSubmittingComment={isSubmitting} isDirty={isDirty} />
                                 </FormControl>
                                 <FormMessage className='ml-2' />
                             </FormItem>

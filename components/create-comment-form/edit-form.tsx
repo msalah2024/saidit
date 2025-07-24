@@ -158,7 +158,7 @@ const EditForm = ({ content, commentID, setShowTipTap, setNormalizedComments }: 
                             render={() => (
                                 <FormItem>
                                     <FormControl>
-                                        <TipTap form={form} setShowTipTap={setShowTipTap} isSubmittingComment={isSubmitting} isDirty={isDirty} />
+                                        <TipTap form={form} showTipTap={true} setShowTipTap={setShowTipTap} isSubmittingComment={isSubmitting} isDirty={isDirty} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
