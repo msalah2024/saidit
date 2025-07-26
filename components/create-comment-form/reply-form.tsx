@@ -18,6 +18,7 @@ import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import { useCommentRefresh } from '@/app/context/CommentRefreshContext'
 import { generateSlug, manageCommentVotes } from '@/app/actions'
+import { stripHTML } from '@/lib/stripHTML'
 
 interface NormalizedComment {
     id: string;
@@ -105,12 +106,14 @@ function ReplyFormComponent({ setShowTipTap, parentID, setNormalizedComments }: 
             setIsSubmitting(true)
 
             const slug = await generateSlug(values.body)
+            const strippedBody = stripHTML(values.body)
 
             const { data, error } = await supabase.from('comments').insert({
                 creator_id: profile?.account_id,
                 post_id: post.id,
                 parent_id: parentID,
                 body: values.body,
+                stripped_body: strippedBody,
                 slug: slug
             }).select().single()
 

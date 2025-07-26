@@ -28,6 +28,7 @@ export type Database = {
           parent_id: string | null
           post_id: string | null
           slug: string
+          stripped_body: string | null
         }
         Insert: {
           body?: string | null
@@ -42,6 +43,7 @@ export type Database = {
           parent_id?: string | null
           post_id?: string | null
           slug: string
+          stripped_body?: string | null
         }
         Update: {
           body?: string | null
@@ -56,6 +58,7 @@ export type Database = {
           parent_id?: string | null
           post_id?: string | null
           slug?: string
+          stripped_body?: string | null
         }
         Relationships: [
           {

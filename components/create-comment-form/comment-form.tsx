@@ -17,6 +17,7 @@ import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import { generateSlug, manageCommentVotes } from '@/app/actions'
+import { stripHTML } from '@/lib/stripHTML'
 
 interface NormalizedComment {
     id: string;
@@ -83,11 +84,13 @@ function CommentFormComponent({ setShowTipTap, showTipTap, setNormalizedComments
             setIsSubmitting(true)
 
             const slug = await generateSlug(values.body)
+            const strippedBody = stripHTML(values.body)
 
             const { data, error } = await supabase.from('comments').insert({
                 creator_id: profile?.account_id,
                 post_id: post.id,
                 body: values.body,
+                stripped_body: strippedBody,
                 slug: slug
             }).select().single()
 

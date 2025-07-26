@@ -24,6 +24,7 @@ import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { Tables } from "@/database.types";
 import { nanoid } from 'nanoid'
+import { CommentWithAuthor } from "@/complexTypes";
 
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
@@ -1573,4 +1574,38 @@ export async function fetchCommentBySlug(slug: string) {
     }
   }
 
+}
+
+export async function searchComments(body: string, postID: string): Promise<{
+  success: boolean;
+  message: string;
+  data?: CommentWithAuthor[];
+}> {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from('comments')
+      .select(`*, users(username, avatar_url, verified), comments_votes(vote_type, voter_id, id)`)
+      .eq('post_id', postID).ilike('stripped_body', `%${body}%`);
+
+    if (error) {
+      console.error("Comment search error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: 'Comment found successfully',
+        data: data as CommentWithAuthor[]
+      }
+    }
+
+  } catch (error) {
+    console.error("Comment search error", error)
+    return {
+      success: false,
+      message: "Comment search error"
+    }
+  }
 }

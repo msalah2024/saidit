@@ -12,6 +12,7 @@ import { fetchCommentSorted } from '@/app/actions'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image';
 import saiditLogo from '@/public/assets/images/saidit-face.svg'
+import saiditErrorLogo from '@/public/assets/images/error-page-image.svg'
 import SearchComments from '@/components/SearchComments'
 
 interface NormalizedComment {
@@ -90,6 +91,7 @@ export default function Page() {
     const [comments, setComments] = useState<CommentWithAuthor[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [hasFetched, setHasFetched] = useState(false)
+    const [hasSearched, setHasSearched] = useState(false);
     const [normalizedComments, setNormalizedComments] = useState<NormalizedComment[]>([])
 
     useEffect(() => {
@@ -97,6 +99,7 @@ export default function Page() {
             setIsLoading(true)
             const result = await fetchCommentSorted(sortBy, post.id)
             if (result && result.success) {
+                console.log(result.data)
                 setComments(result.data)
             } else {
                 toast.error("Failed to load comments")
@@ -106,6 +109,8 @@ export default function Page() {
 
         loadComments()
     }, [sortBy, post.id])
+
+    console.log(comments)
 
     useEffect(() => {
         if (comments.length === 0 && !hasFetched) { setHasFetched(true); return };
@@ -171,9 +176,15 @@ export default function Page() {
                     showTipTap &&
                     <CommentForm setShowTipTap={setShowTipTap} showTipTap={showTipTap} setNormalizedComments={setNormalizedComments} />
                 }
-                <div className='flex items-center flex-wrap gap-4 w-full'>
+                <div className='flex items-center flex-wrap gap-x-4 w-full'>
                     <SortComments sortBy={sortBy} setSortBy={setSortBy} />
-                    <SearchComments />
+                    <SearchComments
+                        setComments={setComments}
+                        setIsLoading={setIsLoading}
+                        setHasSearched={setHasSearched}
+                        disableInput={!isLoading && hasFetched && !hasSearched && normalizedComments.length === 0}
+                        sortBy={sortBy}
+                    />
                 </div>
             </div>
             {isLoading &&
@@ -182,7 +193,7 @@ export default function Page() {
                 </div>
             }
             {
-                !isLoading && hasFetched && normalizedComments.length === 0 && (
+                !isLoading && hasFetched && !hasSearched && normalizedComments.length === 0 && (
                     <div className='flex flex-col gap-1 p-2 w-full items-center text-center'>
                         <Image src={saiditLogo} width={60} height={60} alt='saidit logo' draggable={false} />
                         <h3 className="scroll-m-20 text-2xl mt-3 font-semibold tracking-tight select-none">
@@ -190,6 +201,19 @@ export default function Page() {
                         </h3>
                         <p className='text-muted-foreground select-none'>
                             Nobody&#39;s responded to this post yet. Add your thoughts and get the conversation going.
+                        </p>
+                    </div>
+                )
+            }
+            {
+                !isLoading && hasSearched && normalizedComments.length === 0 && (
+                    <div className='flex flex-col gap-1 p-2 w-full items-center text-center'>
+                        <Image src={saiditErrorLogo} width={60} height={60} alt='saidit logo' draggable={false} />
+                        <h3 className="scroll-m-20 text-2xl mt-3 font-semibold tracking-tight select-none">
+                            No matching comments
+                        </h3>
+                        <p className='text-muted-foreground select-none'>
+                            Try a different keyword. Couldn’t find any comments matching your search.
                         </p>
                     </div>
                 )
