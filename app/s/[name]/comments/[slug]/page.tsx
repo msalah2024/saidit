@@ -69,6 +69,8 @@ function normalizeComments(comments: CommentWithAuthor[], authorId: string): Nor
                     parent.replies = [];
                 }
                 parent.replies.push(normalized);
+            } else {
+                rootComments.push(normalized);
             }
         } else {
             rootComments.push(normalized);
@@ -95,7 +97,6 @@ export default function Page() {
     const [normalizedComments, setNormalizedComments] = useState<NormalizedComment[]>([])
     const [searchTerm, setSearchTerm] = useState('');
 
-
     useEffect(() => {
         const loadComments = async () => {
             setIsLoading(true)
@@ -111,8 +112,6 @@ export default function Page() {
 
         loadComments()
     }, [sortBy, post.id])
-
-    console.log(comments)
 
     useEffect(() => {
         if (comments.length === 0 && !hasFetched) { setHasFetched(true); return };
@@ -164,6 +163,8 @@ export default function Page() {
         }
     }
 
+    console.log('normalized', normalizedComments)
+    console.log("i got it", comments)
 
     return (
         <div className='overflow-hidden mb-10'>
@@ -197,7 +198,7 @@ export default function Page() {
                 </div>
             }
             {
-                !isLoading && hasFetched && !hasSearched && normalizedComments.length === 0 && (
+                !isLoading && hasFetched && normalizedComments.length === 0 && comments.length === 0 && !hasSearched && (
                     <div className='flex flex-col gap-1 p-2 w-full items-center text-center'>
                         <Image src={saiditLogo} width={60} height={60} alt='saidit logo' draggable={false} />
                         <h3 className="scroll-m-20 text-2xl mt-3 font-semibold tracking-tight select-none">
@@ -224,7 +225,7 @@ export default function Page() {
             }
             {
                 !isLoading && normalizedComments.length > 0 && (
-                    <Comment comments={normalizedComments} setNormalizedComments={setNormalizedComments} searchTerm={searchTerm} hasSearched={hasSearched}/>
+                    <Comment comments={normalizedComments} setNormalizedComments={setNormalizedComments} searchTerm={searchTerm} hasSearched={hasSearched} />
                 )
             }
         </div>

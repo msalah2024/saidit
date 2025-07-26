@@ -183,6 +183,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                 const isAuthor = profile?.account_id === comment.creator_id
                 const collapsed = collapsedMap[comment.id] || false;
 
+
                 return (
                     <div
                         key={comment.id}
