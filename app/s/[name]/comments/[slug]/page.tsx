@@ -93,6 +93,8 @@ export default function Page() {
     const [hasFetched, setHasFetched] = useState(false)
     const [hasSearched, setHasSearched] = useState(false);
     const [normalizedComments, setNormalizedComments] = useState<NormalizedComment[]>([])
+    const [searchTerm, setSearchTerm] = useState('');
+
 
     useEffect(() => {
         const loadComments = async () => {
@@ -176,7 +178,7 @@ export default function Page() {
                     showTipTap &&
                     <CommentForm setShowTipTap={setShowTipTap} showTipTap={showTipTap} setNormalizedComments={setNormalizedComments} />
                 }
-                <div className='flex items-center flex-wrap gap-x-4 w-full'>
+                <div className='flex items-center flex-wrap gap-x-2 w-full'>
                     <SortComments sortBy={sortBy} setSortBy={setSortBy} />
                     <SearchComments
                         setComments={setComments}
@@ -184,6 +186,8 @@ export default function Page() {
                         setHasSearched={setHasSearched}
                         disableInput={!isLoading && hasFetched && !hasSearched && normalizedComments.length === 0}
                         sortBy={sortBy}
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
                     />
                 </div>
             </div>
@@ -220,7 +224,7 @@ export default function Page() {
             }
             {
                 !isLoading && normalizedComments.length > 0 && (
-                    <Comment comments={normalizedComments} setNormalizedComments={setNormalizedComments} />
+                    <Comment comments={normalizedComments} setNormalizedComments={setNormalizedComments} searchTerm={searchTerm} hasSearched={hasSearched}/>
                 )
             }
         </div>

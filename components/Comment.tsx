@@ -21,7 +21,7 @@ import {
 import { deleteComment, flagCommentAsDeleted } from '@/app/actions'
 import EditForm from './create-comment-form/edit-form'
 import { usePost } from '@/app/context/PostContext'
-
+import { highlightText } from '@/lib/highlightText'
 
 interface NormalizedComment {
     id: string;
@@ -45,9 +45,11 @@ interface CommentProps {
     comments: NormalizedComment[];
     depth?: number;
     setNormalizedComments: React.Dispatch<React.SetStateAction<NormalizedComment[]>>
+    searchTerm: string;
+    hasSearched: boolean
 }
 
-export default function Comment({ comments, depth = 0, setNormalizedComments }: CommentProps) {
+export default function Comment({ comments, depth = 0, setNormalizedComments, searchTerm, hasSearched }: CommentProps) {
     const avatarRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const commentRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const { profile } = useGeneralProfile()
@@ -186,6 +188,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                         key={comment.id}
                         className='relative'
                         ref={el => { commentRefs.current[comment.id] = el; }}
+
                     >
                         <div className='absolute top-8 left-2 shrink-0 flex h-full flex-col items-center'>
 
@@ -278,7 +281,9 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                                 prose-blockquote:p:text-primary-foreground-muted
                                                 prose-blockquote:border-l-primary
                                                 prose-headings:text-primary-foreground-muted'
-                                                        dangerouslySetInnerHTML={{ __html: comment.content }}
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: highlightText(comment.content, searchTerm || '')
+                                                        }}
                                                     >
                                                     </div>
                                                 </div>
@@ -359,19 +364,27 @@ export default function Comment({ comments, depth = 0, setNormalizedComments }: 
                                     </div>
                                 )}
                             </div>
+                            {
+                                hasSearched &&
+                                <Link href={`/s/${post.communities.community_name}/comments/${post.slug}/${comment.slug}`} className='absolute inset-0 z-20' />
+                            }
                         </div>
 
                         {/* Recursive rendering of replies */}
-                        {comment.replies && comment.replies.length > 0 && !collapsed && (
-                            <div className='ml-10'>
-                                <Comment
-                                    comments={comment.replies}
-                                    depth={depth + 1}
-                                    setNormalizedComments={setNormalizedComments}
-                                />
-                            </div>
-                        )}
-                    </div>
+                        {
+                            comment.replies && comment.replies.length > 0 && !collapsed && (
+                                <div className='ml-10'>
+                                    <Comment
+                                        comments={comment.replies}
+                                        depth={depth + 1}
+                                        setNormalizedComments={setNormalizedComments}
+                                        hasSearched={hasSearched}
+                                        searchTerm={searchTerm}
+                                    />
+                                </div>
+                            )
+                        }
+                    </div >
                 )
             })}
         </>

@@ -1,5 +1,5 @@
 "use client"
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import { Input } from './ui/input';
 import { Search } from 'lucide-react';
 import { CommentWithAuthor } from '@/complexTypes'
@@ -15,10 +15,11 @@ interface SearchCommentsProps {
     setHasSearched: React.Dispatch<React.SetStateAction<boolean>>
     disableInput: boolean
     sortBy: "best" | "new" | "old" | "controversial"
+    searchTerm: string
+    setSearchTerm: React.Dispatch<React.SetStateAction<string>>
 }
 
-const SearchComments = ({ setComments, setIsLoading, setHasSearched, disableInput, sortBy }: SearchCommentsProps) => {
-    const [searchTerm, setSearchTerm] = useState('');
+const SearchComments = ({ setComments, setIsLoading, setHasSearched, disableInput, sortBy, searchTerm, setSearchTerm }: SearchCommentsProps) => {
     const { post } = usePost()
 
     const debouncedSearch = useMemo(() =>

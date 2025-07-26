@@ -26,10 +26,10 @@ const SortComments = ({ sortBy, setSortBy }: sortCommentsProps) => {
     };
 
     return (
-        <div className='flex my-4 items-center gap-2'>
+        <div className='flex my-4 items-center mx-1 gap-2 w-full sm:w-fit'>
             <p className='text-muted-foreground text-sm'>Sort by:</p>
             <Select value={sortBy} onValueChange={handleChange}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="sm:w-[180px] grow">
                     <SelectValue placeholder="best" />
                 </SelectTrigger>
                 <SelectContent>
