@@ -49,6 +49,39 @@ interface CommentProps {
     hasSearched: boolean
 }
 
+type FlatComment = NormalizedComment & {
+    replyingTo?: string; // new field showing which comment it replied to
+}
+
+function remapToFlatReplies(comments: NormalizedComment[]): NormalizedComment[] {
+    function flattenReplies(
+        parent: NormalizedComment,
+        replies: NormalizedComment[],
+        flatMap: FlatComment[]
+    ) {
+        for (const reply of replies) {
+            const flatReply: FlatComment = { ...reply, replyingTo: parent.id }
+            flatMap.push(flatReply)
+
+            if (reply.replies && reply.replies.length > 0) {
+                flattenReplies(reply, reply.replies, flatMap)
+            }
+        }
+    }
+
+    return comments.map(comment => {
+        const flatReplies: FlatComment[] = []
+        if (comment.replies && comment.replies.length > 0) {
+            flattenReplies(comment, comment.replies, flatReplies)
+        }
+
+        return {
+            ...comment,
+            replies: flatReplies
+        }
+    })
+}
+
 export default function Comment({ comments, depth = 0, setNormalizedComments, searchTerm, hasSearched }: CommentProps) {
     const avatarRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const commentRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
