@@ -3,7 +3,7 @@ import { usePost } from '@/app/context/PostContext'
 import Comment from '@/components/Comment'
 import CommentForm from '@/components/create-comment-form/comment-form'
 import React, { useState, useEffect } from 'react'
-import { CommentWithAuthor } from '@/complexTypes'
+import { CommentWithAuthor, FlatComment, NormalizedComment } from '@/complexTypes'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { toast } from 'sonner'
 import SortComments from '@/components/SortComments'
@@ -14,23 +14,8 @@ import Image from 'next/image';
 import saiditLogo from '@/public/assets/images/saidit-face.svg'
 import saiditErrorLogo from '@/public/assets/images/error-page-image.svg'
 import SearchComments from '@/components/SearchComments'
-
-interface NormalizedComment {
-    id: string;
-    author: {
-        username: string | null;
-        avatar_url: string | null;
-        verified: boolean;
-    };
-    creator_id: string | null,
-    content: string;
-    createdAt: string;
-    replies?: NormalizedComment[];
-    isOP?: boolean;
-    comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
-    deleted: boolean
-    slug: string
-}
+import { useMediaQuery } from '@/hooks/use-media-query'
+import MobileComments from '@/components/MobileComments'
 
 function normalizeComments(comments: CommentWithAuthor[], authorId: string): NormalizedComment[] {
     const commentMap = new Map<string, NormalizedComment>();
@@ -47,6 +32,7 @@ function normalizeComments(comments: CommentWithAuthor[], authorId: string): Nor
             },
             creator_id: comment.creator_id,
             content: comment.body || '',
+            stripped_content: comment.stripped_body || '',
             createdAt: comment.created_at,
             isOP: comment.creator_id === authorId,
             comments_votes: comment.comments_votes || [],
@@ -79,6 +65,35 @@ function normalizeComments(comments: CommentWithAuthor[], authorId: string): Nor
     return rootComments;
 }
 
+function remapToFlatReplies(comments: NormalizedComment[]): NormalizedComment[] {
+    function flattenReplies(
+        parent: NormalizedComment,
+        replies: NormalizedComment[],
+        flatMap: FlatComment[]
+    ) {
+        for (const reply of replies) {
+            const flatReply: FlatComment = { ...reply, replyingTo: parent, replies: [] }
+            flatMap.push(flatReply)
+
+            if (reply.replies && reply.replies.length > 0) {
+                flattenReplies(reply, reply.replies, flatMap)
+            }
+        }
+    }
+
+    return comments.map(comment => {
+        const flatReplies: FlatComment[] = []
+        if (comment.replies && comment.replies.length > 0) {
+            flattenReplies(comment, comment.replies, flatReplies)
+        }
+
+        return {
+            ...comment,
+            replies: flatReplies
+        }
+    })
+}
+
 export default function Page() {
     const searchParams = useSearchParams()
     const sortParam = searchParams.get('sortCommentBy')
@@ -96,13 +111,15 @@ export default function Page() {
     const [hasSearched, setHasSearched] = useState(false);
     const [normalizedComments, setNormalizedComments] = useState<NormalizedComment[]>([])
     const [searchTerm, setSearchTerm] = useState('');
+    const [flatComments, setFlatComments] = useState<FlatComment[]>([])
+
+    const isDesktop = useMediaQuery("(min-width: 768px)")
 
     useEffect(() => {
         const loadComments = async () => {
             setIsLoading(true)
             const result = await fetchCommentSorted(sortBy, post.id)
             if (result && result.success) {
-                console.log(result.data)
                 setComments(result.data)
             } else {
                 toast.error("Failed to load comments")
@@ -118,6 +135,12 @@ export default function Page() {
         setNormalizedComments(normalizeComments(comments, post.author_id || ""));
         setHasFetched(true);
     }, [comments, post.author_id, hasFetched]);
+
+    useEffect(() => {
+        if (!isDesktop) {
+            setFlatComments(remapToFlatReplies(normalizedComments))
+        }
+    }, [normalizedComments, isDesktop])
 
     useEffect(() => {
         const handleShowTipTap = (e: CustomEvent) => {
@@ -162,9 +185,6 @@ export default function Page() {
             handleAuthDialog()
         }
     }
-
-    console.log('normalized', normalizedComments)
-    console.log("i got it", comments)
 
     return (
         <div className='overflow-hidden mb-10'>
@@ -224,8 +244,10 @@ export default function Page() {
                 )
             }
             {
-                !isLoading && normalizedComments.length > 0 && (
+                !isLoading && normalizedComments.length > 0 && isDesktop ? (
                     <Comment comments={normalizedComments} setNormalizedComments={setNormalizedComments} searchTerm={searchTerm} hasSearched={hasSearched} />
+                ) : !isLoading && normalizedComments.length > 0 && (
+                    <MobileComments comments={flatComments} setNormalizedComments={setNormalizedComments} searchTerm={searchTerm} hasSearched={hasSearched} />
                 )
             }
         </div>

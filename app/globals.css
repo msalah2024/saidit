@@ -206,3 +206,18 @@ input:autofill {
 .ProseMirror h2 {
     color: var(--primary-foreground-muted);
 }
+
+/* Add this to your CSS */
+@keyframes highlight-fade {
+    0% {
+        background-color: var(--primary);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+.highlight-animation {
+    animation: highlight-fade 1.5s ease-out;
+}

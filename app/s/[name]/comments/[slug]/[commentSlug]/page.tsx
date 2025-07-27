@@ -10,23 +10,9 @@ import Image from 'next/image';
 import saiditLogo from '@/public/assets/images/error-page-image.svg'
 import Link from 'next/link';
 import { usePost } from '@/app/context/PostContext';
-
-interface NormalizedComment {
-    id: string;
-    author: {
-        username: string | null;
-        avatar_url: string | null;
-        verified: boolean;
-    };
-    creator_id: string | null,
-    content: string;
-    createdAt: string;
-    replies?: NormalizedComment[];
-    isOP?: boolean;
-    comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
-    deleted: boolean
-    slug: string
-}
+import { FlatComment, NormalizedComment } from '@/complexTypes';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import MobileComments from '@/components/MobileComments';
 
 export default function Page() {
     const supabase = createClient()
@@ -35,8 +21,11 @@ export default function Page() {
     const [isLoading, setIsLoading] = useState(false)
     const [hasFetched, setHasFetched] = useState(false)
     const [comments, setComments] = useState<NormalizedComment[]>([])
+    const [flatComments, setFlatComments] = useState<FlatComment[]>([])
     const params = useParams()
     const commentSlug = params.commentSlug as string
+
+    const isDesktop = useMediaQuery("(min-width: 768px)")
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const normalizeComment = (commentData: any): NormalizedComment => {
@@ -50,6 +39,7 @@ export default function Page() {
             },
             creator_id: commentData.creator_id || null,
             content: commentData.content,
+            stripped_content: commentData.stripped_content,
             createdAt: commentData.createdAt,
             deleted: commentData.deleted || false,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,12 +54,43 @@ export default function Page() {
         }
     }
 
+    function remapToFlatReplies(comments: NormalizedComment[]): NormalizedComment[] {
+        function flattenReplies(
+            parent: NormalizedComment,
+            replies: NormalizedComment[],
+            flatMap: FlatComment[]
+        ) {
+            for (const reply of replies) {
+                const flatReply: FlatComment = { ...reply, replyingTo: parent, replies: [] }
+                flatMap.push(flatReply)
+
+                if (reply.replies && reply.replies.length > 0) {
+                    flattenReplies(reply, reply.replies, flatMap)
+                }
+            }
+        }
+
+        return comments.map(comment => {
+            const flatReplies: FlatComment[] = []
+            if (comment.replies && comment.replies.length > 0) {
+                flattenReplies(comment, comment.replies, flatReplies)
+            }
+
+            return {
+                ...comment,
+                replies: flatReplies
+            }
+        })
+    }
+
     useEffect(() => {
         const loadComments = async () => {
             setIsLoading(true)
             const { data, error } = await supabase
                 .rpc('fetch_comment_with_replies_by_slug', { slug: commentSlug })
                 .maybeSingle()
+
+            console.log(data)
 
             if (error) {
                 console.error(error)
@@ -81,7 +102,6 @@ export default function Page() {
                 const normalizedComment = normalizeComment(data)
                 setComments([normalizedComment])
             }
-
             setIsLoading(false)
             setHasFetched(true)
         }
@@ -90,8 +110,11 @@ export default function Page() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [commentSlug])
 
-
-    console.log(comments)
+    useEffect(() => {
+        if (!isDesktop) {
+            setFlatComments(remapToFlatReplies(comments))
+        }
+    }, [comments, isDesktop])
 
     return (
         <div className='mb-10'>
@@ -108,9 +131,14 @@ export default function Page() {
                 </div>
             }
             {
-                !isLoading && comments.length > 0 && (
-                    <Comment comments={comments} setNormalizedComments={setComments} />
-                )
+                !isLoading && comments.length > 0 && isDesktop ?
+                    (
+                        <Comment comments={comments} setNormalizedComments={setComments} />
+                    )
+                    :
+                    (
+                        <MobileComments comments={flatComments} setNormalizedComments={setComments} />
+                    )
             }
             {
                 !isLoading && hasFetched && comments.length === 0 && (

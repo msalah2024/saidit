@@ -15,24 +15,7 @@ import {
 import { useCommentRefresh } from '@/app/context/CommentRefreshContext';
 import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
-
-interface NormalizedComment {
-    id: string;
-    author: {
-        username: string | null;
-        avatar_url: string | null;
-        verified: boolean;
-    };
-
-    creator_id: string | null,
-    content: string;
-    createdAt: string;
-    replies?: NormalizedComment[];
-    isOP?: boolean;
-    comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
-    deleted: boolean
-    slug: string
-}
+import { NormalizedComment } from '@/complexTypes';
 
 interface EditFormProps {
     content: string

@@ -18,23 +18,7 @@ import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import { generateSlug, manageCommentVotes } from '@/app/actions'
 import { stripHTML } from '@/lib/stripHTML'
-
-interface NormalizedComment {
-    id: string;
-    author: {
-        username: string | null;
-        avatar_url: string | null;
-        verified: boolean;
-    };
-    creator_id: string | null,
-    content: string;
-    createdAt: string;
-    replies?: NormalizedComment[];
-    isOP?: boolean;
-    comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
-    deleted: boolean
-    slug: string
-}
+import { NormalizedComment } from '@/complexTypes'
 
 interface CommentFormComponentProps {
     setShowTipTap: React.Dispatch<React.SetStateAction<boolean>>
@@ -119,6 +103,7 @@ function CommentFormComponent({ setShowTipTap, showTipTap, setNormalizedComments
                                 verified: profile.verified ?? false,
                             },
                             content: data.body || "",
+                            stripped_content: data.stripped_body || "",
                             createdAt: data.created_at,
                             replies: [],
                             isOP: profile.account_id === data.creator_id,

@@ -22,17 +22,17 @@ import { deleteComment, flagCommentAsDeleted } from '@/app/actions'
 import EditForm from './create-comment-form/edit-form'
 import { usePost } from '@/app/context/PostContext'
 import { highlightText } from '@/lib/highlightText'
-import { NormalizedComment } from '@/complexTypes'
+import { FlatComment, NormalizedComment } from '@/complexTypes'
 
-interface CommentProps {
-    comments: NormalizedComment[];
+interface MobileCommentProps {
+    comments: FlatComment[];
     depth?: number;
     setNormalizedComments: React.Dispatch<React.SetStateAction<NormalizedComment[]>>
     searchTerm?: string;
     hasSearched?: boolean
 }
 
-export default function Comment({ comments, depth = 0, setNormalizedComments, searchTerm, hasSearched }: CommentProps) {
+export default function MobileComment({ comments, depth = 0, setNormalizedComments, searchTerm, hasSearched }: MobileCommentProps) {
     const avatarRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const commentRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const { profile } = useGeneralProfile()
@@ -159,6 +159,35 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
         setTimeout(() => setIsCopied(false), 2000);
     };
 
+    const scrollAndHighlight = async (id: string) => {
+        const element = document.getElementById(id);
+        if (!element) return;
+
+        // Clear any existing highlight
+        element.classList.remove('highlight-comment');
+
+        // Force reflow to reset animation
+        void element.offsetWidth;
+
+        // Scroll to element first
+        element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+
+        // Wait for scroll to complete (approximate)
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Apply highlight
+        element.classList.add('highlight-animation');
+
+        // Remove class after animation completes
+        setTimeout(() => {
+            element.classList.remove('highlight-animation');
+        }, 1500); // Matches animation duration
+    };
+
+
     return (
         <>
             {comments.map((comment) => {
@@ -213,7 +242,42 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                                     <CirclePlus className='text-white hover:cursor-pointer mt-1 ml-2' size={16} onClick={() => handleCollapse(comment.id)} />
                                 )}
                             </div>
-                            <div className='flex flex-col gap-1 font-medium w-full'>
+                            <div className='flex flex-col gap-1 font-medium w-full select-none'>
+                                {
+                                    depth > 0 &&
+                                    <p
+                                        className='text-sm line-clamp-1 bg-primary/20 px-1 border-l-2 border-primary hover:cursor-pointer'
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent the link from triggering if hasSearched is true
+                                            if (comment.replyingTo?.id) {
+                                                scrollAndHighlight(comment.replyingTo.id);
+                                            }
+                                        }}
+                                    >
+                                        replying to
+                                        <span className='text-primary'>
+                                            {" "}
+                                            {
+                                                comment.replyingTo?.author.username === profile?.username ?
+                                                    'You'
+                                                    :
+                                                    <>
+                                                        {"u/"}
+                                                        {comment.replyingTo?.author.username}
+                                                    </>
+                                            }
+                                            {" "}
+                                        </span>
+                                        <span>
+                                            {
+                                                comment.replyingTo?.deleted ?
+                                                    `[deleted]`
+                                                    :
+                                                    `"${comment.replyingTo?.stripped_content}"`
+                                            }
+                                        </span>
+                                    </p>
+                                }
                                 <div className='flex items-center gap-2'>
                                     {
                                         comment.deleted ?
@@ -242,9 +306,12 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                                 </div>
                                 {!collapsed && (
                                     <div className='flex flex-col gap-1 w-full'>
-                                        {comment.deleted ? <div className='text-primary-foreground-muted'>
-                                            [deleted]
-                                        </div>
+                                        {comment.deleted ?
+                                            <div
+                                                id={comment.id}
+                                                className='text-primary-foreground-muted'>
+                                                [deleted]
+                                            </div>
                                             : editingCommentID === comment.id ?
                                                 <EditForm commentID={comment.id}
                                                     content={comment.content}
@@ -252,7 +319,9 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                                                     setNormalizedComments={setNormalizedComments}
                                                 />
                                                 :
-                                                <div>
+                                                <div
+                                                    id={comment.id}
+                                                >
                                                     <div
                                                         className='prose prose-sm prose-invert
                                                 text-primary-foreground-muted  
@@ -320,8 +389,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                                                                 <DropdownMenuItem
                                                                     onClick={() => {
                                                                         copyToClipboard(post.communities.community_name, post.slug, comment.slug)
-                                                                    }}
-                                                                >
+                                                                    }}>
                                                                     <Forward className='text-primary-foreground' /> Share
                                                                 </DropdownMenuItem>
                                                             }
@@ -359,10 +427,12 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                         </div>
 
                         {/* Recursive rendering of replies */}
+
                         {
                             comment.replies && comment.replies.length > 0 && !collapsed && (
-                                <div className='ml-10'>
-                                    <Comment
+
+                                <div className="ml-10">
+                                    <MobileComment
                                         comments={comment.replies}
                                         depth={depth + 1}
                                         setNormalizedComments={setNormalizedComments}
