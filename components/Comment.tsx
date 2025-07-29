@@ -214,7 +214,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                                 )}
                             </div>
                             <div className='flex flex-col gap-1 font-medium w-full'>
-                                <div className='flex items-center gap-2'>
+                                <div className={`flex items-center gap-2 ${collapsed ? 'ml-2' : ''}`}>
                                     {
                                         comment.deleted ?
                                             <div className='text-primary-foreground-muted'>

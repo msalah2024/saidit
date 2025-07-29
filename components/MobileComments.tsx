@@ -278,7 +278,7 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
                                         </span>
                                     </p>
                                 }
-                                <div className='flex items-center gap-2'>
+                                <div className={`flex items-center gap-2 ${collapsed ? 'ml-2' : ''}`}>
                                     {
                                         comment.deleted ?
                                             <div className='text-primary-foreground-muted'>
