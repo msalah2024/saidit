@@ -199,7 +199,7 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
                 return (
                     <div
                         key={comment.id}
-                        className='relative'
+                        className='relative my-3'
                         ref={el => { commentRefs.current[comment.id] = el; }}
 
                     >
@@ -411,12 +411,12 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
                                                 </div>
                                             )}
                                         </div>
-                                        <div className='mb-3'>
-                                            {
-                                                replyingTo === comment.id &&
+                                        {
+                                            replyingTo === comment.id &&
+                                            <div className='mb-3'>
                                                 <ReplyForm setShowTipTap={() => setReplyingTo(null)} parentID={comment.id} setNormalizedComments={setNormalizedComments} />
-                                            }
-                                        </div>
+                                            </div>
+                                        }
                                     </div>
                                 )}
                             </div>
