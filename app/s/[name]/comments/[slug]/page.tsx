@@ -34,6 +34,7 @@ function normalizeComments(comments: CommentWithAuthor[], authorId: string): Nor
             content: comment.body || '',
             stripped_content: comment.stripped_body || '',
             createdAt: comment.created_at,
+            updatedAt: comment.updated_at,
             isOP: comment.creator_id === authorId,
             comments_votes: comment.comments_votes || [],
             deleted: comment.deleted,
@@ -190,7 +191,7 @@ export default function Page() {
         <div className='overflow-hidden mb-10'>
             <div className='mb-6 mt-1'>
                 {
-                    !showTipTap &&
+                    !showTipTap && !post.deleted &&
                     <div onClick={() => { handleEditorClick() }} className='p-3 rounded-3xl hover:cursor-text hover:bg-[#0e1216] border bg-saidit-black'>
                         <p className='text-sm pl-1'>Join the conversation</p>
                     </div>

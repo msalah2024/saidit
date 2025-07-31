@@ -3,6 +3,7 @@ import { ArrowBigDown, ArrowBigUp } from 'lucide-react';
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext';
 import { toast } from "sonner";
 import { managePostVotes, removeVote } from '@/app/actions';
+import { Button } from './ui/button';
 
 type Vote = {
     vote_type: 'upvote' | 'downvote',
@@ -14,9 +15,10 @@ interface VotingProps {
     postId: string;
     initialVotes: Vote[];
     onVoteUpdate?: (newVotes: number) => void;
+    deleted?: boolean
 }
 
-export default function Voting({ postId, initialVotes, onVoteUpdate }: VotingProps) {
+export default function Voting({ postId, initialVotes, onVoteUpdate, deleted }: VotingProps) {
     const [votes, setVotes] = useState(0);
     const [userVote, setUserVote] = useState<Vote | null>(null);
     const { user } = useGeneralProfile();
@@ -93,28 +95,38 @@ export default function Voting({ postId, initialVotes, onVoteUpdate }: VotingPro
     };
 
     return (
-        <div className='flex items-center h-8 bg-muted rounded-full z-10'>
-            <div
-                onClick={() => handleVote("upvote")}
-                className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'
-            >
-                <ArrowBigUp
-                    size={18}
-                    fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
-                    className={userVote?.vote_type === 'upvote' ? 'text-primary' : ''}
-                />
-            </div>
-            <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{votes}</p>
-            <div
-                onClick={() => handleVote("downvote")}
-                className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'
-            >
-                <ArrowBigDown
-                    size={18}
-                    fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
-                    className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''}
-                />
-            </div>
-        </div>
+        <>
+            {
+                deleted ?
+                    <Button variant={'redditGray'} disabled className='h-8 gap-1.5'>
+                        <ArrowBigUp size={18}/>
+                        <ArrowBigDown size={18}/>
+                    </Button>
+                    :
+                    <div className='flex items-center h-8 bg-muted rounded-full z-10'>
+                        <div
+                            onClick={() => handleVote("upvote")}
+                            className='p-2 rounded-full text-primary-foreground-muted hover:text-primary hover:cursor-pointer text-center'
+                        >
+                            <ArrowBigUp
+                                size={18}
+                                fill={userVote?.vote_type === 'upvote' ? '#5BAE4A' : ''}
+                                className={userVote?.vote_type === 'upvote' ? 'text-primary' : ''}
+                            />
+                        </div>
+                        <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{votes}</p>
+                        <div
+                            onClick={() => handleVote("downvote")}
+                            className='p-2 rounded-full text-center text-primary-foreground-muted hover:text-accent hover:cursor-pointer'
+                        >
+                            <ArrowBigDown
+                                size={18}
+                                fill={userVote?.vote_type === 'downvote' ? '#477ed8' : ''}
+                                className={userVote?.vote_type === 'downvote' ? 'text-accent' : ''}
+                            />
+                        </div>
+                    </div>
+            }
+        </>
     );
 }

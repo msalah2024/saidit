@@ -93,17 +93,21 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
                         </CardHeader>
                         <CardContent className='px-0'>
                             {
-                                post.post_type === 'text' || post.post_type === 'image' ?
-                                    <TextContent post={post} />
-                                    : post.post_type === 'link' ?
-                                        <LinkContent post={post} />
-                                        : null
+                                post.deleted ?
+                                    <p className='ml-2'>[deleted]</p>
+                                    :
+                                    post.post_type === 'text' || post.post_type === 'image' ?
+                                        <TextContent post={post} />
+                                        : post.post_type === 'link' ?
+                                            <LinkContent post={post} />
+                                            : null
                             }
                         </CardContent>
                         <CardFooter className='mt-2 pl-0'>
                             <div className='flex items-center gap-2'>
                                 <PostVote postId={post.id}
                                     initialVotes={post.posts_votes}
+                                    deleted={post.deleted}
                                 />
                                 <Link href={`/s/${post.communities.community_name}/comments/${post.slug}`} className='z-10'>
                                     <Button className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'} asChild>
@@ -191,21 +195,25 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
             </CardHeader>
             <CardContent className='px-4'>
                 {
-                    post.post_type === 'text' ?
-                        <TextContent post={post} />
-                        : post.post_type === 'image' ?
-                            <div className='mb-2'>
-                                <ImagesContent post={post} />
-                            </div>
-                            : post.post_type === 'link' ?
-                                <LinkContent post={post} />
-                                : null
+                    post.deleted ?
+                        <p className='ml-2'>[deleted]</p>
+                        :
+                        post.post_type === 'text' ?
+                            <TextContent post={post} />
+                            : post.post_type === 'image' ?
+                                <div className='mb-2'>
+                                    <ImagesContent post={post} />
+                                </div>
+                                : post.post_type === 'link' ?
+                                    <LinkContent post={post} />
+                                    : null
                 }
             </CardContent>
             <CardFooter className='mt-1 px-4'>
                 <div className='flex items-center gap-2'>
                     <PostVote postId={post.id}
                         initialVotes={post.posts_votes}
+                        deleted={post.deleted}
                     />
                     <Link href={`/s/${post.communities.community_name}/comments/${post.slug}`} className='z-10'>
                         <Button className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'} asChild>

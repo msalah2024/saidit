@@ -344,10 +344,10 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
 
                                         <div className='flex items-center relative mt-1 mb-2 gap-1'>
 
-                                            <CommentVote commentID={comment.id} initialVotes={comment.comments_votes} deleted={comment.deleted} />
+                                            <CommentVote commentID={comment.id} initialVotes={comment.comments_votes} deleted={comment.deleted || post.deleted} />
                                             <Button
                                                 onClick={() => { handleReplyClick(comment.id) }}
-                                                disabled={comment.deleted}
+                                                disabled={comment.deleted || post.deleted}
                                                 className='p-0 m-0 h-7 text-primary-foreground-muted gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
                                                 <MessageCircle size={16} />
                                                 {
@@ -358,19 +358,8 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
                                                 }
                                             </Button>
                                             {
-                                                isDesktop &&
-                                                <Button
-                                                    disabled={comment.deleted}
-                                                    onClick={() => {
-                                                        copyToClipboard(post.communities.community_name, post.slug, comment.slug)
-                                                    }}
-                                                    className='p-0 m-0 h-7 text-primary-foreground-muted gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
-                                                    <Forward size={16} /> Share
-                                                </Button>
-                                            }
-                                            {
-                                                comment.deleted ?
-                                                    <Button disabled={comment.deleted} className='p-1 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
+                                                comment.deleted || post.deleted ?
+                                                    <Button disabled={comment.deleted || post.deleted} className='p-1 m-0 h-7 gap-1 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
                                                         <Ellipsis size={16} />
                                                     </Button>
                                                     :

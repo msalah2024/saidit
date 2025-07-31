@@ -41,6 +41,7 @@ export default function Page() {
             content: commentData.content,
             stripped_content: commentData.stripped_content,
             createdAt: commentData.createdAt,
+            updatedAt: commentData.updatedAt,
             deleted: commentData.deleted || false,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             comments_votes: commentData.comments_votes?.map((vote: any) => ({
@@ -89,8 +90,6 @@ export default function Page() {
             const { data, error } = await supabase
                 .rpc('fetch_comment_with_replies_by_slug', { slug: commentSlug })
                 .maybeSingle()
-
-            console.log(data)
 
             if (error) {
                 console.error(error)

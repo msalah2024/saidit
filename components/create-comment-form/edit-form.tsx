@@ -16,6 +16,7 @@ import { useCommentRefresh } from '@/app/context/CommentRefreshContext';
 import { createClient } from '@/utils/supabase/client';
 import { toast } from 'sonner';
 import { NormalizedComment } from '@/complexTypes';
+import { stripHTML } from '@/lib/stripHTML';
 
 interface EditFormProps {
     content: string
@@ -73,20 +74,22 @@ const EditForm = ({ content, commentID, setShowTipTap, setNormalizedComments }: 
     const updateCommentInTree = (
         comments: NormalizedComment[],
         commentId: string,
-        newContent: string
+        newContent: string,
+        strippedBody: string
     ): NormalizedComment[] => {
         return comments.map(comment => {
             if (comment.id === commentId) {
                 return {
                     ...comment,
-                    content: newContent
+                    content: newContent,
+                    stripped_content: strippedBody
                 };
             }
 
             if (comment.replies) {
                 return {
                     ...comment,
-                    replies: updateCommentInTree(comment.replies, commentId, newContent)
+                    replies: updateCommentInTree(comment.replies, commentId, newContent, strippedBody)
                 };
             }
 
@@ -104,9 +107,11 @@ const EditForm = ({ content, commentID, setShowTipTap, setNormalizedComments }: 
                 triggerRefresh()
                 return
             }
+            const strippedBody = stripHTML(values.body)
 
             const { error } = await supabase.from('comments').update({
-                body: values.body
+                body: values.body,
+                stripped_body: strippedBody
             }).eq('id', commentID)
 
             if (error) {
@@ -114,7 +119,7 @@ const EditForm = ({ content, commentID, setShowTipTap, setNormalizedComments }: 
             }
 
             else {
-                setNormalizedComments(prev => updateCommentInTree(prev, commentID, values.body));
+                setNormalizedComments(prev => updateCommentInTree(prev, commentID, values.body, strippedBody));
                 setShowTipTap(false)
                 triggerRefresh()
             }

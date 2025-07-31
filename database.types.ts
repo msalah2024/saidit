@@ -23,12 +23,12 @@ export type Database = {
           deleted_at: string | null
           id: string
           karma_score: number
-          modified_at: string | null
           net_votes: number
           parent_id: string | null
           post_id: string | null
           slug: string
           stripped_body: string | null
+          updated_at: string | null
         }
         Insert: {
           body?: string | null
@@ -38,12 +38,12 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           karma_score?: number
-          modified_at?: string | null
           net_votes?: number
           parent_id?: string | null
           post_id?: string | null
           slug: string
           stripped_body?: string | null
+          updated_at?: string | null
         }
         Update: {
           body?: string | null
@@ -53,12 +53,12 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           karma_score?: number
-          modified_at?: string | null
           net_votes?: number
           parent_id?: string | null
           post_id?: string | null
           slug?: string
           stripped_body?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -309,6 +309,8 @@ export type Database = {
           community_id: string
           content: string | null
           created_at: string
+          deleted: boolean
+          deleted_at: string | null
           id: string
           karma_score: number
           net_votes: number
@@ -323,6 +325,8 @@ export type Database = {
           community_id: string
           content?: string | null
           created_at?: string
+          deleted?: boolean
+          deleted_at?: string | null
           id?: string
           karma_score?: number
           net_votes?: number
@@ -337,6 +341,8 @@ export type Database = {
           community_id?: string
           content?: string | null
           created_at?: string
+          deleted?: boolean
+          deleted_at?: string | null
           id?: string
           karma_score?: number
           net_votes?: number
@@ -542,6 +548,7 @@ export type Database = {
           parent_id: string
           post_id: string
           deleted: boolean
+          stripped_body: string
           slug: string
           comments_votes: Json
           users: Json
@@ -558,6 +565,7 @@ export type Database = {
           parent_id: string
           post_id: string
           deleted: boolean
+          stripped_body: string
           slug: string
           comments_votes: Json
           users: Json

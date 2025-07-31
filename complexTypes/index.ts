@@ -45,6 +45,7 @@ export type PostsWithAuthorAndCommunity = Post & {
         image_url: string | null
     }
     comments: { count: number }[]
+    deleted: boolean
 }
 
 export type CommentWithAuthor = Comment & {
@@ -70,6 +71,7 @@ export type PostsWithComments = Post & {
         image_url: string | null
     }
     comments: { count: number }[]
+    deleted: boolean
 }
 
 
@@ -85,6 +87,7 @@ export type NormalizedComment = {
     content: string;
     stripped_content: string
     createdAt: string;
+    updatedAt: string | null;
     replies?: NormalizedComment[];
     isOP?: boolean;
     comments_votes: { vote_type: 'upvote' | 'downvote', voter_id: string | null, id: string }[]
