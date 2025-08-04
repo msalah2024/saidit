@@ -201,7 +201,7 @@ export default function Page() {
                     <CommentForm setShowTipTap={setShowTipTap} showTipTap={showTipTap} setNormalizedComments={setNormalizedComments} />
                 }
                 <div className='flex items-center flex-wrap gap-x-2 w-full'>
-                    <SortComments sortBy={sortBy} setSortBy={setSortBy} />
+                    <SortComments sortBy={sortBy} setSortBy={setSortBy} disabled={normalizedComments.length === 0} />
                     <SearchComments
                         setComments={setComments}
                         setIsLoading={setIsLoading}

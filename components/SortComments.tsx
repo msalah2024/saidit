@@ -12,9 +12,10 @@ import { Archive, Clock12, Rocket, Swords } from 'lucide-react';
 interface sortCommentsProps {
     setSortBy: React.Dispatch<React.SetStateAction<"best" | "new" | "old" | "controversial">>
     sortBy: string
+    disabled: boolean
 }
 
-const SortComments = ({ sortBy, setSortBy }: sortCommentsProps) => {
+const SortComments = ({ sortBy, setSortBy, disabled }: sortCommentsProps) => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -29,7 +30,7 @@ const SortComments = ({ sortBy, setSortBy }: sortCommentsProps) => {
         <div className='flex my-4 items-center mx-1 gap-2 w-full sm:w-fit'>
             <p className='text-muted-foreground text-sm'>Sort by:</p>
             <Select value={sortBy} onValueChange={handleChange}>
-                <SelectTrigger className="sm:w-[180px] grow">
+                <SelectTrigger disabled={disabled} className="sm:w-[180px] grow">
                     <SelectValue placeholder="best" />
                 </SelectTrigger>
                 <SelectContent>
