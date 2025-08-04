@@ -357,7 +357,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                                             replyingTo === comment.id &&
 
                                             <div className='mb-3'>
-                                                <ReplyForm setShowTipTap={() => setReplyingTo(null)} parentID={comment.id} setNormalizedComments={setNormalizedComments} />
+                                                <ReplyForm setShowTipTap={() => setReplyingTo(null)} parentID={comment.id} setNormalizedComments={setNormalizedComments}/>
                                             </div>
                                         }
                                     </div>
