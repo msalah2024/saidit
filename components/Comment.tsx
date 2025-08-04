@@ -101,6 +101,20 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [comments])
 
+    useEffect(() => {
+        const initialCollapsedMap: { [id: string]: boolean } = {};
+        const initializeCollapsedStates = (comments: NormalizedComment[], currentDepth: number) => {
+            comments.forEach(comment => {
+                initialCollapsedMap[comment.id] = currentDepth >= 3 && !!comment.replies && comment.replies.length > 0;
+                if (comment.replies) {
+                    initializeCollapsedStates(comment.replies, currentDepth + 1);
+                }
+            });
+        };
+        initializeCollapsedStates(comments, depth);
+        setCollapsedMap(initialCollapsedMap);
+    }, [comments, depth]);
+
     function updateComments(
         comments: NormalizedComment[],
         commentId: string,
@@ -165,7 +179,6 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
 
                 const isAuthor = profile?.account_id === comment.creator_id
                 const collapsed = collapsedMap[comment.id] || false;
-
 
                 return (
                     <div
@@ -357,7 +370,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                                             replyingTo === comment.id &&
 
                                             <div className='mb-3'>
-                                                <ReplyForm setShowTipTap={() => setReplyingTo(null)} parentID={comment.id} setNormalizedComments={setNormalizedComments}/>
+                                                <ReplyForm setShowTipTap={() => setReplyingTo(null)} parentID={comment.id} setNormalizedComments={setNormalizedComments} />
                                             </div>
                                         }
                                     </div>
