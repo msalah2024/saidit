@@ -302,6 +302,17 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
                                         {
                                             formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
                                         }
+                                        {
+                                            comment.updatedAt && comment.createdAt !== comment.updatedAt &&
+                                            <span>
+                                                <span className='text-muted-foreground'>{" "}•{" "}</span>
+                                                Edited {" "}
+                                                {
+                                                    formatDistanceToNow(new Date(comment.updatedAt), { addSuffix: true })
+                                                }
+                                            </span>
+                                        }
+
                                     </div>
                                 </div>
                                 {!collapsed && (

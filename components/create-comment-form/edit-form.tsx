@@ -75,21 +75,23 @@ const EditForm = ({ content, commentID, setShowTipTap, setNormalizedComments }: 
         comments: NormalizedComment[],
         commentId: string,
         newContent: string,
-        strippedBody: string
+        strippedBody: string,
+        updatedAt: string,
     ): NormalizedComment[] => {
         return comments.map(comment => {
             if (comment.id === commentId) {
                 return {
                     ...comment,
                     content: newContent,
-                    stripped_content: strippedBody
+                    stripped_content: strippedBody,
+                    updatedAt: updatedAt
                 };
             }
 
             if (comment.replies) {
                 return {
                     ...comment,
-                    replies: updateCommentInTree(comment.replies, commentId, newContent, strippedBody)
+                    replies: updateCommentInTree(comment.replies, commentId, newContent, strippedBody, updatedAt)
                 };
             }
 
@@ -119,7 +121,9 @@ const EditForm = ({ content, commentID, setShowTipTap, setNormalizedComments }: 
             }
 
             else {
-                setNormalizedComments(prev => updateCommentInTree(prev, commentID, values.body, strippedBody));
+                const now = new Date()
+                const updatedAt = now.toISOString();
+                setNormalizedComments(prev => updateCommentInTree(prev, commentID, values.body, strippedBody, updatedAt));
                 setShowTipTap(false)
                 triggerRefresh()
             }
