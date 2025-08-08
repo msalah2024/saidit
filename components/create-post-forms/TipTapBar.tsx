@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Bold, Code, Heading1, Heading2, Heading3, Italic, List, ListOrdered, Quote, Redo, SquareChevronRight, Strikethrough, Undo } from 'lucide-react'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default memo(function MenuBar({ editor }: any) {
+export default memo(function MenuBar({ editor, isCommentMode }: any) {
     const editorState = useEditorState({
         editor,
         // This function will be called every time the editor state changes
@@ -76,28 +76,33 @@ export default memo(function MenuBar({ editor }: any) {
                 >
                     <Code />
                 </Button>
-                <Button
-                    variant={editorState.isH1 ? 'default' : 'ghost'}
-                    onClick={(e) => {
-                        e.preventDefault()
-                        editor.chain().focus().toggleHeading({ level: 1 }).run()
-                    }}
-                    size={'icon'}
-                    className='rounded-full hover:bg-reddit-gray'
-                >
-                    <Heading1 />
-                </Button>
-                <Button
-                    variant={editorState.isH2 ? 'default' : 'ghost'}
-                    onClick={(e) => {
-                        e.preventDefault()
-                        editor.chain().focus().toggleHeading({ level: 2 }).run()
-                    }}
-                    size={'icon'}
-                    className='rounded-full hover:bg-reddit-gray'
-                >
-                    <Heading2 />
-                </Button>
+                {
+                    !isCommentMode &&
+                    <>
+                        <Button
+                            variant={editorState.isH1 ? 'default' : 'ghost'}
+                            onClick={(e) => {
+                                e.preventDefault()
+                                editor.chain().focus().toggleHeading({ level: 1 }).run()
+                            }}
+                            size={'icon'}
+                            className='rounded-full hover:bg-reddit-gray'
+                        >
+                            <Heading1 />
+                        </Button>
+                        <Button
+                            variant={editorState.isH2 ? 'default' : 'ghost'}
+                            onClick={(e) => {
+                                e.preventDefault()
+                                editor.chain().focus().toggleHeading({ level: 2 }).run()
+                            }}
+                            size={'icon'}
+                            className='rounded-full hover:bg-reddit-gray'
+                        >
+                            <Heading2 />
+                        </Button>
+                    </>
+                }
                 <Button
                     variant={editorState.isH3 ? 'default' : 'ghost'}
                     onClick={(e) => {

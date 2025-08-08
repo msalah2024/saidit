@@ -68,7 +68,7 @@ export default memo(function LinkForm({ selectedCommunity }: LinkFormProps) {
 
             const result = await createLinkPost(values, profile?.account_id, selectedCommunity?.id)
             if (result.success) {
-                router.push(`/s/${selectedCommunity.community_name}`)
+                router.push(`/s/${selectedCommunity.community_name}/comments/${result.data.slug}`)
             }
             else {
                 toast.error("An error occurred trying to create your post")

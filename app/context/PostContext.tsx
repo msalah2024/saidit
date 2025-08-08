@@ -1,10 +1,10 @@
 'use client'
 
-import { createContext, useContext } from 'react'
-import { PostsWithAuthorAndCommunity } from '@/complexTypes'
+import React, { createContext, useContext } from 'react'
+import { PostsWithComments } from '@/complexTypes'
 
 interface PostContextType {
-    post: PostsWithAuthorAndCommunity
+    post: PostsWithComments
 }
 
 const PostContext = createContext<PostContextType | null>(null)
@@ -14,7 +14,7 @@ export function PostProvider({
     post
 }: {
     children: React.ReactNode,
-    post: PostsWithAuthorAndCommunity
+    post: PostsWithComments
 }) {
     return (
         <PostContext.Provider value={{ post }}>

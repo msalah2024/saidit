@@ -1,4 +1,5 @@
 import { fetchPostBySlug } from '@/app/actions';
+import { CommentRefreshProvider } from '@/app/context/CommentRefreshContext';
 import { PostProvider } from '@/app/context/PostContext';
 import PostBackButton from '@/components/PostBackButton';
 import PostHeader from '@/components/PostHeader';
@@ -19,15 +20,17 @@ export default async function Layout({ children, params }: any) {
     }
 
     return (
-        <div className='flex gap-4 '>
+        <div className='flex gap-4'>
             <PostProvider post={post.data}>
                 <div className='hidden lg:flex'>
                     <PostBackButton />
                 </div>
                 <div className='flex flex-col gap-4 w-full'>
                     <PostHeader />
-                    <hr />
-                    {children}
+
+                    <CommentRefreshProvider>
+                        {children}
+                    </CommentRefreshProvider>
                 </div>
             </PostProvider>
         </div>

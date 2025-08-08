@@ -24,6 +24,7 @@ import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { Tables } from "@/database.types";
 import { nanoid } from 'nanoid'
+import { CommentWithAuthor } from "@/complexTypes";
 
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
@@ -1176,7 +1177,7 @@ export async function selectCommunity(name: string) {
   }
 }
 
-export async function generatePostSlug(title: string) {
+export async function generateSlug(title: string) {
   const slug = title.toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '')
@@ -1189,15 +1190,15 @@ export async function createTextPost(communityID: string, authorID: string, post
   const supabase = await createClient()
 
   try {
-    const slug = await generatePostSlug(post.title)
-    const { error } = await supabase.from('posts').insert({
+    const slug = await generateSlug(post.title)
+    const { data, error } = await supabase.from('posts').insert({
       community_id: communityID,
       author_id: authorID,
       title: post.title,
       content: post.body,
       post_type: "text",
       slug: slug
-    })
+    }).select('slug').single()
 
     if (error) {
       console.error("Create text post error", error.message)
@@ -1207,7 +1208,8 @@ export async function createTextPost(communityID: string, authorID: string, post
     else {
       return {
         success: true,
-        message: "Text post created successfully"
+        message: "Text post created successfully",
+        data
       }
     }
 
@@ -1310,8 +1312,8 @@ export async function deletePost(postID: string) {
 export async function createLinkPost(post: z.infer<typeof LinkPostSchema>, authorID: string, communityID: string) {
   const supabase = await createClient()
   try {
-    const slug = await generatePostSlug(post.title)
-    const { error } = await supabase.from('posts').insert({
+    const slug = await generateSlug(post.title)
+    const { data, error } = await supabase.from('posts').insert({
       community_id: communityID,
       author_id: authorID,
       title: post.title,
@@ -1327,7 +1329,8 @@ export async function createLinkPost(post: z.infer<typeof LinkPostSchema>, autho
     else {
       return {
         success: true,
-        message: "Link post created successfully"
+        message: "Link post created successfully",
+        data
       }
     }
 
@@ -1345,7 +1348,7 @@ export async function fetchPostBySlug(slug: string) {
 
   try {
     const { data, error } = await supabase.from('posts')
-      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url)")
+      .select("*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(count)")
       .eq('slug', slug).maybeSingle()
 
     if (error) {
@@ -1368,4 +1371,271 @@ export async function fetchPostBySlug(slug: string) {
       message: "Post fetch error"
     }
   }
+}
+
+
+export async function manageCommentVotes(voterID: string, commentID: string, voteType: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from('comments_votes').upsert({
+      voter_id: voterID,
+      comment_id: commentID,
+      vote_type: voteType,
+    }, { onConflict: 'comment_id, voter_id' }).select('*').single()
+
+    if (error) {
+      console.error("Vote upsert error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Vote upsert successful",
+        data: data
+      }
+    }
+
+  } catch (error) {
+    console.error("Vote upsert error", error)
+    return {
+      success: false,
+      message: "Vote upsert error"
+    }
+  }
+}
+
+export async function removeCommentVote(voteID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('comments_votes').delete().eq('id', voteID)
+
+    if (error) {
+      console.error("Vote remove error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Vote removed successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Vote remove error", error)
+    return {
+      success: false,
+      message: "Vote remove error"
+    }
+  }
+}
+
+export async function fetchCommentSorted(sortBy: 'best' | 'new' | 'old' | 'controversial', postID: string) {
+  const supabase = await createClient()
+
+  switch (sortBy) {
+
+    case 'best':
+      const { data: sortByBest, error: sortByBestError } = await supabase
+        .rpc('get_comments_by_best', { post: postID })
+
+      if (sortByBestError) {
+        console.error("Best comments error", sortByBestError)
+        return { success: false, data: [] }
+      }
+
+      return { success: true, data: sortByBest }
+
+    case 'new':
+      const { data: sortByNew, error: sortByNewError } = await supabase.from('comments')
+        .select(`*, users(username, avatar_url, verified), comments_votes(vote_type, voter_id, id)`)
+        .eq('post_id', postID).order('created_at', { ascending: false })
+
+      if (sortByNewError) {
+        console.error("Fallback comments error", sortByNewError)
+        return { success: false, data: [] }
+      }
+
+      return { success: true, data: sortByNew }
+
+    case 'old':
+      const { data: sortByOld, error: sortByOldError } = await supabase.from('comments')
+        .select(`*, users(username, avatar_url, verified), comments_votes(vote_type, voter_id, id)`)
+        .eq('post_id', postID).order('created_at', { ascending: true })
+
+      if (sortByOldError) {
+        console.error("Fallback comments error", sortByOldError)
+        return { success: false, data: [] }
+      }
+
+      return { success: true, data: sortByOld }
+
+    case 'controversial':
+      const { data: sortByControversial, error: sortByControversialError } = await supabase
+        .rpc('get_comments_by_controversial', { post: postID })
+
+      if (sortByControversialError) {
+        console.error("Controversial comments error", sortByControversialError)
+        return { success: false, data: [] }
+      }
+      return { success: true, data: sortByControversial }
+
+    default:
+      break;
+  }
+
+}
+
+export async function flagCommentAsDeleted(commentID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('comments').update({
+      deleted: true
+    }).eq('id', commentID)
+
+    if (error) {
+      console.error("Comment delete error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Comment deleted successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Comment delete error", error)
+    return {
+      success: false,
+      message: "Comment delete error"
+    }
+  }
+}
+
+export async function deleteComment(commentID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('comments').delete().eq('id', commentID)
+
+    if (error) {
+      console.error("Comment delete error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Comment deleted successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Comment delete error", error)
+    return {
+      success: false,
+      message: "Comment delete error"
+    }
+  }
+
+}
+
+export async function fetchCommentBySlug(slug: string) {
+  const supabase = await createClient()
+
+  try {
+
+    const { data, error } = await supabase.from('comments').select('*').eq('slug', slug).maybeSingle()
+
+    if (error) {
+      console.error("Comment fetch error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Comment fetched successfully",
+        data: data
+      }
+    }
+
+  } catch (error) {
+    console.error("Comment fetch error", error)
+    return {
+      success: false,
+      message: "Comment fetch error"
+    }
+  }
+
+}
+
+export async function searchComments(body: string, postID: string): Promise<{
+  success: boolean;
+  message: string;
+  data?: CommentWithAuthor[];
+}> {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.from('comments')
+      .select(`*, users(username, avatar_url, verified), comments_votes(vote_type, voter_id, id)`)
+      .eq('post_id', postID).ilike('stripped_body', `%${body}%`);
+
+    if (error) {
+      console.error("Comment search error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: 'Comment found successfully',
+        data: data as CommentWithAuthor[]
+      }
+    }
+
+  } catch (error) {
+    console.error("Comment search error", error)
+    return {
+      success: false,
+      message: "Comment search error"
+    }
+  }
+}
+
+export async function flagPostDeleted(postID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('posts').update({
+      deleted: true
+    }).eq('id', postID)
+
+    if (error) {
+      console.error("Post delete error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Post deleted successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Post delete error", error)
+    return {
+      success: false,
+      message: "Post delete error"
+    }
+  }
+
 }

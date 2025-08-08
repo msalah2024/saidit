@@ -69,7 +69,7 @@ export default function TextForm({ selectedCommunity }: TextContentFormProps) {
             const result = await createTextPost(selectedCommunity.id, profile?.account_id, values)
 
             if (result.success) {
-                router.push(`/s/${selectedCommunity.community_name}`)
+                router.push(`/s/${selectedCommunity.community_name}/comments/${result.data?.slug}`)
             }
 
             else {

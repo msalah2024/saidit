@@ -49,10 +49,10 @@ export default function VirtualScroller() {
             try {
                 const { data, error } = await supabase
                     .from('posts')
-                    .select("*, users(username, avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url)")
+                    .select("*, users(username, avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(count)")
                     .order("created_at", { ascending: false })
                     .range(0, PAGE_SIZE - 1)
-                    .eq('community_id', community.id)
+                    .eq('community_id', community.id).eq('deleted', false)
 
                 if (error) throw error
                 setItems(data || [])
@@ -97,8 +97,8 @@ export default function VirtualScroller() {
         const from = items.length
         const to = from + PAGE_SIZE - 1
 
-        const { data, error } = await supabase.from('posts').select("*, users(username, avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url)").order("created_at", { ascending: false })
-            .range(from, to).eq('community_id', community.id)
+        const { data, error } = await supabase.from('posts').select("*, users(username, avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(count)").order("created_at", { ascending: false })
+            .range(from, to).eq('community_id', community.id).eq('deleted', false)
 
         if (error) {
             console.error("Error loading posts:", error.message)

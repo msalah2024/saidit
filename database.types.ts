@@ -7,8 +7,118 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instanciate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
+      comments: {
+        Row: {
+          body: string | null
+          created_at: string
+          creator_id: string | null
+          deleted: boolean
+          deleted_at: string | null
+          id: string
+          karma_score: number
+          net_votes: number
+          parent_id: string | null
+          post_id: string | null
+          slug: string
+          stripped_body: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          creator_id?: string | null
+          deleted?: boolean
+          deleted_at?: string | null
+          id?: string
+          karma_score?: number
+          net_votes?: number
+          parent_id?: string | null
+          post_id?: string | null
+          slug: string
+          stripped_body?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          creator_id?: string | null
+          deleted?: boolean
+          deleted_at?: string | null
+          id?: string
+          karma_score?: number
+          net_votes?: number
+          parent_id?: string | null
+          post_id?: string | null
+          slug?: string
+          stripped_body?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments_votes: {
+        Row: {
+          comment_id: string | null
+          created_at: string
+          id: string
+          updated_at: string | null
+          vote_type: Database["public"]["Enums"]["vote_type"]
+          voter_id: string | null
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string | null
+          vote_type: Database["public"]["Enums"]["vote_type"]
+          voter_id?: string | null
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string | null
+          vote_type?: Database["public"]["Enums"]["vote_type"]
+          voter_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_votes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_votes_voter_id_fkey"
+            columns: ["voter_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
       communities: {
         Row: {
           banner_url: string | null
@@ -199,7 +309,11 @@ export type Database = {
           community_id: string
           content: string | null
           created_at: string
+          deleted: boolean
+          deleted_at: string | null
           id: string
+          karma_score: number
+          net_votes: number
           post_type: Database["public"]["Enums"]["post_type"]
           slug: string
           title: string
@@ -211,7 +325,11 @@ export type Database = {
           community_id: string
           content?: string | null
           created_at?: string
+          deleted?: boolean
+          deleted_at?: string | null
           id?: string
+          karma_score?: number
+          net_votes?: number
           post_type: Database["public"]["Enums"]["post_type"]
           slug: string
           title: string
@@ -223,7 +341,11 @@ export type Database = {
           community_id?: string
           content?: string | null
           created_at?: string
+          deleted?: boolean
+          deleted_at?: string | null
           id?: string
+          karma_score?: number
+          net_votes?: number
           post_type?: Database["public"]["Enums"]["post_type"]
           slug?: string
           title?: string
@@ -342,6 +464,7 @@ export type Database = {
           account_id: string
           avatar_url: string | null
           banner_url: string | null
+          comment_karma: number
           created_at: string
           description: string | null
           display_name: string | null
@@ -359,6 +482,7 @@ export type Database = {
           account_id: string
           avatar_url?: string | null
           banner_url?: string | null
+          comment_karma?: number
           created_at?: string
           description?: string | null
           display_name?: string | null
@@ -376,6 +500,7 @@ export type Database = {
           account_id?: string
           avatar_url?: string | null
           banner_url?: string | null
+          comment_karma?: number
           created_at?: string
           description?: string | null
           display_name?: string | null
@@ -396,9 +521,56 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      build_reply_tree: {
+        Args: { comment_id: string }
+        Returns: Json
+      }
       calculate_karma: {
         Args: { score: number }
         Returns: number
+      }
+      fetch_comment_with_replies_by_slug: {
+        Args: { slug: string }
+        Returns: Json
+      }
+      fetch_replies: {
+        Args: { parent_id: string }
+        Returns: Json
+      }
+      get_comments_by_best: {
+        Args: { post: string }
+        Returns: {
+          id: string
+          body: string
+          created_at: string
+          net_votes: number
+          creator_id: string
+          parent_id: string
+          post_id: string
+          deleted: boolean
+          stripped_body: string
+          slug: string
+          comments_votes: Json
+          users: Json
+        }[]
+      }
+      get_comments_by_controversial: {
+        Args: { post: string }
+        Returns: {
+          id: string
+          body: string
+          created_at: string
+          net_votes: number
+          creator_id: string
+          parent_id: string
+          post_id: string
+          deleted: boolean
+          stripped_body: string
+          slug: string
+          comments_votes: Json
+          users: Json
+          controversial_score: number
+        }[]
       }
     }
     Enums: {
@@ -413,21 +585,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -445,14 +621,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -468,14 +646,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -491,14 +671,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -506,14 +688,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
