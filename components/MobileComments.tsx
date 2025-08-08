@@ -248,7 +248,7 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
                                     <p
                                         className='text-sm line-clamp-1 bg-primary/20 px-1 border-l-2 border-primary hover:cursor-pointer'
                                         onClick={(e) => {
-                                            e.stopPropagation(); // Prevent the link from triggering if hasSearched is true
+                                            e.stopPropagation(); 
                                             if (comment.replyingTo?.id) {
                                                 scrollAndHighlight(comment.replyingTo.id);
                                             }
