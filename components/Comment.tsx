@@ -23,6 +23,7 @@ import EditForm from './create-comment-form/edit-form'
 import { usePost } from '@/app/context/PostContext'
 import { highlightText } from '@/lib/highlightText'
 import { NormalizedComment } from '@/complexTypes'
+import { useRouter } from 'nextjs-toploader/app'
 
 interface CommentProps {
     comments: NormalizedComment[];
@@ -32,12 +33,17 @@ interface CommentProps {
     hasSearched?: boolean
 }
 
+type CollapseState = {
+    collapsed: boolean;
+    source: 'default' | 'user';
+};
+
 export default function Comment({ comments, depth = 0, setNormalizedComments, searchTerm, hasSearched }: CommentProps) {
     const avatarRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const commentRefs = useRef<{ [id: string]: HTMLDivElement | null }>({});
     const { profile } = useGeneralProfile()
     const { post } = usePost()
-    const [collapsedMap, setCollapsedMap] = useState<{ [id: string]: boolean }>({});
+    const [collapsedMap, setCollapsedMap] = useState<{ [id: string]: CollapseState }>({});
     const [connectorHeights, setConnectorHeights] = useState<{ [id: string]: number | null }>({});
     const { refreshVersion, triggerRefresh } = useCommentRefresh();
     const [replyingTo, setReplyingTo] = useState<string | null>(null)
@@ -45,6 +51,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isCopied, setIsCopied] = useState(false)
     const { user } = useGeneralProfile()
+    const router = useRouter()
 
     const isDesktop = useMediaQuery("(min-width: 768px)")
 
@@ -73,10 +80,32 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
     const handleCollapse = (id: string) => {
         setCollapsedMap(prev => ({
             ...prev,
-            [id]: !prev[id]
+            [id]: {
+                collapsed: !prev[id]?.collapsed,
+                source: 'user',
+            },
         }));
         triggerRefresh();
-    }
+    };
+
+    useEffect(() => {
+        const initialCollapsedMap: { [id: string]: CollapseState } = {};
+        const initializeCollapsedStates = (comments: NormalizedComment[], currentDepth: number) => {
+            comments.forEach(comment => {
+                const hasReplies = !!comment.replies && comment.replies.length > 0;
+                initialCollapsedMap[comment.id] = {
+                    collapsed: currentDepth >= 3 && hasReplies,
+                    source: currentDepth >= 3 && hasReplies ? 'default' : 'user',
+                };
+                if (comment.replies) {
+                    initializeCollapsedStates(comment.replies, currentDepth + 1);
+                }
+            });
+        };
+        initializeCollapsedStates(comments, depth);
+        setCollapsedMap(initialCollapsedMap);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [depth]);
 
     const handleAuthDialog = () => {
         window.dispatchEvent(new CustomEvent('openAuthDialog'))
@@ -100,20 +129,6 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
         triggerRefresh()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [comments])
-
-    useEffect(() => {
-        const initialCollapsedMap: { [id: string]: boolean } = {};
-        const initializeCollapsedStates = (comments: NormalizedComment[], currentDepth: number) => {
-            comments.forEach(comment => {
-                initialCollapsedMap[comment.id] = currentDepth >= 3 && !!comment.replies && comment.replies.length > 0;
-                if (comment.replies) {
-                    initializeCollapsedStates(comment.replies, currentDepth + 1);
-                }
-            });
-        };
-        initializeCollapsedStates(comments, depth);
-        setCollapsedMap(initialCollapsedMap);
-    }, [comments, depth]);
 
     function updateComments(
         comments: NormalizedComment[],
@@ -173,12 +188,24 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
         setTimeout(() => setIsCopied(false), 2000);
     };
 
+    function countAllRepliesInclusive(comment: NormalizedComment): number {
+        let total = 1; 
+        if (comment.replies && comment.replies.length > 0) {
+            for (const reply of comment.replies) {
+                total += countAllRepliesInclusive(reply);
+            }
+        }
+        return total;
+    }
+
     return (
         <>
             {comments.map((comment) => {
 
                 const isAuthor = profile?.account_id === comment.creator_id
-                const collapsed = collapsedMap[comment.id] || false;
+                const collapseState = collapsedMap[comment.id] || { collapsed: false, source: 'user' };
+                const collapsed = collapseState.collapsed;
+                const isDefaultCollapsed = collapseState.source === 'default';
 
                 return (
                     <div
@@ -223,47 +250,71 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                                         </AvatarFallback>
                                     </Avatar>
                                 ) : (
-                                    <CirclePlus className='text-white hover:cursor-pointer mt-1 ml-2' size={16} onClick={() => handleCollapse(comment.id)} />
+                                    <CirclePlus className='text-white hover:cursor-pointer mt-1 ml-2' size={16} onClick={() => {
+                                        if (depth >= 4) {
+                                            router.push(`/s/${post.communities.community_name}/comments/${post.slug}/${comment.slug}`)
+                                        }
+                                        else {
+                                            handleCollapse(comment.id)
+                                        }
+                                    }
+
+                                    } />
                                 )}
                             </div>
                             <div className='flex flex-col gap-1 font-medium w-full'>
-                                <div className={`flex items-center gap-2 ${collapsed ? 'ml-2' : ''}`}>
-                                    {
-                                        comment.deleted ?
-                                            <div className='text-primary-foreground-muted'>
-                                                [deleted]
-                                            </div>
-                                            :
-                                            <div className='text-primary-foreground-muted flex items-center gap-1'>
-                                                <Link href={`/u/${comment.author.username}`} className='text-sm hover:underline z-10'>
-                                                    u/{comment.author.username}
-                                                </Link>
-                                                {comment.author.verified && (
-                                                    <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
-                                                )}
-                                                {comment.isOP && (
-                                                    <p className='text-sm text-secondary'>OP</p>
-                                                )}
-                                            </div>
-                                    }
-                                    <span className='text-muted-foreground'>•</span>
-                                    <div className='text-sm text-muted-foreground line-clamp-1'>
-                                        {
-                                            formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
-                                        }
-                                        {
-                                            comment.updatedAt && comment.createdAt !== comment.updatedAt &&
-                                            <span>
-                                                <span className='text-muted-foreground'>{" "}•{" "}</span>
-                                                Edited {" "}
+                                {
+                                    isDefaultCollapsed ?
+                                        <p onClick={() => {
+                                            if (depth >= 4) {
+                                                router.push(`/s/${post.communities.community_name}/comments/${post.slug}/${comment.slug}`)
+                                            }
+                                            else {
+                                                handleCollapse(comment.id)
+                                            }
+                                        }}
+                                            className='text-muted-foreground text-sm mt-0.5 hover:underline hover:cursor-pointer'>
+                                            {countAllRepliesInclusive(comment)} more repl{countAllRepliesInclusive(comment) === 1 ? 'y' : 'ies'}
+                                        </p>
+                                        :
+                                        <div className={`flex items-center gap-2 ${collapsed ? 'ml-2' : ''}`}>
+                                            {
+                                                comment.deleted ?
+                                                    <div className='text-primary-foreground-muted'>
+                                                        [deleted]
+                                                    </div>
+                                                    :
+                                                    <div className='text-primary-foreground-muted flex items-center gap-1'>
+                                                        <Link href={`/u/${comment.author.username}`} className='text-sm hover:underline z-10'>
+                                                            u/{comment.author.username}
+                                                        </Link>
+                                                        {comment.author.verified && (
+                                                            <BadgeCheck className="text-background" fill="#5BAE4A" size={18} />
+                                                        )}
+                                                        {comment.isOP && (
+                                                            <p className='text-sm text-secondary'>OP</p>
+                                                        )}
+                                                    </div>
+                                            }
+                                            <span className='text-muted-foreground'>•</span>
+                                            <div className='text-sm text-muted-foreground line-clamp-1'>
                                                 {
-                                                    formatDistanceToNow(new Date(comment.updatedAt), { addSuffix: true })
+                                                    formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
                                                 }
-                                            </span>
-                                        }
+                                                {
+                                                    comment.updatedAt && comment.createdAt !== comment.updatedAt &&
+                                                    <span>
+                                                        <span className='text-muted-foreground'>{" "}•{" "}</span>
+                                                        Edited {" "}
+                                                        {
+                                                            formatDistanceToNow(new Date(comment.updatedAt), { addSuffix: true })
+                                                        }
+                                                    </span>
+                                                }
 
-                                    </div>
-                                </div>
+                                            </div>
+                                        </div>
+                                }
                                 {!collapsed && (
                                     <div className='flex flex-col gap-1 w-full'>
                                         {comment.deleted ? <div className='text-primary-foreground-muted'>
