@@ -111,9 +111,11 @@ const EditForm = ({ content, commentID, setShowTipTap, setNormalizedComments }: 
             }
             const strippedBody = stripHTML(values.body)
 
+
             const { error } = await supabase.from('comments').update({
                 body: values.body,
-                stripped_body: strippedBody
+                stripped_body: strippedBody,
+                updated_at: new Date().toISOString()
             }).eq('id', commentID)
 
             if (error) {

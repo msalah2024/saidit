@@ -248,7 +248,7 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
                                     <p
                                         className='text-sm line-clamp-1 bg-primary/20 px-1 border-l-2 border-primary hover:cursor-pointer'
                                         onClick={(e) => {
-                                            e.stopPropagation(); // Prevent the link from triggering if hasSearched is true
+                                            e.stopPropagation(); 
                                             if (comment.replyingTo?.id) {
                                                 scrollAndHighlight(comment.replyingTo.id);
                                             }
@@ -278,7 +278,7 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
                                         </span>
                                     </p>
                                 }
-                                <div className={`flex items-center gap-2 ${collapsed ? 'ml-2' : ''}`}>
+                                <div className={`flex items-center gap-1 ${collapsed ? 'ml-2' : ''}`}>
                                     {
                                         comment.deleted ?
                                             <div className='text-primary-foreground-muted'>
@@ -297,22 +297,21 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
                                                 )}
                                             </div>
                                     }
-                                    <span className='text-muted-foreground'>•</span>
+                                    <span className='text-muted-foreground text-sm'>•</span>
                                     <div className='text-sm text-muted-foreground line-clamp-1'>
                                         {
                                             formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
                                         }
                                         {
-                                            comment.updatedAt && comment.createdAt !== comment.updatedAt &&
+                                            comment.updatedAt &&
                                             <span>
-                                                <span className='text-muted-foreground'>{" "}•{" "}</span>
+                                                <span className='text-muted-foreground mx-1'>•</span>
                                                 Edited {" "}
                                                 {
                                                     formatDistanceToNow(new Date(comment.updatedAt), { addSuffix: true })
                                                 }
                                             </span>
                                         }
-
                                     </div>
                                 </div>
                                 {!collapsed && (
