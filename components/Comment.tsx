@@ -189,7 +189,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
     };
 
     function countAllRepliesInclusive(comment: NormalizedComment): number {
-        let total = 1; 
+        let total = 1;
         if (comment.replies && comment.replies.length > 0) {
             for (const reply of comment.replies) {
                 total += countAllRepliesInclusive(reply);

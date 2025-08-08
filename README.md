@@ -79,7 +79,7 @@
 
 -   [x] Allow users to comment on posts.
 -   [x] Implement nested comment threads.
--   [ ] Allow comment editing and deletion.
+-   [x] Allow comment editing and deletion.
 
 ## Verification
 
