@@ -8,7 +8,7 @@ import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { toast } from 'sonner'
 import SortComments from '@/components/SortComments'
 import PulseLogo from '@/components/PulseLogo'
-import { fetchCommentSorted } from '@/app/actions'
+import { fetchCommentSorted, upsertRecentlyVisitedPost } from '@/app/actions'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image';
 import saiditLogo from '@/public/assets/images/saidit-face.svg'
@@ -172,6 +172,20 @@ export default function Page() {
             window.removeEventListener('openCommentEditor', handleOpenEditor);
         };
     }, [searchParams]);
+
+    useEffect(() => {
+        if (!user) return;
+
+        const debounceDelay = 3000;
+        const timeoutId = setTimeout(async () => {
+            const result = await upsertRecentlyVisitedPost(post.id, user.id);
+            if (!result.success) {
+                console.error(result.message);
+            }
+        }, debounceDelay);
+
+        return () => clearTimeout(timeoutId);
+    }, [post.id, user]);
 
     const handleAuthDialog = () => {
         window.dispatchEvent(new CustomEvent('openAuthDialog'))

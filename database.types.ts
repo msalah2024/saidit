@@ -411,6 +411,78 @@ export type Database = {
           },
         ]
       }
+      recently_visited_communities: {
+        Row: {
+          community_id: string
+          id: string
+          user_id: string
+          visited_at: string
+        }
+        Insert: {
+          community_id: string
+          id?: string
+          user_id: string
+          visited_at?: string
+        }
+        Update: {
+          community_id?: string
+          id?: string
+          user_id?: string
+          visited_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recently_visited_communities_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recently_visited_communities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
+      recently_visited_posts: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          visited_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          visited_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          visited_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recently_visited_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recently_visited_posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
       social_links: {
         Row: {
           account_id: string
@@ -537,12 +609,17 @@ export type Database = {
         Args: { parent_id: string }
         Returns: Json
       }
+      get_comment_with_replies_by_slug: {
+        Args: { comment_slug: string }
+        Returns: Json
+      }
       get_comments_by_best: {
         Args: { post: string }
         Returns: {
           id: string
           body: string
           created_at: string
+          updated_at: string
           net_votes: number
           creator_id: string
           parent_id: string
@@ -560,6 +637,7 @@ export type Database = {
           id: string
           body: string
           created_at: string
+          updated_at: string
           net_votes: number
           creator_id: string
           parent_id: string

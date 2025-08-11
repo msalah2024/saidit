@@ -1639,3 +1639,63 @@ export async function flagPostDeleted(postID: string) {
   }
 
 }
+
+export async function upsertRecentlyVisitedCommunity(communityID: string, userID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('recently_visited_communities').upsert({
+      community_id: communityID,
+      user_id: userID
+    }, { onConflict: 'user_id, community_id' })
+
+    if (error) {
+      console.error("Community history upsert error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Community history updated successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Community history upsert error", error)
+    return {
+      success: false,
+      message: "Post delete error"
+    }
+  }
+}
+
+export async function upsertRecentlyVisitedPost(postID: string, userID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('recently_visited_posts').upsert({
+      post_id: postID,
+      user_id: userID
+    }, { onConflict: 'user_id, post_id' })
+
+    if (error) {
+      console.error("Post history upsert error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Post history updated successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Post history upsert error", error)
+    return {
+      success: false,
+      message: "Post delete error"
+    }
+  }
+}

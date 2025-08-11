@@ -13,6 +13,7 @@ import { usePost } from '@/app/context/PostContext';
 import { FlatComment, NormalizedComment } from '@/complexTypes';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import MobileComments from '@/components/MobileComments';
+import { upsertRecentlyVisitedPost } from '@/app/actions';
 
 export default function Page() {
     const supabase = createClient()
@@ -24,6 +25,7 @@ export default function Page() {
     const [flatComments, setFlatComments] = useState<FlatComment[]>([])
     const params = useParams()
     const commentSlug = params.commentSlug as string
+    const { user } = useGeneralProfile()
 
     const isDesktop = useMediaQuery("(min-width: 768px)")
 
@@ -114,6 +116,20 @@ export default function Page() {
             setFlatComments(remapToFlatReplies(comments))
         }
     }, [comments, isDesktop])
+
+    useEffect(() => {
+        if (!user) return;
+
+        const debounceDelay = 3000;
+        const timeoutId = setTimeout(async () => {
+            const result = await upsertRecentlyVisitedPost(post.id, user.id);
+            if (!result.success) {
+                console.error(result.message);
+            }
+        }, debounceDelay);
+
+        return () => clearTimeout(timeoutId);
+    }, [post.id, user]);
 
     return (
         <div className='mb-10'>
