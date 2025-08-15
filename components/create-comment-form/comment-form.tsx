@@ -77,7 +77,7 @@ function CommentFormComponent({ setShowTipTap, showTipTap, setNormalizedComments
                 stripped_body: strippedBody,
                 slug: slug
             }).select().single()
-            console.log(data)
+
             if (error) {
                 toast.error("An error occurred")
             }

@@ -9,12 +9,29 @@ type Post = Database['public']['Tables']['posts']['Row'];
 type PostAttachments = Database['public']['Tables']['post_attachments']['Row'];
 type Comment = Database['public']['Tables']['comments']['Row'];
 
+type VisitedPost = {
+    title: string;
+    created_at: string;
+    post_attachments: Pick<PostAttachments, 'file_url' | 'alt_text'>[];
+    communities: Pick<Community, 'community_name' | 'image_url'> | null;
+    comments: { count: number }[];
+    upvote_count: number;
+    downvote_count: number;
+};
+
 export type Profile = User & {
     community_memberships: (CommunityMembership & {
         communities: Community
     })[];
+    recently_visited_communities: {
+        visited_at: string
+        communities: Pick<Community, 'community_name' | 'image_url'> | null;
+    }[]
+    recently_visited_posts: {
+        visited_at: string;
+        posts: VisitedPost | null;
+    }[]
 };
-
 
 export type CommunityWithDetails = Community & {
     users: User;

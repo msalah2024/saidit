@@ -201,8 +201,6 @@ export default function Page() {
         }
     }
 
-    // console.log(comments)
-
     return (
         <div className='overflow-hidden mb-10'>
             <div className='mb-6 mt-1'>
