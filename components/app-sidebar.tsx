@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { ChevronDown, Home, Layers, PlusCircle, Telescope, TrendingUp, Users } from "lucide-react"
+import { ChevronDown, Home, Layers, PlusCircle, Telescope, TrendingUp, Users, History } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible"
 import { useGeneralProfile } from "@/app/context/GeneralProfileContext"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
@@ -52,7 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="offcanvas" {...props} className="mt-14 sidebar-animation">
-      <SidebarContent>
+      <SidebarContent className="overflow-y-auto custom-scrollbar">
         <SidebarGroup className="mt-2">
           <SidebarMenu>
             {mainItems.map((item) => (
@@ -71,6 +71,43 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           user &&
           <hr className="mx-4" />
         }
+        {
+          user &&
+          <SidebarGroup>
+            <Collapsible defaultOpen className="group/collapsible">
+              <SidebarGroupLabel asChild>
+                <CollapsibleTrigger className="flex w-full items-center rounded-sm py-5">
+                  <History className="mr-2 h-4 w-4" />
+                  RECENT
+                  <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                </CollapsibleTrigger>
+              </SidebarGroupLabel>
+              <CollapsibleContent>
+                <SidebarMenu>
+                  <SidebarMenuItem className="space-y-2">
+                    {
+                      profile?.recently_visited_communities.map((community) => (<SidebarMenuButton
+                        key={community.communities?.community_name}
+                        asChild
+                        className="select-none cursor-pointer py-5 hover:bg-reddit-gray rounded-sm "
+                        tooltip={`s/${community.communities?.community_name}`}
+                      >
+                        <Link href={`/s/${community.communities?.community_name}`}>
+                          <Avatar className="h-6 w-6 block">
+                            <AvatarImage src={community.communities?.image_url || undefined} className="rounded-full" draggable={false} />
+                            <AvatarFallback>s/</AvatarFallback>
+                          </Avatar>
+                          <span>s/{community.communities?.community_name}</span>
+                        </Link>
+                      </SidebarMenuButton>))
+                    }
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </CollapsibleContent>
+            </Collapsible>
+          </SidebarGroup>
+        }
+        <hr className="mx-4" />
         {
           user &&
           <SidebarGroup>

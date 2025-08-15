@@ -40,45 +40,16 @@ export default async function RootLayout({
 }>) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile, error } = await supabase
-    .from('users')
-    .select(`
-    *,
-    community_memberships(*, communities(*)),
-    recently_visited_communities(
-      visited_at,
-      communities(community_name, image_url)
-    ),
-    recently_visited_posts(
-      visited_at,
-      posts(title, created_at, post_attachments(file_url, alt_text), communities(community_name, image_url), comments(count), posts_votes(count))
-    )
-  `)
-    .eq('account_id', user?.id)
-    .order('visited_at', {
-      referencedTable: 'recently_visited_communities',
-      ascending: false,
-    })
-    .limit(5, { referencedTable: 'recently_visited_communities' })
-
-    .order('visited_at', {
-      referencedTable: 'recently_visited_posts',
-      ascending: false,
-    })
-    .limit(10, { referencedTable: 'recently_visited_posts' })
-    .eq('recently_visited_posts.posts.posts_votes.vote_type', 'upvote')
-
-    .single();
+  const { data: profile, error } = user
+    ? await supabase.rpc('get_full_user_profile', { user_account_id: user.id })
+    : { data: null, error: null };
 
   if (error) {
-    console.error(error);
+    console.error('Error fetching profile:', error);
   }
-
-  console.log(profile)
 
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
-
 
   return (
     <>
