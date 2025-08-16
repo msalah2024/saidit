@@ -49,7 +49,7 @@ export default async function RootLayout({
   }
 
   const cookieStore = await cookies()
-  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
+  const defaultOpen = cookieStore.get("sidebar_state_new")?.value !== "false"
 
   return (
     <>

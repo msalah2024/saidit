@@ -107,7 +107,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </Collapsible>
           </SidebarGroup>
         }
-        <hr className="mx-4" />
+        {
+          profile?.recently_visited_communities && profile.recently_visited_communities.length > 0 &&
+          <hr className="mx-4" />
+        }
         {
           user &&
           <SidebarGroup>
