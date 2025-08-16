@@ -13,12 +13,14 @@ import { usePost } from '@/app/context/PostContext';
 import { FlatComment, NormalizedComment } from '@/complexTypes';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import MobileComments from '@/components/MobileComments';
-import { upsertRecentlyVisitedPost } from '@/app/actions';
+import { upsertVisitedPost } from '@/app/actions';
+import { useCommunity } from '@/app/context/CommunityContext';
 
 export default function Page() {
     const supabase = createClient()
     const { profile } = useGeneralProfile()
     const { post } = usePost()
+    const { community } = useCommunity()
     const [isLoading, setIsLoading] = useState(false)
     const [hasFetched, setHasFetched] = useState(false)
     const [comments, setComments] = useState<NormalizedComment[]>([])
@@ -122,14 +124,14 @@ export default function Page() {
 
         const debounceDelay = 3000;
         const timeoutId = setTimeout(async () => {
-            const result = await upsertRecentlyVisitedPost(post.id, user.id);
+            const result = await upsertVisitedPost(post.id, user.id, community.id);
             if (!result.success) {
                 console.error(result.message);
             }
         }, debounceDelay);
 
         return () => clearTimeout(timeoutId);
-    }, [post.id, user]);
+    }, [post.id, user, community]);
 
     return (
         <div className='mb-10'>

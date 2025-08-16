@@ -1,21 +1,54 @@
 "use client"
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { formatDistanceToNowStrict } from 'date-fns'
 import Image from 'next/image'
-import { Images } from 'lucide-react'
+import { Images, Loader2 } from 'lucide-react'
 import { formatCompactNumber } from '@/lib/formatNumbers'
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { toast } from 'sonner'
+import { clearRecentlyVisitedPosts } from '@/app/actions'
+import { useRouter } from 'next/navigation'
 
 export default function RecentlyVisitedPostsList() {
     const { profile } = useGeneralProfile()
+    const router = useRouter()
+    const [isLoading, setIsLoading] = useState(false)
+
+    const handleClearRecentlyVisitedPosts = async () => {
+        try {
+            setIsLoading(true)
+
+            if (!profile) { return }
+
+            const result = await clearRecentlyVisitedPosts(profile?.account_id)
+
+            if (result.success) {
+                router.refresh()
+            }
+
+            else {
+                toast.error(`An error occurred`)
+            }
+
+        } catch (error) {
+            toast.error(`An error occurred ${error}`)
+        } finally { setIsLoading(false) }
+    }
+
     return (
-        <ScrollArea className="max-h-[48rem] flex-col gap-2 pr-2 mx-1 my-1 max-w-80 w-full">
-            <div className='flex justify-between px-4 w-full mt-4'>
+        <div className="max-h-[48rem] flex-col gap-2 w-80 bg-black rounded-sm hidden lg:flex h-fit mt-10 overflow-y-auto custom-scrollbar">
+            <div className='flex items-center justify-between px-4 w-full mt-4 mb-1'>
                 <p className='text-sm font-medium text-muted-foreground'>RECENT POSTS</p>
-                <p className='text-accent hover:underline text-sm hover:cursor-pointer'>Clear</p>
+                <p onClick={handleClearRecentlyVisitedPosts} className='text-accent hover:underline flex items-center 
+                    gap-1 text-sm hover:cursor-pointer'>
+                    {
+                        isLoading ? <>
+                            <Loader2 className="h-4 w-4 animate-spin" />Clearing...
+                        </> : 'Clear'
+                    }
+                </p>
             </div>
             {
                 profile &&
@@ -90,6 +123,6 @@ export default function RecentlyVisitedPostsList() {
                     ))}
                 </div>
             }
-        </ScrollArea>
+        </div>
     )
 }

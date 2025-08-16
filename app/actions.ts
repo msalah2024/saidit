@@ -1670,11 +1670,11 @@ export async function upsertRecentlyVisitedCommunity(communityID: string, userID
   }
 }
 
-export async function upsertRecentlyVisitedPost(postID: string, userID: string) {
+export async function upsertVisitedPost(postID: string, userID: string, communityID: string) {
   const supabase = await createClient()
 
   try {
-    const { error } = await supabase.from('recently_visited_posts').upsert({
+    const { error } = await supabase.from('visited_posts').upsert({
       post_id: postID,
       user_id: userID
     }, { onConflict: 'user_id, post_id' })
@@ -1685,9 +1685,20 @@ export async function upsertRecentlyVisitedPost(postID: string, userID: string) 
     }
 
     else {
-      return {
-        success: true,
-        message: "Post history updated successfully"
+      const { error } = await supabase.from('recently_visited_communities').upsert({
+        community_id: communityID,
+        user_id: userID
+      }, { onConflict: 'user_id, community_id' })
+
+      if (error) {
+        console.error("Community history upsert error", error.message)
+        throw new Error(error.message || "An error occurred")
+      }
+      else {
+        return {
+          success: true,
+          message: "Post history updated successfully"
+        }
       }
     }
 
@@ -1698,4 +1709,31 @@ export async function upsertRecentlyVisitedPost(postID: string, userID: string) 
       message: "Post delete error"
     }
   }
+}
+
+export async function clearRecentlyVisitedPosts(userID: string) {
+  const supabase = await createClient()
+  try {
+    const { error } = await supabase.from('recently_visited_posts').delete().eq('user_id', userID)
+
+    if (error) {
+      console.error("Posts history delete error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Posts history deleted successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Posts history delete error", error)
+    return {
+      success: false,
+      message: "Posts delete error"
+    }
+  }
+
 }
