@@ -12,25 +12,25 @@ type Comment = Database['public']['Tables']['comments']['Row'];
 type VisitedPost = {
     title: string;
     created_at: string;
-    post_attachments: Pick<PostAttachments, 'file_url' | 'alt_text'>[];
+    slug: string;
+    post_attachments: Pick<PostAttachments, 'file_url' | 'alt_text'>[] | null;
     communities: Pick<Community, 'community_name' | 'image_url'> | null;
-    comments: { count: number }[];
+    comments_count: number;
     upvote_count: number;
-    downvote_count: number;
 };
 
 export type Profile = User & {
     community_memberships: (CommunityMembership & {
-        communities: Community
-    })[];
+        communities: Community;
+    })[] | null;
     recently_visited_communities: {
-        visited_at: string
+        visited_at: string;
         communities: Pick<Community, 'community_name' | 'image_url'> | null;
-    }[]
+    }[] | null;
     recently_visited_posts: {
         visited_at: string;
         posts: VisitedPost | null;
-    }[]
+    }[] | null;
 };
 
 export type CommunityWithDetails = Community & {

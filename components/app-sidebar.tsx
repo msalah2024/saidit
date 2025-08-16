@@ -86,7 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                   <SidebarMenuItem className="space-y-2">
                     {
-                      profile?.recently_visited_communities.map((community) => (<SidebarMenuButton
+                      profile?.recently_visited_communities?.map((community) => (<SidebarMenuButton
                         key={community.communities?.community_name}
                         asChild
                         className="select-none cursor-pointer py-5 hover:bg-reddit-gray rounded-sm "
@@ -136,7 +136,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </span>
                     </SidebarMenuButton>
                     {
-                      profile?.community_memberships.map((community) => (<SidebarMenuButton
+                      profile?.community_memberships?.map((community) => (<SidebarMenuButton
                         key={community.id}
                         asChild
                         className="select-none cursor-pointer py-5 hover:bg-reddit-gray rounded-sm "
