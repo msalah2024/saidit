@@ -68,7 +68,7 @@ export default function CommunityHeader() {
     const drawerTriggerRef = useRef<HTMLButtonElement>(null)
 
     const isOwner = community.users.account_id === user?.id
-    const isMember = profile?.community_memberships.some((cm) => (cm.community_id === community.id))
+    const isMember = profile?.community_memberships?.some((cm) => (cm.community_id === community.id))
 
     const isPostPage = pathname.includes("/comments")
 

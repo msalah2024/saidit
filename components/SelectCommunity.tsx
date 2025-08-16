@@ -115,7 +115,7 @@ export default function SelectCommunity({ selectedCommunity, setSelectedCommunit
         }
         return (
             <CommandGroup>
-                {profile?.community_memberships.map((community) => (
+                {profile?.community_memberships?.map((community) => (
                     <CommandItem
                         key={community.community_id}
                         value={community.communities.community_name}
