@@ -119,15 +119,15 @@ export default function VirtualScroller() {
     useEffect(() => {
         if (!user) return;
 
-        const debounceDelay = 3000;
-        const timeoutId = setTimeout(async () => {
+        const updateRecentlyVisitedCommunity = async () => {
             const result = await upsertRecentlyVisitedCommunity(community.id, user.id);
             if (!result.success) {
                 console.error(result.message);
             }
-        }, debounceDelay);
+        }
 
-        return () => clearTimeout(timeoutId);
+        updateRecentlyVisitedCommunity()
+
     }, [community.id, user]);
 
 

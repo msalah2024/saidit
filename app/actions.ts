@@ -1674,7 +1674,7 @@ export async function upsertVisitedPost(postID: string, userID: string, communit
   const supabase = await createClient()
 
   try {
-    const { error } = await supabase.from('visited_posts').upsert({
+    const { error } = await supabase.from('recently_visited_posts').upsert({
       post_id: postID,
       user_id: userID
     }, { onConflict: 'user_id, post_id' })

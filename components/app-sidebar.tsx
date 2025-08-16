@@ -58,7 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {mainItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-reddit-gray py-5 rounded-sm cursor-pointer">
-                  <Link aria-disabled={item.title !== "Home"} className="select-none" href={item.url} >
+                  <Link aria-disabled={item.title !== "Home"} className="select-none" href={item.url}>
                     <item.icon />
                     <span>{item.title}</span>
                   </Link>
@@ -72,7 +72,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <hr className="mx-4" />
         }
         {
-          user &&
+          user && profile?.recently_visited_communities && profile.recently_visited_communities.length > 0 &&
           <SidebarGroup>
             <Collapsible defaultOpen className="group/collapsible">
               <SidebarGroupLabel asChild>

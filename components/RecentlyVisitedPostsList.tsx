@@ -16,13 +16,13 @@ export default function RecentlyVisitedPostsList() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleClearRecentlyVisitedPosts = async () => {
         try {
             setIsLoading(true)
 
             if (!profile) { return }
-
-            const result = await clearRecentlyVisitedPosts(profile?.account_id)
+            const result = await clearRecentlyVisitedPosts(profile?.account_id,)
 
             if (result.success) {
                 router.refresh()
@@ -41,7 +41,7 @@ export default function RecentlyVisitedPostsList() {
         <div className="max-h-[48rem] flex-col gap-2 w-80 bg-black rounded-sm hidden lg:flex h-fit mt-10 overflow-y-auto custom-scrollbar">
             <div className='flex items-center justify-between px-4 w-full mt-4 mb-1'>
                 <p className='text-sm font-medium text-muted-foreground'>RECENT POSTS</p>
-                <p onClick={handleClearRecentlyVisitedPosts} className='text-accent hover:underline flex items-center 
+                <p  className='text-accent hover:underline flex items-center 
                     gap-1 text-sm hover:cursor-pointer'>
                     {
                         isLoading ? <>

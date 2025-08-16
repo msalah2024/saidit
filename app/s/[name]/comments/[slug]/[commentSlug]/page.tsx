@@ -122,15 +122,14 @@ export default function Page() {
     useEffect(() => {
         if (!user) return;
 
-        const debounceDelay = 3000;
-        const timeoutId = setTimeout(async () => {
+        const updateVisitedPost = async () => {
             const result = await upsertVisitedPost(post.id, user.id, community.id);
             if (!result.success) {
                 console.error(result.message);
             }
-        }, debounceDelay);
+        }
+        updateVisitedPost()
 
-        return () => clearTimeout(timeoutId);
     }, [post.id, user, community]);
 
     return (
