@@ -1,6 +1,6 @@
 "use client"
 import { usePost } from '@/app/context/PostContext'
-import React, { memo, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { BadgeCheck, Bookmark, Ellipsis, Forward, Loader2, MessageCircle, Trash } from 'lucide-react'
@@ -26,8 +26,9 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { deletePost, flagPostDeleted } from '@/app/actions'
+import { deletePost, flagPostDeleted, upsertVisitedPost } from '@/app/actions'
 import { PostsWithAuthorAndCommunity } from '@/complexTypes'
+import { useCommunity } from '@/app/context/CommunityContext'
 
 const TextContentComments = dynamic(
     () => import('./posts-content-type/textContentComments'),
@@ -45,6 +46,7 @@ const LinkContent = dynamic(
 export default function PostHeader() {
     const { post } = usePost()
     const { user } = useGeneralProfile()
+    const { community } = useCommunity()
     const isAuthor = post.author_id === user?.id
     const params = useParams()
     const router = useRouter()
@@ -85,6 +87,24 @@ export default function PostHeader() {
             window.dispatchEvent(new CustomEvent('showTipTap', { detail: true }));
         }
     }
+
+    useEffect(() => {
+        const updateVisitedHistory = async () => {
+            try {
+                if (!user) { return }
+
+                const result = await upsertVisitedPost(post.id, user?.id, community?.id)
+                if (!result.success) {
+                    toast.error("An error occurred updating post history")
+                }
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        updateVisitedHistory()
+
+    }, [post.id, user, community.id])
 
     return (
         <div className='flex flex-col gap-2 w-full'>

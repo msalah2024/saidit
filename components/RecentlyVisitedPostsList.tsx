@@ -17,7 +17,6 @@ export default function RecentlyVisitedPostsList() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleClearRecentlyVisitedPosts = async () => {
         try {
             setIsLoading(true)
@@ -39,10 +38,10 @@ export default function RecentlyVisitedPostsList() {
     }
 
     return (
-        <ScrollArea className='h-[80%] sticky top-10 bg-black no-overscroll pr-2'>
+        <ScrollArea className='h-[80%] max-w-78 w-full sticky top-10 hidden lg:block bg-black no-overscroll pr-2'>
             <div className='flex items-center justify-between px-4 w-full mt-4 mb-1'>
                 <p className='text-sm font-medium text-muted-foreground'>RECENT POSTS</p>
-                <p className='text-accent hover:underline flex items-center 
+                <p onClick={handleClearRecentlyVisitedPosts} className='text-accent hover:underline flex items-center 
                     gap-1 text-sm hover:cursor-pointer'>
                     {
                         isLoading ? <>
@@ -76,7 +75,7 @@ export default function RecentlyVisitedPostsList() {
                                         </span>
                                     </p>
                                 </div>
-                                <Link href={`/s/${post.posts?.communities?.community_name}/comments/${post.posts?.slug}`}
+                                <Link scroll={false} href={`/s/${post.posts?.communities?.community_name}/comments/${post.posts?.slug}`}
                                     className="scroll-m-20 text-primary-foreground-muted w-fit 
                                     line-clamp-2 font-semibold tracking-tight hover:underline hover:cursor-pointer">
                                     {

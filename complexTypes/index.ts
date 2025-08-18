@@ -10,6 +10,7 @@ type PostAttachments = Database['public']['Tables']['post_attachments']['Row'];
 type Comment = Database['public']['Tables']['comments']['Row'];
 
 type VisitedPost = {
+    id: string;
     title: string;
     created_at: string;
     slug: string;

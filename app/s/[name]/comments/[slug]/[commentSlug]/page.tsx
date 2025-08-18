@@ -13,21 +13,17 @@ import { usePost } from '@/app/context/PostContext';
 import { FlatComment, NormalizedComment } from '@/complexTypes';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import MobileComments from '@/components/MobileComments';
-import { upsertVisitedPost } from '@/app/actions';
-import { useCommunity } from '@/app/context/CommunityContext';
 
 export default function Page() {
     const supabase = createClient()
     const { profile } = useGeneralProfile()
     const { post } = usePost()
-    const { community } = useCommunity()
     const [isLoading, setIsLoading] = useState(false)
     const [hasFetched, setHasFetched] = useState(false)
     const [comments, setComments] = useState<NormalizedComment[]>([])
     const [flatComments, setFlatComments] = useState<FlatComment[]>([])
     const params = useParams()
     const commentSlug = params.commentSlug as string
-    const { user } = useGeneralProfile()
 
     const isDesktop = useMediaQuery("(min-width: 768px)")
 
@@ -118,19 +114,6 @@ export default function Page() {
             setFlatComments(remapToFlatReplies(comments))
         }
     }, [comments, isDesktop])
-
-    useEffect(() => {
-        if (!user) return;
-
-        const updateVisitedPost = async () => {
-            const result = await upsertVisitedPost(post.id, user.id, community.id);
-            if (!result.success) {
-                console.error(result.message);
-            }
-        }
-        updateVisitedPost()
-
-    }, [post.id, user, community]);
 
     return (
         <div className='mb-10'>

@@ -8,7 +8,7 @@ import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
 import { toast } from 'sonner'
 import SortComments from '@/components/SortComments'
 import PulseLogo from '@/components/PulseLogo'
-import { fetchCommentSorted, upsertVisitedPost } from '@/app/actions'
+import { fetchCommentSorted } from '@/app/actions'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image';
 import saiditLogo from '@/public/assets/images/saidit-face.svg'
@@ -16,7 +16,6 @@ import saiditErrorLogo from '@/public/assets/images/error-page-image.svg'
 import SearchComments from '@/components/SearchComments'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import MobileComments from '@/components/MobileComments'
-import { useCommunity } from '@/app/context/CommunityContext'
 
 function normalizeComments(comments: CommentWithAuthor[], authorId: string): NormalizedComment[] {
     const commentMap = new Map<string, NormalizedComment>();
@@ -106,7 +105,6 @@ export default function Page() {
     const [showTipTap, setShowTipTap] = useState(false)
     const { post } = usePost()
     const { user } = useGeneralProfile()
-    const { community } = useCommunity()
     const [sortBy, setSortBy] = useState<'best' | 'new' | 'old' | 'controversial'>(initialSortBy)
     const [comments, setComments] = useState<CommentWithAuthor[]>([])
     const [isLoading, setIsLoading] = useState(false)
@@ -174,19 +172,6 @@ export default function Page() {
             window.removeEventListener('openCommentEditor', handleOpenEditor);
         };
     }, [searchParams]);
-
-    useEffect(() => {
-        if (!user) return;
-
-        const updateVisitedPost = async () => {
-            const result = await upsertVisitedPost(post.id, user.id, community.id);
-            if (!result.success) {
-                console.error(result.message);
-            }
-        }
-        updateVisitedPost()
-
-    }, [post.id, user, community]);
 
     const handleAuthDialog = () => {
         window.dispatchEvent(new CustomEvent('openAuthDialog'))

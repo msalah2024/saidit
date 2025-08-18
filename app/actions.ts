@@ -1674,10 +1674,12 @@ export async function upsertVisitedPost(postID: string, userID: string, communit
   const supabase = await createClient()
 
   try {
-    const { error } = await supabase.from('recently_visited_posts').upsert({
-      post_id: postID,
-      user_id: userID
-    }, { onConflict: 'user_id, post_id' })
+    const { error } = await supabase.rpc('track_post_visit', {
+      p_user_id: userID,
+      p_post_id: postID,
+      p_community_id: communityID,
+
+    })
 
     if (error) {
       console.error("Post history upsert error", error.message)
@@ -1685,20 +1687,9 @@ export async function upsertVisitedPost(postID: string, userID: string, communit
     }
 
     else {
-      const { error } = await supabase.from('recently_visited_communities').upsert({
-        community_id: communityID,
-        user_id: userID
-      }, { onConflict: 'user_id, community_id' })
-
-      if (error) {
-        console.error("Community history upsert error", error.message)
-        throw new Error(error.message || "An error occurred")
-      }
-      else {
-        return {
-          success: true,
-          message: "Post history updated successfully"
-        }
+      return {
+        success: true,
+        message: "Post history updated successfully"
       }
     }
 

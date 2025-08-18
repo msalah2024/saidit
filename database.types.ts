@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -449,24 +449,34 @@ export type Database = {
       }
       recently_visited_posts: {
         Row: {
+          history_ref: string | null
           id: string
           post_id: string
           user_id: string
           visited_at: string
         }
         Insert: {
+          history_ref?: string | null
           id?: string
           post_id: string
           user_id: string
           visited_at?: string
         }
         Update: {
+          history_ref?: string | null
           id?: string
           post_id?: string
           user_id?: string
           visited_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "recently_visited_posts_history_ref_fkey"
+            columns: ["history_ref"]
+            isOneToOne: false
+            referencedRelation: "visited_posts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "recently_visited_posts_post_id_fkey"
             columns: ["post_id"]
@@ -588,6 +598,42 @@ export type Database = {
         }
         Relationships: []
       }
+      visited_posts: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          visited_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          visited_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          visited_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visited_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visited_posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -616,39 +662,47 @@ export type Database = {
       get_comments_by_best: {
         Args: { post: string }
         Returns: {
-          id: string
           body: string
+          comments_votes: Json
           created_at: string
-          updated_at: string
-          net_votes: number
           creator_id: string
+          deleted: boolean
+          id: string
+          net_votes: number
           parent_id: string
           post_id: string
-          deleted: boolean
-          stripped_body: string
           slug: string
-          comments_votes: Json
+          stripped_body: string
+          updated_at: string
           users: Json
         }[]
       }
       get_comments_by_controversial: {
         Args: { post: string }
         Returns: {
-          id: string
           body: string
+          comments_votes: Json
+          controversial_score: number
           created_at: string
-          updated_at: string
-          net_votes: number
           creator_id: string
+          deleted: boolean
+          id: string
+          net_votes: number
           parent_id: string
           post_id: string
-          deleted: boolean
-          stripped_body: string
           slug: string
-          comments_votes: Json
+          stripped_body: string
+          updated_at: string
           users: Json
-          controversial_score: number
         }[]
+      }
+      get_full_user_profile: {
+        Args: { user_account_id: string }
+        Returns: Json
+      }
+      track_post_visit: {
+        Args: { p_community_id: string; p_post_id: string; p_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
