@@ -207,7 +207,6 @@ input:autofill {
     color: var(--primary-foreground-muted);
 }
 
-/* Add this to your CSS */
 @keyframes highlight-fade {
     0% {
         background-color: var(--primary);
@@ -240,9 +239,7 @@ html::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 0.35);
 }
 
-/* For Firefox */
 html {
-    scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 

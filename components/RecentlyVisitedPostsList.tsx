@@ -39,7 +39,7 @@ export default function RecentlyVisitedPostsList() {
     }
 
     return (
-        <ScrollArea className='h-[44rem] no-overscroll pr-2'>
+        <ScrollArea className='h-[80%] sticky top-10 bg-black no-overscroll pr-2'>
             <div className='flex items-center justify-between px-4 w-full mt-4 mb-1'>
                 <p className='text-sm font-medium text-muted-foreground'>RECENT POSTS</p>
                 <p className='text-accent hover:underline flex items-center 
