@@ -10,6 +10,7 @@ import { formatCompactNumber } from '@/lib/formatNumbers'
 import { toast } from 'sonner'
 import { clearRecentlyVisitedPosts } from '@/app/actions'
 import { useRouter } from 'next/navigation'
+import { ScrollArea } from './ui/scroll-area'
 
 export default function RecentlyVisitedPostsList() {
     const { profile } = useGeneralProfile()
@@ -38,10 +39,10 @@ export default function RecentlyVisitedPostsList() {
     }
 
     return (
-        <div className="max-h-[48rem] flex-col gap-2 w-80 bg-black rounded-sm hidden lg:flex h-fit mt-10 overflow-y-auto custom-scrollbar">
+        <ScrollArea className='h-[44rem] no-overscroll pr-2'>
             <div className='flex items-center justify-between px-4 w-full mt-4 mb-1'>
                 <p className='text-sm font-medium text-muted-foreground'>RECENT POSTS</p>
-                <p  className='text-accent hover:underline flex items-center 
+                <p className='text-accent hover:underline flex items-center 
                     gap-1 text-sm hover:cursor-pointer'>
                     {
                         isLoading ? <>
@@ -123,6 +124,6 @@ export default function RecentlyVisitedPostsList() {
                     ))}
                 </div>
             }
-        </div>
+        </ScrollArea>
     )
 }

@@ -12,7 +12,9 @@ export default function Home() {
       </div>
       {
         profile?.recently_visited_posts && profile?.recently_visited_posts.length > 0 &&
-        <RecentlyVisitedPostsList />
+        <div className="mt-14 bg-black">
+          <RecentlyVisitedPostsList />
+        </div>
       }
     </div>
   );
