@@ -221,28 +221,35 @@ input:autofill {
     animation: highlight-fade 1.5s ease-out;
 }
 
-html::-webkit-scrollbar {
+.custom-scrollbar::-webkit-scrollbar {
     width: 6px;
 }
 
-html::-webkit-scrollbar-track {
+.custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
+    margin-block: .5em;
 }
 
-html::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: transparent;
     border-radius: 10px;
     transition: background-color 0.2s ease;
 }
 
-html::-webkit-scrollbar-thumb:hover {
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 0.35);
 }
 
-html {
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.2s ease;
 }
 
-.no-overscroll [data-radix-scroll-area-viewport] {
-    overscroll-behavior: contain;
+.custom-scrollbar:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }

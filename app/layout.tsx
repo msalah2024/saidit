@@ -53,7 +53,7 @@ export default async function RootLayout({
 
   return (
     <>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" suppressHydrationWarning className="custom-scrollbar">
         <body className={`${robotoSlap.className} ${robotoSlapLocal.className} ${inter.className}`} suppressHydrationWarning>
           <NextTopLoader
             color="#5BAE4A"

@@ -17,7 +17,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import Image from "next/image"
 import allCommunitiesLogo from "@/public/assets/images/saidit-slash.svg"
 import Link from "next/link"
-import { ScrollArea } from "./ui/scroll-area"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useGeneralProfile()
@@ -53,7 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="offcanvas" {...props} className="pt-14 sidebar-animation">
-      <ScrollArea className="h-full no-overscroll pr-2">
+      <div className="overscroll-contain h-full overflow-y-auto custom-scrollbar pr-2">
         <SidebarContent>
           <SidebarGroup className="mt-2">
             <SidebarMenu>
@@ -175,7 +174,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-      </ScrollArea>
+      </div>
       <SidebarRail />
     </Sidebar >
   )

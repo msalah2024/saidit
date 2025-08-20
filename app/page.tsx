@@ -15,5 +15,5 @@ export default function Home() {
         <RecentlyVisitedPostsList />
       }
     </div>
-  );
+  )
 }
