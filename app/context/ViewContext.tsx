@@ -37,7 +37,7 @@ export const ViewProvider = ({ children }: { children: React.ReactNode }) => {
         if (shouldManageView && !searchParams.has("view")) {
             const params = new URLSearchParams(searchParams.toString());
             params.set("view", view);
-            router.replace(`?${params.toString()}`);
+            router.replace(`?${params.toString()}`, { scroll: false });
         }
         if (shouldManageView && typeof window !== "undefined") {
             localStorage.setItem("view", view);
@@ -51,7 +51,7 @@ export const ViewProvider = ({ children }: { children: React.ReactNode }) => {
         }
         const params = new URLSearchParams(searchParams.toString());
         params.set("view", newView);
-        router.replace(`?${params.toString()}`);
+        router.replace(`?${params.toString()}`, { scroll: false });
     };
 
     return (
