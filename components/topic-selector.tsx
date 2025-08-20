@@ -183,6 +183,20 @@ const topicCategories: TopicCategory[] = [
             },
         ],
     },
+    {
+        name: "Politics",
+        emoji: "🗳️",
+        topics: [
+            { id: "political-news", name: "Political News", category: "Politics" },
+            { id: "elections", name: "Elections", category: "Politics" },
+            { id: "public-policy", name: "Public Policy", category: "Politics" },
+            { id: "international-relations", name: "International Relations", category: "Politics" },
+            { id: "political-theory", name: "Political Theory", category: "Politics" },
+            { id: "activism", name: "Activism", category: "Politics" },
+            { id: "law", name: "Law", category: "Politics" },
+            { id: "political-history", name: "Political History", category: "Politics" },
+        ],
+    },
 ]
 
 const allTopics = topicCategories.flatMap((category) => category.topics)
