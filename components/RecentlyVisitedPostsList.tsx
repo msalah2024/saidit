@@ -37,7 +37,7 @@ export default function RecentlyVisitedPostsList() {
     }
 
     return (
-        <div className='overscroll-contain custom-scrollbar flex flex-col max-w-78 w-full max-h-[80vh] h-fit overflow-y-auto sticky top-20 rounded-md bg-black'>
+        <div className='overscroll-contain custom-scrollbar hidden lg:flex flex-col max-w-78 w-full max-h-[80vh] h-fit overflow-y-auto sticky top-20 rounded-md bg-black'>
             <div className='flex items-center justify-between px-4 w-full mt-4 mb-1'>
                 <p className='text-sm font-medium text-muted-foreground'>RECENT POSTS</p>
                 <p onClick={handleClearRecentlyVisitedPosts} className='text-accent hover:underline flex items-center 
