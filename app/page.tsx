@@ -2,13 +2,16 @@
 import RecentlyVisitedPostsList from "@/components/RecentlyVisitedPostsList";
 import { useGeneralProfile } from "./context/GeneralProfileContext";
 import { createClient } from "@/utils/supabase/client";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { PostsWithAuthorAndCommunity } from "@/complexTypes";
 import VirtualScroller from "@/components/VirtualScroller";
 import PulseLogo from "@/components/PulseLogo";
+import FeedPostCard from "@/components/FeedPostCard";
 export default function Home() {
   const { profile } = useGeneralProfile()
   const supabase = createClient()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [items, setItems] = useState<any[]>([])
 
   const fetchUserPosts = useCallback(async (from: number, to: number) => {
     if (!profile) return { data: [], error: null }
@@ -28,11 +31,7 @@ export default function Home() {
   }
 
   const renderPost = (post: PostsWithAuthorAndCommunity) => (
-    <div className="text-start w-96">
-      <p>
-        {post.title}
-      </p>
-    </div>
+    <FeedPostCard post={post} setItems={setItems} />
   )
 
   const customEmptyState = (
@@ -44,19 +43,26 @@ export default function Home() {
   )
 
   return (
-    <div className="flex justify-between h-dvh">
-      <VirtualScroller<PostsWithAuthorAndCommunity>
-        queryFn={fetchUserPosts}
-        renderItem={renderPost}
-        estimateSize={estimatePostSize}
-        emptyState={customEmptyState}
-        loader={<div className="flex justify-center py-8"><PulseLogo /></div>}
-      />
+    <div className="grid grid-cols-3">
+      <div className="mx-4 col-span-2">
+        <VirtualScroller<PostsWithAuthorAndCommunity>
+          queryFn={fetchUserPosts}
+          renderItem={renderPost}
+          estimateSize={estimatePostSize}
+          emptyState={customEmptyState}
+          loader={<div className="flex justify-center py-8"><PulseLogo /></div>}
+          items={items}
+          setItems={setItems}
+        />
+      </div>
 
-      {
-        profile?.recently_visited_posts && profile?.recently_visited_posts.length > 0 &&
-        <RecentlyVisitedPostsList />
-      }
+      <div>
+        {
+          profile?.recently_visited_posts && profile?.recently_visited_posts.length > 0 &&
+          <RecentlyVisitedPostsList />
+        }
+      </div>
+
     </div>
   )
 }

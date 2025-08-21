@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useLayoutEffect, useRef, useState, useCallback, SetStateAction } from "react"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
 import PulseLogo from "@/components/PulseLogo"
 
@@ -23,6 +23,13 @@ interface VirtualScrollerProps<T> {
 
   // Optional JSX for the loading indicator.
   loader?: React.ReactNode
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  items: any[]
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setItems: React.Dispatch<SetStateAction<any[]>>
+
 }
 
 // Use a generic <T> to make the component type-safe for any data structure.
@@ -32,8 +39,9 @@ export default function VirtualScroller<T>({
   estimateSize,
   emptyState = <p>No items found.</p>,
   loader = <div className="flex justify-center py-8"><PulseLogo /></div>,
+  items,
+  setItems
 }: VirtualScrollerProps<T>) {
-  const [items, setItems] = useState<T[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
 
@@ -72,7 +80,7 @@ export default function VirtualScroller<T>({
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, hasMore, items.length, queryFn])
+  }, [isLoading, hasMore, items.length, queryFn, setItems])
 
   // Effect for initial data load
   useEffect(() => {
@@ -90,7 +98,7 @@ export default function VirtualScroller<T>({
       }
     }
     loadInitial()
-  }, [queryFn])
+  }, [queryFn, setItems])
 
   // Effect to handle infinite scrolling
   useEffect(() => {
