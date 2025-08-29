@@ -31,7 +31,9 @@ export default function Home() {
   }
 
   const renderPost = (post: PostsWithAuthorAndCommunity) => (
-    <FeedPostCard post={post} setItems={setItems} />
+    <div className="flex justify-center">
+      <FeedPostCard post={post} setItems={setItems} />
+    </div>
   )
 
   const customEmptyState = (
@@ -44,7 +46,7 @@ export default function Home() {
 
   return (
     <div className="grid grid-cols-3">
-      <div className="mx-4 col-span-2">
+      <div className="px-4 col-span-3 lg:col-span-2">
         <VirtualScroller<PostsWithAuthorAndCommunity>
           queryFn={fetchUserPosts}
           renderItem={renderPost}
