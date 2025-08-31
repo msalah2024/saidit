@@ -53,7 +53,7 @@ export default function RecentlyVisitedPostsList() {
                 profile &&
                 <div className='flex flex-col px-3'>
                     {profile.recently_visited_posts?.map((post) => (
-                        <div key={post.posts?.title} className='flex gap-3 py-3 border-b last:border-none'>
+                        <div key={post.posts?.id} className='flex gap-3 py-3 border-b last:border-none'>
                             <div className='flex flex-col gap-2'>
                                 <div className='flex items-center gap-2'>
                                     <Link href={`/s/${post.posts?.communities?.community_name}`}
