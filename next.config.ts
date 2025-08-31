@@ -23,15 +23,15 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'ichef.bbci.co.uk', // Hostname for BBC News images
+        hostname: 'ichef.bbci.co.uk',
       },
       {
         protocol: 'https',
-        hostname: '**.reuters.com', // Wildcard for all reuters.com subdomains
+        hostname: '**.reuters.com',
       },
       {
         protocol: 'https',
-        hostname: 'media.zenfs.com', // Common host for AP images via Yahoo News
+        hostname: 'media.zenfs.com',
       },
       {
         protocol: 'https',
@@ -39,11 +39,15 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'cdn.vox-cdn.com', // Hostname for The Verge images
+        hostname: 'cdn.vox-cdn.com',
       },
       {
         protocol: 'https',
-        hostname: 'storage.googleapis.com', // For sources that use Google Cloud Storage
+        hostname: 'storage.googleapis.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.theverge.com',
       },
     ],
   },
