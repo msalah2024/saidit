@@ -7,8 +7,8 @@ import { generateSlug } from '@/lib/generateSlug';
 export async function POST() {
     try {
         // --- Configuration ---
-        const DUMMY_AUTHOR_ID = 'd4999132-5918-4f02-b81d-e71312696808';
-        const DUMMY_COMMUNITY_ID = '2a8622a6-44f4-4a4f-be00-dc660a2d2340';
+        const DUMMY_AUTHOR_ID = process.env.DUMMY_AUTHOR_ID;
+        const DUMMY_COMMUNITY_ID = process.env.DUMMY_COMMUNITY_ID;
         const NUM_POSTS_TO_CREATE = 50;
         const API_KEY = process.env.NEWS_API_KEY;
 
