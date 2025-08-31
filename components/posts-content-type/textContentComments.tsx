@@ -24,6 +24,7 @@ export default memo(function TextContentComments({ post }: TextContentCommentsPr
                                 prose-li:p:my-0
                                 prose-p:my-0
                                 text-base
+                                prose-a:text-accent
                                 prose-h1:text-2xl
                                 prose-h2:text-xl
                                 prose-h3:text-lg

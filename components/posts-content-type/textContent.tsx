@@ -25,6 +25,7 @@ export default memo(function TextContent({ post }: TextContentProps) {
                                 prose-p:my-0
                                 text-sm
                                 prose-h1:text-lg
+                                prose-a:text-accent
                                 prose-h2:text-md
                                 prose-h3:text-sm
                                 prose-blockquote:p:text-primary-foreground-muted
