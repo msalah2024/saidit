@@ -59,7 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-reddit-gray py-5 rounded-sm cursor-pointer">
-                    <Link scroll={false} aria-disabled={item.title !== "Home"} className="select-none" href={item.url}>
+                    <Link aria-disabled={item.title !== "Home"} className="select-none" href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>
@@ -93,7 +93,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           className="select-none cursor-pointer py-5 hover:bg-reddit-gray rounded-sm "
                           tooltip={`s/${community.communities?.community_name}`}
                         >
-                          <Link scroll={false} href={`/s/${community.communities?.community_name}`}>
+                          <Link href={`/s/${community.communities?.community_name}`}>
                             <Avatar className="h-6 w-6 block">
                               <AvatarImage src={community.communities?.image_url || undefined} className="rounded-full" draggable={false} />
                               <AvatarFallback>s/</AvatarFallback>
@@ -146,7 +146,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           className="select-none cursor-pointer py-5 hover:bg-reddit-gray rounded-sm "
                           tooltip={`s/${community.communities.community_name}`}
                         >
-                          <Link scroll={false} href={`/s/${community.communities.community_name}`}>
+                          <Link href={`/s/${community.communities.community_name}`}>
                             <Avatar className="h-6 w-6 block">
                               <AvatarImage src={community.communities.image_url || undefined} className="rounded-full" draggable={false} />
                               <AvatarFallback>s/</AvatarFallback>
@@ -166,7 +166,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupContent>
               <SidebarMenuButton asChild tooltip={'All communities'} className="py-5 hover:bg-reddit-gray select-none cursor-pointer"
               >
-                <Link scroll={false} href={'/communities'}>
+                <Link href={'/communities'}>
                   <Image src={allCommunitiesLogo} alt="All communities logo" />
                   Communities
                 </Link>
