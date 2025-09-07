@@ -49,6 +49,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '**.theverge.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'nypost.com', // ✨ Add this line
+      },
     ],
   },
 };
