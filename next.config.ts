@@ -3,10 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // --- General Purpose Hostnames (from previous config) ---
       {
         protocol: 'https',
         hostname: 'cdn.discordapp.com',
+        // Optionally, you can restrict to specific pathnames:
+        // pathname: '/avatars/**',
       },
       {
         protocol: 'https',
@@ -16,45 +17,42 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'padywywmpdhyockgqjbh.supabase.co',
       },
-
-      // --- Hostnames for News API Seeding Script ---
       {
         protocol: 'https',
-        hostname: 'ichef.bbci.co.uk', // BBC News source
+        hostname: 'www.aljazeera.com',
       },
       {
         protocol: 'https',
-        hostname: '**.reuters.com', // Reuters source
+        hostname: 'ichef.bbci.co.uk',
       },
       {
         protocol: 'https',
-        hostname: '**.reutersmedia.net', // Reuters source alternate CDN
+        hostname: '**.reuters.com',
       },
       {
         protocol: 'https',
-        hostname: 'www.aljazeera.com', // Al Jazeera source
+        hostname: 'media.zenfs.com',
       },
       {
         protocol: 'https',
-        hostname: 'techcrunch.com', // TechCrunch source
+        hostname: 'techcrunch.com',
       },
       {
         protocol: 'https',
-        hostname: 'cdn.vox-cdn.com', // The Verge source (Vox Media)
+        hostname: 'cdn.vox-cdn.com',
       },
       {
         protocol: 'https',
-        hostname: 'apnews.com', // Associated Press source
+        hostname: 'storage.googleapis.com',
       },
       {
         protocol: 'https',
-        hostname: 'storage.googleapis.com', // Associated Press source alternate CDN
+        hostname: '**.theverge.com',
       },
       {
         protocol: 'https',
-        hostname: 's.yimg.com', // Yahoo News/Affiliates (from previous error)
+        hostname: 'nypost.com', // ✨ Add this line
       },
-      // Add other hostnames as needed
     ],
   },
 };

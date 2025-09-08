@@ -19,10 +19,9 @@ export async function POST() {
         // --- 1. Fetch news from international sources 🌍 ---
         console.log('Fetching news with images from international sources...');
 
-        // const sources = ['bbc-news', 'reuters', 'associated-press', 'al-jazeera-english', 'techcrunch', 'the-verge'];
-        const sources = ['al-jazeera-english'];
+        const sources = ['bbc-news', 'reuters', 'associated-press', 'al-jazeera-english', 'techcrunch', 'the-verge'];
         const response = await fetch(
-            `https://newsapi.org/v2/everything?sources=${sources.join(',')}&pageSize=${NUM_POSTS_TO_CREATE}&apiKey=${API_KEY}`
+            `https://newsapi.org/v2/everything?sources=${sources.join(',')}&pageSize=50&apiKey=${API_KEY}`
         );
         const data = await response.json();
 

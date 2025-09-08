@@ -1,18 +1,17 @@
 "use client"
-
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, SetStateAction } from "react"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
 import PulseLogo from "@/components/PulseLogo"
 
 const PAGE_SIZE = 20
-const OVERSCAN_COUNT = 5
 
 // Define the props for our reusable component
 interface VirtualScrollerProps<T> {
   // A function that fetches a page of data.
+  // It receives the 'from' and 'to' range for pagination.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   queryFn: (from: number, to: number) => Promise<{ data: T[] | null; error: any }>
-
+  
   // A function that takes a single item of type T and returns JSX to render it.
   renderItem: (item: T) => React.ReactNode
 
@@ -25,9 +24,12 @@ interface VirtualScrollerProps<T> {
   // Optional JSX for the loading indicator.
   loader?: React.ReactNode
 
-  // Use the generic type T for improved type safety.
-  items: T[]
-  setItems: React.Dispatch<SetStateAction<T[]>>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  items: any[]
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setItems: React.Dispatch<SetStateAction<any[]>>
+
 }
 
 // Use a generic <T> to make the component type-safe for any data structure.
@@ -50,12 +52,13 @@ export default function VirtualScroller<T>({
     count: items.length,
     estimateSize: (index) => estimateSize(items[index]),
     scrollMargin: 16,
-    overscan: OVERSCAN_COUNT,
+    overscan: 5,
     measureElement: (el) => {
       return el?.getBoundingClientRect().height ?? estimateSize(undefined)
     },
   })
 
+  // We use useCallback to memoize the data fetching functions
   const loadMoreItems = useCallback(async () => {
     if (isLoading || !hasMore) return
     setIsLoading(true)
@@ -95,30 +98,22 @@ export default function VirtualScroller<T>({
       }
     }
     loadInitial()
-    // Disable exhaustive-deps rule for initial load: we only want this to run once on mount,
-    // or when queryFn changes (e.g., user profile changes), not when setItems changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryFn])
+  }, [queryFn, setItems])
 
-  // **IMPROVEMENT 1: Replaced manual scroll listener with TanStack's recommended pattern.**
-  // Effect to handle infinite scrolling by checking virtual item index.
+  // Effect to handle infinite scrolling
   useEffect(() => {
-    const virtualItems = virtualizer.getVirtualItems()
-
-    if (virtualItems.length === 0) return
-
-    const lastItem = virtualItems[virtualItems.length - 1]
-
-    // Fetch more when the user scrolls near the end of the loaded item list.
-    if (lastItem.index >= items.length - OVERSCAN_COUNT && hasMore && !isLoading) {
-      loadMoreItems()
+    const handleScroll = () => {
+      const { scrollY, innerHeight } = window
+      const { scrollHeight } = document.documentElement
+      if (scrollY + innerHeight >= scrollHeight * 0.8) {
+        loadMoreItems()
+      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [virtualizer.getVirtualItems(), items.length, hasMore, isLoading, loadMoreItems])
-
-  // **IMPROVEMENT 2: Added dependency array to useLayoutEffect.**
-  // Effect to measure elements for dynamic height. Adding the dependency array
-  // ensures this runs only when virtual items change, not on every render.
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [loadMoreItems])
+  
+  // Effect to measure elements for dynamic height
   useLayoutEffect(() => {
     virtualizer.getVirtualItems().forEach((virtualItem) => {
       const element = rowRefs.current[virtualItem.index]
@@ -126,8 +121,7 @@ export default function VirtualScroller<T>({
         virtualizer.measureElement(element)
       }
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [virtualizer, virtualizer.getVirtualItems()])
+  })
 
   return (
     <div className="min-h-screen border-t">
