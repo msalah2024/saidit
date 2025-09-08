@@ -1,4 +1,5 @@
 "use client"
+
 import RecentlyVisitedPostsList from "@/components/RecentlyVisitedPostsList";
 import { useGeneralProfile } from "./context/GeneralProfileContext";
 import { createClient } from "@/utils/supabase/client";
@@ -7,11 +8,11 @@ import { PostsWithAuthorAndCommunity } from "@/complexTypes";
 import VirtualScroller from "@/components/VirtualScroller";
 import PulseLogo from "@/components/PulseLogo";
 import FeedPostCard from "@/components/FeedPostCard";
+
 export default function Home() {
   const { profile } = useGeneralProfile()
   const supabase = createClient()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [items, setItems] = useState<any[]>([])
+  const [items, setItems] = useState<PostsWithAuthorAndCommunity[]>([])
 
   const fetchUserPosts = useCallback(async (from: number, to: number) => {
     if (!profile) return { data: [], error: null }
