@@ -54,7 +54,25 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 's.yimg.com', // Yahoo News/Affiliates (from previous error)
       },
-      // Add other hostnames as needed
+      {
+        protocol: 'https',
+        hostname: 'platform.theverge.com',
+        port: '', // This can be left empty for default ports (80 for http, 443 for https)
+        pathname: '/wp-content/uploads/**', // This makes it more secure by only allowing images from a specific path
+      },
+      {
+        protocol: 'https',
+        hostname: 'dims.apnews.com',
+        port: '',
+        pathname: '/dims4/default/**', // This is optional but more secure
+      },
+      {
+        protocol: 'https',
+        hostname: 'bloximages.chicago2.vip.townnews.com',
+        port: '',
+        pathname: '/thesunchronicle.com/content/tncms/assets/**',
+      },
+
     ],
   },
 };
