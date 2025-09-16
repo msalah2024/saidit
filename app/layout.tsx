@@ -35,8 +35,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
+  modal,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode
 }>) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -68,6 +70,7 @@ export default async function RootLayout({
                   <AppSidebar />
                   <SidebarInset>
                     <div className="w-full mt-14">
+                      {modal}
                       {children}
                     </div>
                   </SidebarInset>
