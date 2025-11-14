@@ -28,7 +28,11 @@ interface SortAndViewBar {
 export default function SortAndViewBar({ sort, setSort }: SortAndViewBar) {
   const { view, setView } = useView();
   return (
-    <div className="flex gap-2 mt-6 justify-self-center w-full max-w-4xl">
+    <div
+      className={`flex gap-2 mt-6 justify-self-center w-full ${
+        view === "Card" ? "max-w-4xl" : ""
+      }`}
+    >
       <Select value={sort} onValueChange={setSort}>
         <SelectTrigger className="w-36" defaultValue="best">
           <SelectValue placeholder="Best" />
