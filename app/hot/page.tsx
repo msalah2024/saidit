@@ -1,5 +1,6 @@
+import HomeFeed from "@/components/HomeFeed";
 import React from "react";
 
-export default function Page() {
-  return <div>Page</div>;
+export default function Hot() {
+  return <HomeFeed />;
 }

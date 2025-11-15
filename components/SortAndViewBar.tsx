@@ -18,28 +18,47 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useView } from "@/app/context/ViewContext";
-import { Dispatch, SetStateAction } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "nextjs-toploader/app";
 
-interface SortAndViewBar {
-  sort: string;
-  setSort: Dispatch<SetStateAction<string>>;
+interface SortAndViewBarProps {
+  currentSort: string;
 }
 
-export default function SortAndViewBar({ sort, setSort }: SortAndViewBar) {
+export default function SortAndViewBar({ currentSort }: SortAndViewBarProps) {
   const { view, setView } = useView();
+  const router = useRouter();
+  const [sort, setSort] = useState(currentSort);
+
+  useEffect(() => {
+    setSort(currentSort);
+  }, [currentSort]);
+
+  const handleChange = (value: string) => {
+    setSort(value);
+
+    if (value === "best") {
+      router.push("/");
+    } else {
+      router.push(`/${value}`);
+    }
+  };
+
   return (
     <div
       className={`flex gap-2 mt-6 justify-self-center w-full ${
         view === "Card" ? "max-w-4xl" : ""
       }`}
     >
-      <Select value={sort} onValueChange={setSort}>
-        <SelectTrigger className="w-36" defaultValue="best">
+      {/* SORT SELECT */}
+      <Select value={sort} onValueChange={handleChange}>
+        <SelectTrigger className="w-36">
           <SelectValue placeholder="Best" />
         </SelectTrigger>
-        <SelectContent defaultChecked>
+        <SelectContent>
           <SelectGroup>
             <SelectLabel>Sort by</SelectLabel>
+
             <SelectItem value="best">
               <Rocket className="h-4 w-4 text-foreground" /> Best
             </SelectItem>
@@ -47,7 +66,7 @@ export default function SortAndViewBar({ sort, setSort }: SortAndViewBar) {
               <Flame className="h-4 w-4 text-foreground" /> Hot
             </SelectItem>
             <SelectItem value="new">
-              <Sparkles className=" h-4 w-4 text-foreground" /> New
+              <Sparkles className="h-4 w-4 text-foreground" /> New
             </SelectItem>
             <SelectItem value="top">
               <ArrowUp className="h-4 w-4 text-foreground" /> Top
@@ -58,20 +77,20 @@ export default function SortAndViewBar({ sort, setSort }: SortAndViewBar) {
           </SelectGroup>
         </SelectContent>
       </Select>
+
+      {/* VIEW SELECT */}
       <Select value={view} onValueChange={setView}>
         <SelectTrigger className="w-34">
           <SelectValue placeholder="Card" />
         </SelectTrigger>
-        <SelectContent defaultChecked>
+        <SelectContent>
           <SelectGroup>
             <SelectLabel>View</SelectLabel>
             <SelectItem value="Card">
-              <Rows2 className="text-primary-foreground" />
-              Card
+              <Rows2 className="text-primary-foreground" /> Card
             </SelectItem>
             <SelectItem value="Compact">
-              <Rows3 className="text-primary-foreground" />
-              Compact
+              <Rows3 className="text-primary-foreground" /> Compact
             </SelectItem>
           </SelectGroup>
         </SelectContent>
