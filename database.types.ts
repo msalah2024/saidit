@@ -639,21 +639,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      build_reply_tree: {
-        Args: { comment_id: string }
-        Returns: Json
-      }
-      calculate_karma: {
-        Args: { score: number }
-        Returns: number
-      }
+      build_reply_tree: { Args: { comment_id: string }; Returns: Json }
+      calculate_karma: { Args: { score: number }; Returns: number }
       fetch_comment_with_replies_by_slug: {
         Args: { slug: string }
         Returns: Json
       }
-      fetch_replies: {
-        Args: { parent_id: string }
-        Returns: Json
+      fetch_replies: { Args: { parent_id: string }; Returns: Json }
+      fetch_sorted_posts: {
+        Args: { limit_val?: number; offset_val?: number; sort_type: string }
+        Returns: {
+          author_id: string | null
+          community_id: string
+          content: string | null
+          created_at: string
+          deleted: boolean
+          deleted_at: string | null
+          id: string
+          karma_score: number
+          net_votes: number
+          post_type: Database["public"]["Enums"]["post_type"]
+          slug: string
+          title: string
+          updated_at: string | null
+          url: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "posts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_comment_with_replies_by_slug: {
         Args: { comment_slug: string }

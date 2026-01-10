@@ -7,13 +7,13 @@ import { PostsWithAuthorAndCommunity } from "@/complexTypes";
 import VirtualScroller from "@/components/VirtualScroller";
 import PulseLogo from "@/components/PulseLogo";
 import FeedPostCard from "@/components/FeedPostCard";
-import SortAndViewBar from "@/components/SortAndViewBar";
-import { usePathname } from "next/navigation";
+// import SortAndViewBar from "@/components/SortAndViewBar";
+// import { usePathname } from "next/navigation";
 export default function HomeFeed() {
   const { profile } = useGeneralProfile();
   const supabase = createClient();
-  const pathname = usePathname();
-  const currentSort = pathname === "/" ? "best" : pathname.replace("/", "");
+  // const pathname = usePathname();
+  // const currentSort = pathname === "/" ? "best" : pathname.replace("/", "");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [items, setItems] = useState<any[]>([]);
@@ -57,7 +57,7 @@ export default function HomeFeed() {
   return (
     <div className="grid grid-cols-3">
       <div className="px-4 col-span-3 lg:col-span-2">
-        <SortAndViewBar currentSort={currentSort} />
+        {/* <SortAndViewBar currentSort={currentSort} /> */}
         <VirtualScroller<PostsWithAuthorAndCommunity>
           queryFn={fetchUserPosts}
           renderItem={renderPost}

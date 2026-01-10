@@ -50,7 +50,6 @@ export default function SortAndViewBar({ currentSort }: SortAndViewBarProps) {
         view === "Card" ? "max-w-4xl" : ""
       }`}
     >
-      {/* SORT SELECT */}
       <Select value={sort} onValueChange={handleChange}>
         <SelectTrigger className="w-36">
           <SelectValue placeholder="Best" />
@@ -78,7 +77,6 @@ export default function SortAndViewBar({ currentSort }: SortAndViewBarProps) {
         </SelectContent>
       </Select>
 
-      {/* VIEW SELECT */}
       <Select value={view} onValueChange={setView}>
         <SelectTrigger className="w-34">
           <SelectValue placeholder="Card" />
