@@ -79,7 +79,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                         />
                                         <AvatarFallback>CN</AvatarFallback>
                                     </Avatar>
-                                    <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline z-10'>
+                                    <Link href={`/u/${post.users?.username}?view=${view}`} className='text-sm hover:underline z-10'>
                                         u/{post.users?.username}
                                     </Link>
                                     {
@@ -106,7 +106,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                     initialVotes={post.posts_votes}
                                 />
 
-                                <Link href={`/s/${post.communities.community_name}/comments/${post.slug}`} className='z-10'>
+                                <Link href={`/s/${post.communities.community_name}/comments/${post.slug}?view=${view}`} className='z-10'>
                                     <Button className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'} asChild>
                                         <div className='flex items-center h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'><MessageCircle size={18} />
                                             <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{post.comments[0].count}</p>
@@ -141,7 +141,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                 </div >
                 <ConfirmationDialog triggerRef={deleteDialogRef} setItems={setItems} post={post} />
                 <Link
-                    href={`/s/${post.communities.community_name}/comments/${post.slug}`}
+                    href={`/s/${post.communities.community_name}/comments/${post.slug}?view=${view}`}
                     className="absolute inset-0 z-0"
                 />
             </Card >
@@ -160,7 +160,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                             />
                             <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
-                        <Link href={`/u/${post.users?.username}`} className='text-sm hover:underline z-10'>
+                        <Link href={`/u/${post.users?.username}?view=${view}`} className='text-sm hover:underline z-10'>
                             u/{post.users?.username}
                         </Link>
                         {
@@ -208,7 +208,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                         initialVotes={post.posts_votes}
                     />
 
-                    <Link href={`/s/${post.communities.community_name}/comments/${post.slug}`} className='z-10'>
+                    <Link href={`/s/${post.communities.community_name}/comments/${post.slug}?view=${view}`} className='z-10'>
                         <Button className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'} asChild>
                             <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'><MessageCircle size={18} />
                                 <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{post.comments[0].count}</p>
@@ -224,7 +224,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
             </CardFooter>
             <ConfirmationDialog triggerRef={deleteDialogRef} setItems={setItems} post={post} />
             <Link
-                href={`/s/${post.communities.community_name}/comments/${post.slug}`}
+                href={`/s/${post.communities.community_name}/comments/${post.slug}?view=${view}`}
                 className="absolute inset-0 z-0"
             />
         </Card>

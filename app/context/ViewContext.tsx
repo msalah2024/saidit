@@ -33,16 +33,16 @@ export const ViewProvider = ({ children }: { children: React.ReactNode }) => {
     viewParam === "Compact"
       ? "Compact"
       : viewParam === "Card"
-      ? "Card"
-      : localView === "Compact"
-      ? "Compact"
-      : "Card";
+        ? "Card"
+        : localView === "Compact"
+          ? "Compact"
+          : "Card";
 
   useEffect(() => {
     if (shouldManageView && !searchParams.has("view")) {
       const params = new URLSearchParams(searchParams.toString());
       params.set("view", view);
-      router.replace(`?${params.toString()}`, { scroll: false });
+      router.replace(`?${params.toString()}`);
     }
     if (shouldManageView && typeof window !== "undefined") {
       localStorage.setItem("view", view);
@@ -56,7 +56,7 @@ export const ViewProvider = ({ children }: { children: React.ReactNode }) => {
     }
     const params = new URLSearchParams(searchParams.toString());
     params.set("view", newView);
-    router.replace(`?${params.toString()}`, { scroll: false });
+    router.replace(`?${params.toString()}`);
   };
 
   return (
