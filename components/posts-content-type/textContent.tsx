@@ -18,7 +18,7 @@ export default memo(function TextContent({ post }: TextContentProps) {
             {
                 !isEmptyParagraph &&
                 <div
-                    className='text-primary-foreground-muted prose max-w-none
+                    className='text-primary-foreground-muted prose max-w-none break-words
                                 prose-strong:text-primary-foreground-muted
                                 prose-code:text-primary-foreground-muted
                                 prose-li:p:my-0

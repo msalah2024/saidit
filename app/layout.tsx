@@ -11,6 +11,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { GeneralProfileProvider } from "./context/GeneralProfileContext";
 import { cookies } from "next/headers";
 import { ViewProvider } from "./context/ViewContext";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const robotoSlap = Roboto_Slab({
   variable: "--font-roboto-slab",
@@ -35,8 +36,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
+  modal,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -67,8 +70,10 @@ export default async function RootLayout({
                 <ViewProvider>
                   <AppSidebar />
                   <SidebarInset>
+                    <ScrollToTop />
                     <div className="w-full mt-14">
                       {children}
+                      {modal}
                     </div>
                   </SidebarInset>
                 </ViewProvider>

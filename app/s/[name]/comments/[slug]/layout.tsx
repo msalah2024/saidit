@@ -25,7 +25,7 @@ export default async function Layout({ children, params }: any) {
                 <div className='hidden lg:flex'>
                     <PostBackButton />
                 </div>
-                <div className='flex flex-col gap-4 w-full'>
+                <div className='flex flex-col gap-4 w-full min-w-0'>
                     <PostHeader />
 
                     <CommentRefreshProvider>
