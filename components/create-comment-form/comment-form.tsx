@@ -107,7 +107,7 @@ function CommentFormComponent({ setShowTipTap, showTipTap, setNormalizedComments
                             createdAt: data.created_at,
                             updatedAt: data.updated_at,
                             replies: [],
-                            isOP: profile.account_id === data.creator_id,
+                            isOP: data.creator_id === post.author_id,
                             creator_id: data.creator_id,
                             comments_votes: commentVotes,
                             deleted: data.deleted,

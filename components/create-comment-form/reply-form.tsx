@@ -129,7 +129,7 @@ function ReplyFormComponent({ setShowTipTap, parentID, setNormalizedComments }: 
                             createdAt: data.created_at,
                             updatedAt: data.updated_at,
                             replies: [],
-                            isOP: profile.account_id === data.creator_id,
+                            isOP: data.creator_id === post.author_id,
                             comments_votes: commentVotes,
                             creator_id: profile.account_id,
                             deleted: false,

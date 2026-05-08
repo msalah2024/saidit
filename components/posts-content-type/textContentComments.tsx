@@ -18,7 +18,7 @@ export default memo(function TextContentComments({
       <h1 className="text-2xl font-bold tracking-tight">{post.title}</h1>
       {!isEmptyParagraph && (
         <div
-          className="text-primary-foreground-muted prose 
+          className="text-primary-foreground-muted prose max-w-none break-words
                                 prose-strong:text-primary-foreground-muted
                                 prose-code:text-primary-foreground-muted
                                 prose-li:p:my-0
