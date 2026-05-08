@@ -411,6 +411,27 @@ export type Database = {
           },
         ]
       }
+      recent_searches: {
+        Row: {
+          id: string
+          user_id: string
+          query: string
+          searched_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          query: string
+          searched_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          query?: string
+          searched_at?: string
+        }
+        Relationships: []
+      }
       recently_visited_communities: {
         Row: {
           community_id: string

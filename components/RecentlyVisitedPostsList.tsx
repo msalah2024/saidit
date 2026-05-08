@@ -10,13 +10,11 @@ import { formatCompactNumber } from "@/lib/formatNumbers";
 import { toast } from "sonner";
 import { clearRecentlyVisitedPosts } from "@/app/actions";
 import { useRouter } from "next/navigation";
-import { useView } from "@/app/context/ViewContext";
 
 export default function RecentlyVisitedPostsList() {
   const { profile } = useGeneralProfile();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { view } = useView();
 
   const handleClearRecentlyVisitedPosts = async () => {
     try {
@@ -65,12 +63,12 @@ export default function RecentlyVisitedPostsList() {
           {profile.recently_visited_posts?.map((post) => (
             <div
               key={post.posts?.id}
-              className="flex gap-1 py-3 border-b last:border-none"
+              className="flex gap-3 py-3 border-b last:border-none"
             >
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <Link
-                    href={`/s/${post.posts?.communities?.community_name}?view=${view}`}
+                    href={`/s/${post.posts?.communities?.community_name}`}
                     className="text-sm text-primary-foreground-muted 
                                         hover:underline hover:cursor-pointer flex items-center gap-1.5"
                   >
@@ -96,7 +94,7 @@ export default function RecentlyVisitedPostsList() {
                 </div>
                 <Link
                   scroll={false}
-                  href={`/s/${post.posts?.communities?.community_name}/comments/${post.posts?.slug}?view=${view}`}
+                  href={`/s/${post.posts?.communities?.community_name}/comments/${post.posts?.slug}`}
                   className="scroll-m-20 text-primary-foreground-muted w-fit max-w-64 
                                     line-clamp-2 font-semibold tracking-tight hover:underline hover:cursor-pointer"
                 >
@@ -116,7 +114,7 @@ export default function RecentlyVisitedPostsList() {
                 post.posts?.post_attachments?.length > 0 && (
                   <Link
                     className="shrink-0 relative"
-                    href={`/s/${post.posts?.communities?.community_name}/comments/${post.posts?.slug}?view=${view}`}
+                    href={`/s/${post.posts?.communities?.community_name}/comments/${post.posts?.slug}`}
                   >
                     <Image
                       src={post.posts?.post_attachments?.[0]?.file_url}

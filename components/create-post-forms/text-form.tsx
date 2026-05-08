@@ -22,8 +22,6 @@ import { useGeneralProfile } from "@/app/context/GeneralProfileContext";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "nextjs-toploader/app";
-import { useView } from "@/app/context/ViewContext";
-
 interface TextContentFormProps {
   selectedCommunity: Tables<"communities"> | null;
 }
@@ -31,7 +29,6 @@ interface TextContentFormProps {
 export default function TextForm({ selectedCommunity }: TextContentFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { profile } = useGeneralProfile();
-  const { view } = useView();
   const router = useRouter();
   const form = useForm<z.infer<typeof TextPostSchema>>({
     resolver: zodResolver(TextPostSchema),
@@ -78,7 +75,7 @@ export default function TextForm({ selectedCommunity }: TextContentFormProps) {
 
       if (result.success) {
         router.push(
-          `/s/${selectedCommunity.community_name}/comments/${result.data?.slug}?view=${view}`,
+          `/s/${selectedCommunity.community_name}/comments/${result.data?.slug}`,
         );
       } else {
         toast.error("An error occurred trying to create your post");

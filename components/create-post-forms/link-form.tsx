@@ -21,8 +21,6 @@ import { useGeneralProfile } from "@/app/context/GeneralProfileContext";
 import { Tables } from "@/database.types";
 import { createLinkPost } from "@/app/actions";
 import { toast } from "sonner";
-import { useView } from "@/app/context/ViewContext";
-
 interface LinkFormProps {
   selectedCommunity: Tables<"communities"> | null;
 }
@@ -30,7 +28,6 @@ interface LinkFormProps {
 export default memo(function LinkForm({ selectedCommunity }: LinkFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { profile } = useGeneralProfile();
-  const { view } = useView();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof LinkPostSchema>>({
@@ -77,7 +74,7 @@ export default memo(function LinkForm({ selectedCommunity }: LinkFormProps) {
       );
       if (result.success) {
         router.push(
-          `/s/${selectedCommunity.community_name}/comments/${result.data.slug}?view=${view}`,
+          `/s/${selectedCommunity.community_name}/comments/${result.data.slug}`,
         );
       } else {
         toast.error("An error occurred trying to create your post");

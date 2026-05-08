@@ -24,8 +24,6 @@ import { ImagePostSchema } from "@/schema";
 import ImagesManagement from "./images-management";
 import { createClient } from "@/utils/supabase/client";
 import { generateSlug } from "@/app/actions";
-import { useView } from "@/app/context/ViewContext";
-
 interface ImagesFormProps {
   selectedCommunity: Tables<"communities"> | null;
 }
@@ -34,7 +32,6 @@ export default function ImagesForm({ selectedCommunity }: ImagesFormProps) {
   const supabase = createClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useGeneralProfile();
-  const { view } = useView();
   const router = useRouter();
   const form = useForm<z.infer<typeof ImagePostSchema>>({
     resolver: zodResolver(ImagePostSchema),
@@ -130,7 +127,7 @@ export default function ImagesForm({ selectedCommunity }: ImagesFormProps) {
           }
         }
 
-        router.push(`/s/${selectedCommunity.community_name}/comments/${slug}?view=${view}`);
+        router.push(`/s/${selectedCommunity.community_name}/comments/${slug}`);
       }
     } catch (error) {
       console.error(error);

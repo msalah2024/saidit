@@ -22,16 +22,33 @@ export default function HomeFeed() {
     async (from: number, to: number) => {
       if (!profile) return { data: [], error: null };
 
-      return supabase
+      const select =
+        "*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(count)";
+
+      if (currentSort === "hot") {
+        const result = await supabase.rpc("get_posts_hot", { from_offset: from, to_offset: to });
+        return { data: result.data as PostsWithAuthorAndCommunity[] | null, error: result.error };
+      }
+
+      if (currentSort === "rising") {
+        const result = await supabase.rpc("get_posts_rising", { from_offset: from, to_offset: to });
+        return { data: result.data as PostsWithAuthorAndCommunity[] | null, error: result.error };
+      }
+
+      const query = supabase
         .from("posts")
-        .select(
-          "*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(count)"
-        )
-        .order("created_at", { ascending: false })
-        .range(from, to)
-        .eq("deleted", false);
+        .select(select)
+        .eq("deleted", false)
+        .range(from, to);
+
+      if (currentSort === "top") {
+        return query.order("net_votes", { ascending: false });
+      }
+
+      // "new" and "best" (default)
+      return query.order("created_at", { ascending: false });
     },
-    [profile, supabase]
+    [profile, supabase, currentSort]
   );
 
   const estimatePostSize = (post: PostsWithAuthorAndCommunity | undefined) => {

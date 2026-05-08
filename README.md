@@ -167,6 +167,93 @@ score = total_votes / abs(upvotes - downvotes + 1)
 This makes polarizing comments more visible, just like on Reddit.
 
 
+## 📰 Feed Sorting Algorithms
+
+The home feed supports four sorting modes: **New**, **Top**, **Hot**, and **Rising**.
+
+---
+
+### 🆕 New
+
+Posts are ordered by their creation time, newest first.
+
+```
+score = created_at DESC
+```
+
+No special formula — the most recently submitted posts always appear at the top. Good for staying up to date with the latest activity.
+
+---
+
+### 🏆 Top
+
+Posts are ordered by their net vote score, highest first.
+
+```
+score = net_votes = upvotes - downvotes
+```
+
+All-time highest voted posts surface first, regardless of age. Best for discovering the most popular content in the community.
+
+---
+
+### 🔥 Hot
+
+Posts are ranked by vote score relative to their age, so highly-voted *recent* posts beat older ones even if those have more total votes.
+
+```
+score = net_votes / (age_in_hours + 2)^1.8
+```
+
+- `net_votes` = upvotes − downvotes
+- `age_in_hours` = hours since the post was created
+- `1.8` is a gravity constant — the older a post gets, the faster its score decays
+
+This balances quality (votes) with freshness (time), keeping the feed from being dominated by old viral posts.
+
+---
+
+### 📈 Rising
+
+Rising highlights posts that are gaining votes *right now* — new posts with sudden engagement momentum.
+
+```
+score = recent_votes (last 6h) / (age_in_hours + 1)
+```
+
+- `recent_votes` = number of votes cast in the last 6 hours
+- `age_in_hours` = hours since the post was created
+
+A post that's only 1 hour old and getting lots of votes scores much higher than a 12-hour-old post with the same recent activity. This makes Rising the best view for catching content before it goes viral.
+
+---
+
+## 🔍 Search Algorithms
+
+### 🏘️ Trending Communities
+
+Surfaces the **top 5 communities** with the most engaging content in the last 7 days.
+
+**Algorithm:**
+1. Fetch posts created within the past 7 days, ordered by `net_votes` descending (limit 50).
+2. Walk the list and collect the first 5 **unique** communities encountered.
+
+Communities that appear repeatedly in the top-voted recent posts will naturally rank higher, reflecting where the current activity is concentrated.
+
+```
+trending_score ≈ frequency of community in top net_votes posts (last 7 days)
+```
+
+---
+
+### 📰 Trending Posts
+
+Surfaces the **top 5 posts** ranked by the existing **Hot score** (see Feed Sorting Algorithms → Hot).
+
+Posts that have accumulated strong upvotes recently while still being fresh bubble to the top, giving users a quick view of what's currently worth reading.
+
+---
+
 ## **🔐 License**
 
 This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
