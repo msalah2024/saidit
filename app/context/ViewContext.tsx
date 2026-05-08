@@ -1,71 +1,29 @@
 "use client";
 
-import React, { createContext, useContext, useEffect } from "react";
-import { useSearchParams, usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type ViewType = "Card" | "Compact";
-type ViewContextType = {
-  view: ViewType;
-  setView: (view: ViewType) => void;
-};
+type ViewContextType = { view: ViewType; setView: (v: ViewType) => void };
 
 const ViewContext = createContext<ViewContextType | undefined>(undefined);
 
 export const ViewProvider = ({ children }: { children: React.ReactNode }) => {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const sortPaths = ["hot", "new", "top", "rising"];
-  const shouldManageView =
-    pathname === "/" ||
-    pathname.startsWith("/s") ||
-    pathname.startsWith("/u") ||
-    sortPaths.some((p) => pathname.startsWith(`/${p}`));
-
-  const viewParam = searchParams.get("view");
-  let localView: ViewType | null = null;
-  if (typeof window !== "undefined") {
-    localView = localStorage.getItem("view") as ViewType | null;
-  }
-  const view: ViewType =
-    viewParam === "Compact"
-      ? "Compact"
-      : viewParam === "Card"
-        ? "Card"
-        : localView === "Compact"
-          ? "Compact"
-          : "Card";
+  const [view, setViewState] = useState<ViewType>("Card");
 
   useEffect(() => {
-    if (shouldManageView && !searchParams.has("view")) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("view", view);
-      router.replace(`?${params.toString()}`);
+    const stored = localStorage.getItem("view") as ViewType | null;
+    if (stored === "Card" || stored === "Compact") {
+      setViewState(stored);
     }
-    if (shouldManageView && typeof window !== "undefined") {
-      localStorage.setItem("view", view);
-    }
-  }, [shouldManageView, searchParams, router, view]);
+  }, []);
 
   const setView = (newView: ViewType) => {
-    if (!shouldManageView) return;
-    if (typeof window !== "undefined") {
-      localStorage.setItem("view", newView);
-    }
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", newView);
-    router.replace(`?${params.toString()}`);
+    localStorage.setItem("view", newView);
+    setViewState(newView);
   };
 
   return (
-    <ViewContext.Provider
-      value={{
-        view: shouldManageView ? view : "Card",
-        setView,
-      }}
-    >
+    <ViewContext.Provider value={{ view, setView }}>
       {children}
     </ViewContext.Provider>
   );

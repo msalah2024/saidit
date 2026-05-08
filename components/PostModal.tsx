@@ -47,7 +47,7 @@ export default function PostModal({ post, community }: PostModalProps) {
 
     return (
         <div
-            className="fixed top-14 bottom-0 right-0 z-50 bg-background overflow-y-auto"
+            className="fixed top-14 bottom-0 right-0 z-50 bg-background overflow-y-auto custom-scrollbar"
             style={{ left: leftOffset }}
         >
             <div className="lg:mx-8 flex justify-center">

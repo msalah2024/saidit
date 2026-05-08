@@ -12,6 +12,7 @@ import { SidebarTrigger } from './ui/sidebar'
 import SidebarDialog from './SidebarDialog'
 import { Button } from './ui/button'
 import { Plus } from 'lucide-react'
+import NavbarSearchBar from './NavbarSearchBar'
 
 type Profile = {
     username: string
@@ -58,7 +59,7 @@ export default function Navbar({ user, profile }: NavbarProps) {
     }, [user, profile])
 
     return (
-        <div className='flex items-center bg-background fixed top-0 left-0 right-0 z-50 h-14 border-b justify-between'>
+        <div className='flex items-center bg-background fixed top-0 left-0 right-0 z-[60] h-14 border-b'>
             {shouldDisableNavbar ? (
                 <div className='flex items-center text-primary-foreground gap-2 ml-4'>
                     <Image src={Logo} alt='Logo' width={35} height={35} />
@@ -67,40 +68,50 @@ export default function Navbar({ user, profile }: NavbarProps) {
                     </h2>
                 </div>
             ) : (
-                <div className='ml-4 lg:ml-2 flex items-center gap-4'>
-                    <SidebarTrigger variant={'outline'} className='text-primary-foreground hover:bg-reddit-gray p-4' />
-                    <Link href="/" className='flex items-center gap-2'>
-                        <Image src={Logo} alt='Logo' width={35} height={35} />
-                        <h2 className="text-3xl font-semibold tracking-tight">
-                            saidit
-                        </h2>
-                    </Link>
-                    <SidebarDialog
-                        user={user}
-                        open={sidebarDialogOpen}
-                        setOpen={setSidebarDialogOpen}
-                        dialogContent={sidebarDialogContent} />
-                </div>
-            )}
+                <>
+                    {/* Left */}
+                    <div className='ml-4 lg:ml-2 flex items-center gap-4 shrink-0'>
+                        <SidebarTrigger variant={'outline'} className='text-primary-foreground hover:bg-reddit-gray p-4' />
+                        <Link href="/" className='flex items-center gap-2'>
+                            <h2 className="hidden sm:block text-3xl font-semibold tracking-tight">
+                                saidit
+                            </h2>
+                        </Link>
+                        <SidebarDialog
+                            user={user}
+                            open={sidebarDialogOpen}
+                            setOpen={setSidebarDialogOpen}
+                            dialogContent={sidebarDialogContent} />
+                    </div>
 
-            {
-                openCreateProfile && (
-                    <CreateProfile user={user} />
-                )
-            }
-            {!shouldDisableNavbar && (user ? <div className='flex items-center gap-2'>
-                <Button variant={'outline'} size={'icon'} className='rounded-full hover:bg-primary lg:hidden' asChild>
-                    <Link href={'/protected/create-post'}>
-                        <Plus />
-                    </Link>
-                </Button>
-                <Button variant={'outline'} className='rounded-full hover:bg-primary hidden lg:flex' asChild>
-                    <Link href={'/protected/create-post'}>
-                        <Plus /> Create Post
-                    </Link>
-                </Button>
-                <ProfileMenu profile={profile} />
-            </div> : <AuthDialog />)}
+                    {/* Center — search */}
+                    <div className='flex-1 flex justify-center px-4'>
+                        <NavbarSearchBar />
+                    </div>
+
+                    {/* Right */}
+                    <div className='mr-4 flex items-center gap-2 shrink-0'>
+                        {openCreateProfile && <CreateProfile user={user} />}
+                        {user ? (
+                            <>
+                                <Button variant={'outline'} size={'icon'} className='rounded-full hover:bg-primary lg:hidden' asChild>
+                                    <Link href={'/protected/create-post'}>
+                                        <Plus />
+                                    </Link>
+                                </Button>
+                                <Button variant={'outline'} className='rounded-full hover:bg-primary hidden lg:flex' asChild>
+                                    <Link href={'/protected/create-post'}>
+                                        <Plus /> Create Post
+                                    </Link>
+                                </Button>
+                                <ProfileMenu profile={profile} />
+                            </>
+                        ) : (
+                            <AuthDialog />
+                        )}
+                    </div>
+                </>
+            )}
         </div>
     )
 }

@@ -86,7 +86,7 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
                     <AvatarFallback>s/</AvatarFallback>
                   </Avatar>
                   <Link
-                    href={`/s/${post.communities.community_name}?view=${view}`}
+                    href={`/s/${post.communities.community_name}`}
                     className="text-sm ml-0.5 hover:underline z-10"
                   >
                     s/{post.communities.community_name}
@@ -122,7 +122,7 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
                   deleted={post.deleted}
                 />
                 <Link
-                  href={`/s/${post.communities.community_name}/comments/${post.slug}?view=${view}`}
+                  href={`/s/${post.communities.community_name}/comments/${post.slug}`}
                   className="z-10"
                 >
                   <Button
@@ -171,7 +171,7 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
           post={post}
         />
         <Link
-          href={`/s/${post.communities.community_name}/comments/${post.slug}?view=${view}`}
+          href={`/s/${post.communities.community_name}/comments/${post.slug}`}
           className="absolute inset-0 z-0"
         />
       </Card>
@@ -192,7 +192,7 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
               <AvatarFallback>s/</AvatarFallback>
             </Avatar>
             <Link
-              href={`/s/${post.communities.community_name}?view=${view}`}
+              href={`/s/${post.communities.community_name}`}
               className="text-sm ml-0.5 hover:underline z-10"
             >
               s/{post.communities.community_name}
@@ -251,7 +251,7 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
             deleted={post.deleted}
           />
           <Link
-            href={`/s/${post.communities.community_name}/comments/${post.slug}?view=${view}`}
+            href={`/s/${post.communities.community_name}/comments/${post.slug}`}
             className="z-10"
           >
             <Button
@@ -284,7 +284,7 @@ export default memo(function FeedPostCard({ post, setItems }: PostCardProps) {
         post={post}
       />
       <Link
-        href={`/s/${post.communities.community_name}/comments/${post.slug}?view=${view}`}
+        href={`/s/${post.communities.community_name}/comments/${post.slug}`}
         className="absolute inset-0 z-0"
       />
     </Card>

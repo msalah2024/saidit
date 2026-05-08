@@ -1726,5 +1726,170 @@ export async function clearRecentlyVisitedPosts(userID: string) {
       message: "Posts delete error"
     }
   }
+}
 
+export async function searchPosts(
+  query: string,
+  sort: string = "relevance",
+  timeFilter: string = "all"
+) {
+  const supabase = await createClient();
+  if (!query.trim()) return { data: [], error: null };
+
+  let dbQuery = supabase
+    .from("posts")
+    .select(
+      "*, users(username, avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(count)"
+    )
+    .eq("deleted", false)
+    .or(`title.ilike.%${query}%,content.ilike.%${query}%`);
+
+  if (timeFilter !== "all") {
+    const daysMap: Record<string, number> = { year: 365, month: 30, week: 7, day: 1 };
+    const days = daysMap[timeFilter] ?? 365;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    dbQuery = dbQuery.gte("created_at", cutoff.toISOString());
+  }
+
+  if (sort === "new") {
+    dbQuery = dbQuery.order("created_at", { ascending: false });
+  } else {
+    dbQuery = dbQuery.order("net_votes", { ascending: false });
+  }
+
+  return dbQuery.limit(25);
+}
+
+export async function searchCommunities(query: string) {
+  const supabase = await createClient();
+  if (!query.trim()) return { data: [], error: null };
+
+  return supabase
+    .from("communities")
+    .select("*, community_memberships(count)")
+    .or(
+      `community_name.ilike.%${query}%,display_name.ilike.%${query}%,description.ilike.%${query}%`
+    )
+    .order("community_name_lower", { ascending: true })
+    .limit(25);
+}
+
+export async function searchUsers(query: string) {
+  const supabase = await createClient();
+  if (!query.trim()) return { data: [], error: null };
+
+  return supabase
+    .from("users")
+    .select(
+      "account_id, username, display_name, avatar_url, description, post_karma, comment_karma, verified"
+    )
+    .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
+    .order("username", { ascending: true })
+    .limit(25);
+
+}
+
+export async function getRecentSearches() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { data: null, authenticated: false }
+
+  const { data, error } = await supabase
+    .from("recent_searches")
+    .select("query")
+    .eq("user_id", user.id)
+    .order("searched_at", { ascending: false })
+    .limit(5)
+
+  if (error) return { data: null, authenticated: true, error }
+  return { data: data.map((r) => r.query), authenticated: true }
+}
+
+export async function saveRecentSearch(query: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { authenticated: false }
+
+  await supabase
+    .from("recent_searches")
+    .upsert(
+      { user_id: user.id, query: query.trim(), searched_at: new Date().toISOString() },
+      { onConflict: "user_id,query" }
+    )
+
+  // Keep only the 5 most recent per user
+  const { data: all } = await supabase
+    .from("recent_searches")
+    .select("id, searched_at")
+    .eq("user_id", user.id)
+    .order("searched_at", { ascending: false })
+
+  if (all && all.length > 5) {
+    const toDelete = all.slice(5).map((r) => r.id)
+    await supabase.from("recent_searches").delete().in("id", toDelete)
+  }
+
+  return { authenticated: true }
+}
+
+export async function deleteRecentSearch(query: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { authenticated: false }
+
+  await supabase
+    .from("recent_searches")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("query", query.trim())
+
+  return { authenticated: true }
+}
+
+export async function clearAllRecentSearches() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { authenticated: false }
+
+  await supabase.from("recent_searches").delete().eq("user_id", user.id)
+  return { authenticated: true }
+}
+
+export async function getTrendingCommunities() {
+  const supabase = await createClient()
+  const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+  const { data: recentPosts, error } = await supabase
+    .from("posts")
+    .select("community_id, communities(id, community_name, image_url, community_memberships(count))")
+    .eq("deleted", false)
+    .gte("created_at", cutoff)
+    .order("net_votes", { ascending: false })
+    .limit(50)
+
+  if (error || !recentPosts) return { data: [], error }
+
+  const seen = new Set<string>()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const communities: any[] = []
+
+  for (const post of recentPosts) {
+    if (!post.communities) continue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const c = post.communities as any
+    if (!seen.has(c.id)) {
+      seen.add(c.id)
+      communities.push(c)
+      if (communities.length >= 5) break
+    }
+  }
+
+  return { data: communities, error: null }
+}
+
+export async function getTrendingPosts() {
+  const supabase = await createClient()
+  const result = await supabase.rpc("get_posts_hot", { from_offset: 0, to_offset: 4 })
+  return { data: result.data ?? [], error: result.error }
 }
