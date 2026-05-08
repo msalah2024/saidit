@@ -721,6 +721,14 @@ export type Database = {
         Args: { user_account_id: string }
         Returns: Json
       }
+      get_posts_hot: {
+        Args: { from_offset: number; to_offset: number }
+        Returns: Json
+      }
+      get_posts_rising: {
+        Args: { from_offset: number; to_offset: number }
+        Returns: Json
+      }
       track_post_visit: {
         Args: { p_community_id: string; p_post_id: string; p_user_id: string }
         Returns: undefined
