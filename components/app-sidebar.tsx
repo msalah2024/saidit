@@ -52,7 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="offcanvas" {...props} className="sidebar-animation">
-      <div className="overscroll-contain h-full overflow-y-auto custom-scrollbar pr-2 pt-14">
+      <div data-allow-scroll className="overscroll-contain h-full overflow-y-auto custom-scrollbar pr-2 pt-14">
         <SidebarContent>
           <SidebarGroup className="mt-2">
             <SidebarMenu>

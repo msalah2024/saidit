@@ -185,7 +185,7 @@ export default function PostHeader() {
                     deleted={post.deleted}
                 />
                 <Button disabled={post.deleted} onClick={handleCommentClick} className='p-0 m-0 h-8 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
-                    <div className='flex items-center h-8 px-3 bg-muted text-primary-foreground-muted rounded-full gap-1.5'><MessageCircle size={18} />
+                    <div className='flex items-center h-8 px-3 bg-muted hover:bg-accent text-primary-foreground-muted rounded-full gap-1.5 transition-colors'><MessageCircle size={18} />
                         <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{post.comments[0].count}</p>
                     </div>
                 </Button>
@@ -194,8 +194,9 @@ export default function PostHeader() {
                     variant={'ghost'}
                     onClick={() => sharePost(community.community_name, post.slug)}
                 >
-                    <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
-                        <Forward size={18} /> Share
+                    <div className='flex items-center gap-1.5 h-8 px-3 bg-muted hover:bg-accent text-primary-foreground-muted rounded-full transition-colors'>
+                        <Forward size={18} />
+                        <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>Share</p>
                     </div>
                 </Button>
             </div>

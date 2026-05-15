@@ -221,8 +221,9 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                         variant={'ghost'}
                         onClick={() => sharePost(post.communities.community_name, post.slug)}
                     >
-                        <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
-                            <Forward size={18} /> Share
+                        <div className='flex items-center gap-1.5 h-8 px-3 bg-muted hover:bg-accent text-primary-foreground-muted rounded-full transition-colors'>
+                            <Forward size={18} />
+                            <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>Share</p>
                         </div>
                     </Button>
                 </div>

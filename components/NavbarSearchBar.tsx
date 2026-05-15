@@ -92,6 +92,7 @@ function SearchInput() {
   const inputRef = useRef<HTMLInputElement>(null)
   const mobileInputRef = useRef<HTMLInputElement>(null)
   const mobileScrollRef = useRef<HTMLDivElement>(null)
+  const desktopDropdownRef = useRef<HTMLDivElement>(null)
   const hasFetchedTrending = useRef(false)
   const isUserTypingRef = useRef(false)
 
@@ -139,10 +140,15 @@ function SearchInput() {
     return () => document.removeEventListener("mousedown", handler)
   }, [])
 
-  // Lock body scroll when dropdown is open on desktop
+  // Lock body scroll when dropdown is open on desktop, but allow scroll inside
+  // the dropdown panel, the sidebar, and the recent posts panel
   useEffect(() => {
     if (!showDropdown) return
-    const prevent = (e: Event) => e.preventDefault()
+    const prevent = (e: WheelEvent) => {
+      if (desktopDropdownRef.current?.contains(e.target as Node)) return
+      if ((e.target as Element).closest?.("[data-allow-scroll]")) return
+      e.preventDefault()
+    }
     document.addEventListener("wheel", prevent, { passive: false })
     return () => document.removeEventListener("wheel", prevent)
   }, [showDropdown])
@@ -645,14 +651,14 @@ function SearchInput() {
 
         {/* ── Desktop discovery dropdown ───────────────────────────────── */}
         {isDiscovery && (isFetchingTrending || hasDiscoveryContent) && (
-          <div className="hidden sm:block absolute inset-x-0 top-full mt-1 overflow-hidden bg-popover border rounded-lg shadow-lg z-[70]">
+          <div ref={desktopDropdownRef} className="hidden sm:block absolute inset-x-0 top-full mt-1 max-h-[520px] overflow-y-auto overflow-x-hidden bg-popover border rounded-lg shadow-lg z-[70] custom-scrollbar">
             {discoveryBody}
           </div>
         )}
 
         {/* ── Desktop suggestions dropdown ─────────────────────────────── */}
         {showDropdown && value.trim() && (
-          <div className="hidden sm:block absolute inset-x-0 top-full mt-1 overflow-hidden bg-popover border rounded-lg shadow-lg z-[70]">
+          <div ref={desktopDropdownRef} className="hidden sm:block absolute inset-x-0 top-full mt-1 max-h-[520px] overflow-y-auto overflow-x-hidden bg-popover border rounded-lg shadow-lg z-[70] custom-scrollbar">
             {suggestionsBody}
           </div>
         )}

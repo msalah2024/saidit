@@ -38,7 +38,7 @@ export default function RecentlyVisitedPostsList() {
   };
 
   return (
-    <div className="overscroll-contain custom-scrollbar hidden lg:flex flex-col max-w-78 w-full max-h-[80vh] h-fit overflow-y-auto sticky top-20 right-20 rounded-md bg-black">
+    <div data-allow-scroll className="overscroll-contain custom-scrollbar hidden lg:flex flex-col max-w-78 w-full max-h-[80vh] h-fit overflow-y-auto overflow-x-hidden sticky top-20 right-20 rounded-md bg-black">
       <div className="flex items-center justify-between px-4 w-full mt-4 mb-1">
         <p className="text-sm font-medium text-muted-foreground">
           RECENT POSTS
@@ -65,14 +65,14 @@ export default function RecentlyVisitedPostsList() {
               key={post.posts?.id}
               className="flex gap-3 py-3 border-b last:border-none"
             >
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 min-w-0">
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/s/${post.posts?.communities?.community_name}`}
-                    className="text-sm text-primary-foreground-muted 
-                                        hover:underline hover:cursor-pointer flex items-center gap-1.5"
+                    className="text-sm text-primary-foreground-muted min-w-0
+                                        hover:underline hover:cursor-pointer flex items-center gap-1.5 truncate"
                   >
-                    <Avatar className="h-6 w-6">
+                    <Avatar className="h-6 w-6 shrink-0">
                       <AvatarImage
                         src={post.posts?.communities?.image_url || undefined}
                         className="rounded-full"
@@ -80,11 +80,11 @@ export default function RecentlyVisitedPostsList() {
                       />
                       <AvatarFallback>s/</AvatarFallback>
                     </Avatar>
-                    s/{post.posts?.communities?.community_name}
+                    <span className="truncate">s/{post.posts?.communities?.community_name}</span>
                   </Link>
-                  <p className="text-primary-foreground-muted flex items-center space-x-2">
+                  <p className="text-primary-foreground-muted flex items-center gap-1 shrink-0 max-w-[6rem] truncate">
                     <span>•</span>
-                    <span className="text-sm line-clamp-1">
+                    <span className="text-sm truncate">
                       {formatDistanceToNowStrict(
                         new Date(post.posts?.created_at || ""),
                         { addSuffix: true },
@@ -95,7 +95,7 @@ export default function RecentlyVisitedPostsList() {
                 <Link
                   scroll={false}
                   href={`/s/${post.posts?.communities?.community_name}/comments/${post.posts?.slug}`}
-                  className="scroll-m-20 text-primary-foreground-muted w-fit max-w-64 
+                  className="scroll-m-20 text-primary-foreground-muted w-full
                                     line-clamp-2 font-semibold tracking-tight hover:underline hover:cursor-pointer"
                 >
                   {post.posts?.title}
