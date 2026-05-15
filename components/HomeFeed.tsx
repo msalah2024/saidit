@@ -8,20 +8,21 @@ import VirtualScroller from "@/components/VirtualScroller";
 import PulseLogo from "@/components/PulseLogo";
 import FeedPostCard from "@/components/FeedPostCard";
 import SortAndViewBar from "@/components/SortAndViewBar";
-import { usePathname } from "next/navigation";
-export default function HomeFeed() {
+import NavbarSearchBar from "@/components/NavbarSearchBar";
+
+interface HomeFeedProps {
+  sort: string;
+}
+
+export default function HomeFeed({ sort: currentSort }: HomeFeedProps) {
   const { profile } = useGeneralProfile();
   const supabase = createClient();
-  const pathname = usePathname();
-  const currentSort = pathname === "/" ? "best" : pathname.replace("/", "");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [items, setItems] = useState<any[]>([]);
 
   const fetchUserPosts = useCallback(
     async (from: number, to: number) => {
-      if (!profile) return { data: [], error: null };
-
       const select =
         "*, users(username,avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(count)";
 
@@ -45,10 +46,9 @@ export default function HomeFeed() {
         return query.order("net_votes", { ascending: false });
       }
 
-      // "new" and "best" (default)
       return query.order("created_at", { ascending: false });
     },
-    [profile, supabase, currentSort]
+    [supabase, currentSort]
   );
 
   const estimatePostSize = (post: PostsWithAuthorAndCommunity | undefined) => {
@@ -74,6 +74,9 @@ export default function HomeFeed() {
   return (
     <div className="grid grid-cols-3">
       <div className="px-4 col-span-3 lg:col-span-2">
+        <div className="sm:hidden mt-4">
+          <NavbarSearchBar />
+        </div>
         <SortAndViewBar currentSort={currentSort} />
         <VirtualScroller<PostsWithAuthorAndCommunity>
           queryFn={fetchUserPosts}

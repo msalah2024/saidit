@@ -176,7 +176,7 @@ export default function CommunityHeader() {
             >
                 <div className={`flex gap-2 absolute top-22 ${!community.banner_url && 'lg:top-22!'} left-5 lg:left-8 `}>
                     <div className='relative'>
-                        <Avatar className="lg:w-22 lg:h-22 lg:outline-none w-20 h-20 outline-3 outline-border">
+                        <Avatar className="lg:w-22 lg:h-22 lg:outline-none w-20 h-20 outline-3 outline-border bg-background">
                             <AvatarImage draggable={false} src={globalAvatar ? globalAvatar : community.image_url || undefined} className="rounded-full outline-3 outline-border" />
                             <AvatarFallback>/S</AvatarFallback>
                         </Avatar>

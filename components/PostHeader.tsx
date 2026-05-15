@@ -27,6 +27,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { deletePost, flagPostDeleted, upsertVisitedPost } from '@/app/actions'
+import { sharePost } from '@/lib/sharePost'
 import { PostsWithAuthorAndCommunity } from '@/complexTypes'
 import { useCommunity } from '@/app/context/CommunityContext'
 
@@ -188,7 +189,11 @@ export default function PostHeader() {
                         <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{post.comments[0].count}</p>
                     </div>
                 </Button>
-                <Button disabled className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'}>
+                <Button
+                    className='p-0 m-0 h-8 rounded-full z-10'
+                    variant={'ghost'}
+                    onClick={() => sharePost(community.community_name, post.slug)}
+                >
                     <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
                         <Forward size={18} /> Share
                     </div>

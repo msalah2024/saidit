@@ -7,6 +7,7 @@ import SearchUserResult from "@/components/search/SearchUserResult"
 import SearchSidebar from "@/components/search/SearchSidebar"
 import { PostsWithAuthorAndCommunity } from "@/complexTypes"
 import { Search } from "lucide-react"
+import Link from "next/link"
 import { Suspense } from "react"
 
 interface SearchPageProps {
@@ -15,11 +16,12 @@ interface SearchPageProps {
     type?: string
     sort?: string
     t?: string
+    community?: string
   }>
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { q = "", type = "posts", sort = "relevance", t = "all" } = await searchParams
+  const { q = "", type = "posts", sort = "relevance", t = "all", community } = await searchParams
   const query = q.trim()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,7 +44,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     sidebarUsers = (usersResult.data ?? []).slice(0, 3)
 
     if (type === "posts") {
-      const result = await searchPosts(query, sort, t)
+      const result = await searchPosts(query, sort, t, community)
       postsData = (result.data as PostsWithAuthorAndCommunity[]) ?? []
     } else if (type === "communities") {
       communitiesData = commResult.data ?? []
@@ -94,15 +96,36 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {query && (
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-3 lg:col-span-2">
-            <p className="text-sm text-muted-foreground mb-4">
-              Results for{" "}
-              <span className="font-semibold text-foreground">"{query}"</span>
-            </p>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+              <p className="text-sm text-muted-foreground">
+                {community ? (
+                  <>
+                    Results for{" "}
+                    <span className="font-semibold text-foreground">"{query}"</span>
+                    {" "}in{" "}
+                    <span className="font-semibold text-primary">s/{community}</span>
+                  </>
+                ) : (
+                  <>
+                    Results for{" "}
+                    <span className="font-semibold text-foreground">"{query}"</span>
+                  </>
+                )}
+              </p>
+              {community && (
+                <Link
+                  href={`/search?q=${encodeURIComponent(query)}&type=${type}`}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Search all of Saidit instead
+                </Link>
+              )}
+            </div>
             <Suspense>
-              <SearchTabs q={query} type={type}>
+              <SearchTabs q={query} type={type} community={community}>
                 {type === "posts" ? (
                   <Suspense>
-                    <SearchFilters q={query} sort={sort} t={t}>
+                    <SearchFilters q={query} sort={sort} t={t} community={community}>
                       {postResults}
                     </SearchFilters>
                   </Suspense>

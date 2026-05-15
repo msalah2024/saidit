@@ -6,6 +6,7 @@ import { BadgeCheck, CalendarDays, Camera, ChevronLeft, ChevronRight, Ellipsis, 
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from "nextjs-toploader/app"
+import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { socialPlatforms } from "@/lib/social-platforms-data"
 import { cn } from "@/lib/utils"
@@ -37,15 +38,18 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 
 export default function ProfileHeader() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const { profile, isOwner, socialLinks } = useProfile()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isCopied, setIsCopied] = useState(false)
-    const [activeTab, setActiveTab] = useState("overview")
     const [showLeftScroll, setShowLeftScroll] = useState(false)
     const [showRightScroll, setShowRightScroll] = useState(false)
     const [open, setOpen] = useState(false)
     const { view, setView } = useView()
     const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+    const activeTab = searchParams.get("tab") ?? "overview"
+    const activeSort = searchParams.get("sort") ?? "new"
 
     const createAtFormatted = format(new Date(profile.created_at), 'MMM dd, yyyy');
     const verifiedSinceFormatted = profile.verified_since
@@ -55,13 +59,30 @@ export default function ProfileHeader() {
     const tabs = [
         { id: "overview", label: "Overview" },
         { id: "posts", label: "Posts" },
-        { id: "comments", label: "Comments" },
+        { id: "comments", label: "Comments", disabled: true },
         { id: "saved", label: "Saved", ownerOnly: true },
         { id: "hidden", label: "Hidden", ownerOnly: true },
         { id: "upvoted", label: "Upvoted", ownerOnly: true },
-        { id: "downvoted", label: "Downvoted", ownerOnly: true },]
+        { id: "downvoted", label: "Downvoted", ownerOnly: true },
+    ]
 
     const visibleTabs = tabs.filter((tab) => !tab.ownerOnly || isOwner)
+
+    const navigateTab = (tabId: string) => {
+        const params = new URLSearchParams()
+        params.set("tab", tabId)
+        if (activeSort !== "new") params.set("sort", activeSort)
+        router.push(`/u/${profile.username}?${params.toString()}`)
+    }
+
+    const navigateSort = (sort: string) => {
+        const params = new URLSearchParams()
+        params.set("tab", activeTab)
+        params.set("sort", sort)
+        router.push(`/u/${profile.username}?${params.toString()}`)
+    }
+
+    const sortHidden = activeTab === "saved" || activeTab === "hidden"
 
     const checkScroll = () => {
         if (scrollContainerRef.current) {
@@ -380,8 +401,8 @@ export default function ProfileHeader() {
                         <Button
                             key={tab.id}
                             variant={'ghost'}
-                            onClick={() => setActiveTab(tab.id)}
-                            disabled={tab.id !== "overview"}
+                            onClick={() => !tab.disabled && navigateTab(tab.id)}
+                            disabled={tab.disabled}
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap flex-shrink-0",
                                 activeTab === tab.id
@@ -406,21 +427,20 @@ export default function ProfileHeader() {
                 )}
             </div>
             <div className="flex gap-2 mx-4 lg:mx-0">
-                <Select defaultValue='New' disabled>
-                    <SelectTrigger className="w-32">
-                        <SelectValue placeholder="Best" />
-                    </SelectTrigger>
-                    <SelectContent defaultChecked>
-                        <SelectGroup>
-                            <SelectLabel>Sort by</SelectLabel>
-                            <SelectItem value="Best">Best</SelectItem>
-                            <SelectItem value="Hot">Hot</SelectItem>
-                            <SelectItem value="New">New</SelectItem>
-                            <SelectItem value="Top">Top</SelectItem>
-                            <SelectItem value="Rising">Rising</SelectItem>
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
+                {!sortHidden && (
+                    <Select value={activeSort} onValueChange={navigateSort}>
+                        <SelectTrigger className="w-32">
+                            <SelectValue placeholder="New" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Sort by</SelectLabel>
+                                <SelectItem value="new">New</SelectItem>
+                                <SelectItem value="top">Top</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                )}
                 <Select value={view} onValueChange={setView}>
                     <SelectTrigger className="w-34">
                         <SelectValue placeholder="Card" />

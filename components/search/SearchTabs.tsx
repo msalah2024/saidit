@@ -7,6 +7,7 @@ import SearchResultsSkeleton from "./SearchResultsSkeleton"
 interface SearchTabsProps {
   q: string
   type: string
+  community?: string
   children: React.ReactNode
 }
 
@@ -16,7 +17,7 @@ const TABS = [
   { label: "People", value: "people" },
 ]
 
-export default function SearchTabs({ q, type, children }: SearchTabsProps) {
+export default function SearchTabs({ q, type, community, children }: SearchTabsProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
@@ -31,7 +32,9 @@ export default function SearchTabs({ q, type, children }: SearchTabsProps) {
     if (tabValue === activeTab) return
     setActiveTab(tabValue)
     setIsLoading(true)
-    router.push(`/search?${new URLSearchParams({ q, type: tabValue }).toString()}`)
+    const params: Record<string, string> = { q, type: tabValue }
+    if (community) params.community = community
+    router.push(`/search?${new URLSearchParams(params).toString()}`)
   }
 
   return (

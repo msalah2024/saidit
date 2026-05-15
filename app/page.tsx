@@ -1,5 +1,5 @@
 import HomeFeed from "@/components/HomeFeed";
 
 export default function Page() {
-  return <HomeFeed />;
+  return <HomeFeed sort="best" />;
 }

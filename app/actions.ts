@@ -1091,31 +1091,36 @@ export async function removeCommunityMembership(userID: string, communityID: str
   }
 }
 
-export async function fetchAllCommunities() {
+export async function fetchAllCommunities(page = 1, pageSize = 100) {
   const supabase = await createClient()
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
 
   try {
-    const { data, error } = await supabase.from('communities')
-      .select("community_name, description, image_url, banner_url, community_memberships(count)")
+    const { data, error, count } = await supabase.from('communities')
+      .select("community_name, description, image_url, banner_url, community_memberships(count)", { count: 'exact' })
+      .order('created_at', { ascending: true })
+      .range(from, to)
 
     if (error) {
       console.error("Fetch communities error", error.message)
       throw new Error(error.message || "An error occurred")
     }
 
-    else {
-      return {
-        success: true,
-        message: "Communities fetched successfully",
-        data: data
-      }
+    return {
+      success: true,
+      message: "Communities fetched successfully",
+      data: data,
+      count: count ?? 0,
     }
 
   } catch (error) {
     console.error("Fetch communities error", error)
     return {
       success: false,
-      message: "Fetch communities error"
+      message: "Fetch communities error",
+      data: null,
+      count: 0,
     }
   }
 }
@@ -1731,7 +1736,8 @@ export async function clearRecentlyVisitedPosts(userID: string) {
 export async function searchPosts(
   query: string,
   sort: string = "relevance",
-  timeFilter: string = "all"
+  timeFilter: string = "all",
+  communityName?: string
 ) {
   const supabase = await createClient();
   if (!query.trim()) return { data: [], error: null };
@@ -1743,6 +1749,15 @@ export async function searchPosts(
     )
     .eq("deleted", false)
     .or(`title.ilike.%${query}%,content.ilike.%${query}%`);
+
+  if (communityName) {
+    const { data: community } = await supabase
+      .from("communities")
+      .select("id")
+      .eq("community_name", communityName)
+      .single();
+    if (community) dbQuery = dbQuery.eq("community_id", community.id);
+  }
 
   if (timeFilter !== "all") {
     const daysMap: Record<string, number> = { year: 365, month: 30, week: 7, day: 1 };

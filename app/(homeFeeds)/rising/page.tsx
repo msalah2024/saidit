@@ -1,5 +1,5 @@
 import HomeFeed from "@/components/HomeFeed";
 
 export default function Rising() {
-  return <HomeFeed />;
+  return <HomeFeed sort="rising" />;
 }

@@ -51,8 +51,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { profile } = useGeneralProfile()
 
   return (
-    <Sidebar collapsible="offcanvas" {...props} className="pt-14 sidebar-animation">
-      <div className="overscroll-contain h-full overflow-y-auto custom-scrollbar pr-2">
+    <Sidebar collapsible="offcanvas" {...props} className="sidebar-animation">
+      <div className="overscroll-contain h-full overflow-y-auto custom-scrollbar pr-2 pt-14">
         <SidebarContent>
           <SidebarGroup className="mt-2">
             <SidebarMenu>

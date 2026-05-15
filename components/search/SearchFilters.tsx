@@ -16,6 +16,7 @@ interface SearchFiltersProps {
   q: string
   sort: string
   t: string
+  community?: string
   children: React.ReactNode
 }
 
@@ -33,7 +34,7 @@ const TIME_OPTIONS = [
   { label: "Past 24 hours", value: "day" },
 ]
 
-export default function SearchFilters({ q, sort, t, children }: SearchFiltersProps) {
+export default function SearchFilters({ q, sort, t, community, children }: SearchFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
@@ -52,9 +53,9 @@ export default function SearchFilters({ q, sort, t, children }: SearchFiltersPro
     setActiveSort(newSort)
     setActiveT(newT)
     setIsLoading(true)
-    router.push(
-      `/search?${new URLSearchParams({ q, type: "posts", sort: newSort, t: newT }).toString()}`
-    )
+    const params: Record<string, string> = { q, type: "posts", sort: newSort, t: newT }
+    if (community) params.community = community
+    router.push(`/search?${new URLSearchParams(params).toString()}`)
   }
 
   const currentTime = TIME_OPTIONS.find((o) => o.value === activeT) ?? TIME_OPTIONS[0]

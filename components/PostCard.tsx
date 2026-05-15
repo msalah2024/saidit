@@ -42,6 +42,7 @@ import { createClient } from '@/utils/supabase/client';
 import ImagesContentCompact from './posts-content-type/imagesContentCompact';
 import LinkContent from './posts-content-type/linkContent';
 import PostVote from './PostVote';
+import { sharePost } from '@/lib/sharePost';
 
 interface PostCardProps {
     post: PostsWithAuthorAndCommunity
@@ -129,7 +130,7 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                                     <Trash className='text-primary-foreground-muted' /> Delete
                                                 </DropdownMenuItem>
                                             }
-                                            <DropdownMenuItem disabled>
+                                            <DropdownMenuItem onClick={() => sharePost(post.communities.community_name, post.slug)}>
                                                 <Forward size={18} /> Share
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -215,7 +216,11 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                             </div>
                         </Button>
                     </Link>
-                    <Button disabled className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'}>
+                    <Button
+                        className='p-0 m-0 h-8 rounded-full z-10'
+                        variant={'ghost'}
+                        onClick={() => sharePost(post.communities.community_name, post.slug)}
+                    >
                         <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
                             <Forward size={18} /> Share
                         </div>
