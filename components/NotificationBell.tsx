@@ -296,7 +296,7 @@ export default function NotificationBell({ user }: NotificationBellProps) {
             <DrawerTitle>Notifications</DrawerTitle>
           </DrawerHeader>
           <div className="flex flex-col flex-1 overflow-hidden">
-            <NotificationList {...listProps} />
+            <NotificationList {...listProps} showSeeAll={false} />
           </div>
           {/* See all — pinned at bottom */}
           {notifications.length > 0 && (
