@@ -13,6 +13,7 @@ import SidebarDialog from './SidebarDialog'
 import { Button } from './ui/button'
 import { Plus } from 'lucide-react'
 import NavbarSearchBar from './NavbarSearchBar'
+import NotificationBell from './NotificationBell'
 
 type Profile = {
     username: string
@@ -106,6 +107,7 @@ export default function Navbar({ user, profile }: NavbarProps) {
                                             <Plus /> Create Post
                                         </Link>
                                     </Button>
+                                    <NotificationBell user={user} />
                                     <ProfileMenu profile={profile} />
                                 </>
                             ) : (

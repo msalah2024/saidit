@@ -730,6 +730,69 @@ export type Database = {
           },
         ]
       }
+      comment_follows: {
+        Row: {
+          id: string
+          user_id: string
+          comment_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          comment_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          comment_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          actor_id: string | null
+          actor_username: string | null
+          type: string
+          read: boolean
+          created_at: string
+          post_id: string | null
+          comment_id: string | null
+          post_slug: string | null
+          community_name: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          actor_id?: string | null
+          actor_username?: string | null
+          type: string
+          read?: boolean
+          created_at?: string
+          post_id?: string | null
+          comment_id?: string | null
+          post_slug?: string | null
+          community_name?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          actor_id?: string | null
+          actor_username?: string | null
+          type?: string
+          read?: boolean
+          created_at?: string
+          post_id?: string | null
+          comment_id?: string | null
+          post_slug?: string | null
+          community_name?: string | null
+        }
+        Relationships: []
+      }
       hidden_posts: {
         Row: {
           id: string

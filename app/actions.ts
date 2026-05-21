@@ -25,6 +25,7 @@ import { revalidatePath } from "next/cache";
 import { Tables } from "@/database.types";
 import { nanoid } from 'nanoid'
 import { CommentWithAuthor } from "@/complexTypes";
+import { getSupabaseAdmin } from "@/utils/supabase/admin";
 
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
@@ -1243,12 +1244,47 @@ export async function managePostVotes(voterID: string, postID: string, voteType:
       throw new Error(error.message || "An error occurred")
     }
 
-    else {
-      return {
-        success: true,
-        message: "Vote upsert successful",
-        data: data
+    // Upvote notification (awaited)
+    if (voteType === 'upvote') {
+      try {
+        const admin = getSupabaseAdmin()
+        const [{ data: post }, { data: actor }] = await Promise.all([
+          admin.from('posts').select('author_id, slug, communities(community_name)').eq('id', postID).single(),
+          admin.from('users').select('username').eq('account_id', voterID).single(),
+        ])
+        if (post && post.author_id !== voterID) {
+          // Avoid duplicate notifications
+          const { data: existing } = await admin
+            .from('notifications')
+            .select('id')
+            .eq('user_id', post.author_id)
+            .eq('actor_id', voterID)
+            .eq('type', 'post_upvote')
+            .eq('post_id', postID)
+            .maybeSingle()
+          if (!existing) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const communityName = (post.communities as any)?.community_name ?? null
+            await admin.from('notifications').insert({
+              user_id: post.author_id,
+              actor_id: voterID,
+              actor_username: actor?.username ?? null,
+              type: 'post_upvote',
+              post_id: postID,
+              post_slug: post.slug,
+              community_name: communityName,
+            })
+          }
+        }
+      } catch (e) {
+        console.error('Notification error', e)
       }
+    }
+
+    return {
+      success: true,
+      message: "Vote upsert successful",
+      data: data
     }
 
   } catch (error) {
@@ -1964,6 +2000,163 @@ export async function toggleHidePost(postId: string) {
     console.error("Toggle hide post error", error)
     return { success: false, message: "An error occurred", hidden: false }
   }
+}
+
+export async function createComment(
+  creatorId: string,
+  postId: string,
+  parentId: string,
+  body: string,
+  strippedBody: string,
+  slug: string,
+  postSlug: string,
+  communityName: string,
+  actorUsername: string
+) {
+  const supabase = await createClient()
+
+  // Verify the caller is who they claim to be
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.id !== creatorId) {
+    return { success: false as const, message: 'Unauthorized' }
+  }
+
+  try {
+    const { data, error } = await supabase.from('comments').insert({
+      creator_id: creatorId,
+      post_id: postId,
+      parent_id: parentId,
+      body,
+      stripped_body: strippedBody,
+      slug,
+    }).select().single()
+
+    if (error) throw new Error(error.message)
+
+    // Auto-upvote own comment
+    const { error: voteError } = await supabase.from('comments_votes').insert({
+      voter_id: creatorId,
+      comment_id: data.id,
+      vote_type: 'upvote',
+    })
+    if (voteError) console.error('Auto-vote error', voteError)
+
+    const { data: commentVotes, error: votesError } = await supabase
+      .from('comments_votes')
+      .select('id, vote_type, voter_id')
+      .eq('comment_id', data.id)
+
+    if (votesError) throw new Error(votesError.message)
+
+    // Send reply + follower notifications (awaited so they complete before returning)
+    try {
+      const admin = getSupabaseAdmin()
+      const [{ data: parentComment }, { data: followers }] = await Promise.all([
+        admin.from('comments').select('creator_id').eq('id', parentId).single(),
+        admin.from('comment_follows').select('user_id').eq('comment_id', parentId),
+      ])
+
+      const notified = new Set<string>([creatorId]) // never notify the commenter themselves
+
+      // Notify parent comment author
+      if (parentComment && !notified.has(parentComment.creator_id)) {
+        notified.add(parentComment.creator_id)
+        await admin.from('notifications').insert({
+          user_id: parentComment.creator_id,
+          actor_id: creatorId,
+          actor_username: actorUsername,
+          type: 'comment_reply',
+          post_id: postId,
+          comment_id: data.id,
+          post_slug: postSlug,
+          community_name: communityName,
+        })
+      }
+
+      // Notify followers of the parent comment (skip anyone already notified)
+      const followerIds = (followers ?? []).map(f => f.user_id).filter(id => !notified.has(id))
+      if (followerIds.length > 0) {
+        await admin.from('notifications').insert(
+          followerIds.map(userId => ({
+            user_id: userId,
+            actor_id: creatorId,
+            actor_username: actorUsername,
+            type: 'comment_follow_reply',
+            post_id: postId,
+            comment_id: data.id,
+            post_slug: postSlug,
+            community_name: communityName,
+          }))
+        )
+      }
+    } catch (e) {
+      console.error('Reply notification error', e)
+    }
+
+    return {
+      success: true,
+      data,
+      votes: commentVotes ?? [],
+    }
+  } catch (error) {
+    console.error('Create comment error', error)
+    return { success: false as const, message: 'An error occurred' }
+  }
+}
+
+export async function markNotificationsRead(notificationIds: string[]) {
+  const supabase = await createClient()
+  if (!notificationIds.length) return { success: true }
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read: true })
+    .in('id', notificationIds)
+  if (error) {
+    console.error('Mark notifications read error', error)
+    return { success: false }
+  }
+  return { success: true }
+}
+
+export async function toggleCommentFollow(commentId: string) {
+  const supabase = await createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, following: false }
+
+    const { data: existing } = await supabase
+      .from('comment_follows')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('comment_id', commentId)
+      .maybeSingle()
+
+    if (existing) {
+      const { error } = await supabase.from('comment_follows').delete().eq('id', existing.id)
+      if (error) throw new Error(error.message)
+      return { success: true, following: false }
+    } else {
+      const { error } = await supabase.from('comment_follows').insert({ user_id: user.id, comment_id: commentId })
+      if (error) throw new Error(error.message)
+      return { success: true, following: true }
+    }
+  } catch (error) {
+    console.error('Toggle comment follow error', error)
+    return { success: false, following: false }
+  }
+}
+
+export async function toggleNotificationRead(notificationId: string, read: boolean) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read })
+    .eq('id', notificationId)
+  if (error) {
+    console.error('Toggle notification read error', error)
+    return { success: false }
+  }
+  return { success: true }
 }
 
 export async function toggleSaveComment(commentId: string) {
