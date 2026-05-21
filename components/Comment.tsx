@@ -18,7 +18,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { deleteComment, flagCommentAsDeleted } from '@/app/actions'
+import { deleteComment, flagCommentAsDeleted, toggleSaveComment } from '@/app/actions'
 import EditForm from './create-comment-form/edit-form'
 import { usePost } from '@/app/context/PostContext'
 import { highlightText } from '@/lib/highlightText'
@@ -50,10 +50,22 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
     const [editingCommentID, setEditingCommentID] = useState<string | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isCopied, setIsCopied] = useState(false)
+    const [savedMap, setSavedMap] = useState<{ [id: string]: boolean }>({})
     const { user } = useGeneralProfile()
     const router = useRouter()
 
     const isDesktop = useMediaQuery("(min-width: 768px)")
+
+    const handleSaveComment = async (commentId: string) => {
+        if (!user) { toast.error("Sign in to save comments"); return; }
+        const result = await toggleSaveComment(commentId)
+        if (result.success) {
+            setSavedMap(prev => ({ ...prev, [commentId]: result.saved }))
+            toast.success(result.saved ? "Comment saved!" : "Comment removed from saved")
+        } else {
+            toast.error("An error occurred")
+        }
+    }
 
     useEffect(() => {
         if (depth > 0) {
@@ -398,7 +410,7 @@ export default function Comment({ comments, depth = 0, setNormalizedComments, se
                                                                     <Forward className='text-primary-foreground' /> Share
                                                                 </DropdownMenuItem>
                                                             }
-                                                            <DropdownMenuItem disabled><Bookmark className='text-primary-foreground' />Save</DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleSaveComment(comment.id)}><Bookmark className='text-primary-foreground' />{savedMap[comment.id] ? "Unsave" : "Save"}</DropdownMenuItem>
                                                             {
                                                                 isAuthor &&
                                                                 <>

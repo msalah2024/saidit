@@ -2,58 +2,42 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
 import { createClient } from "@/utils/supabase/client"
-import { PostsWithAuthorAndCommunity } from "@/complexTypes"
 import PulseLogo from "@/components/PulseLogo"
 import { useProfile } from "@/app/context/ProfileContext"
-import FeedPostCard from "@/components/FeedPostCard"
+import ProfileCommentCard, { ProfileComment } from "./ProfileCommentCard"
 
 const PAGE_SIZE = 20
 
-export default function ProfileHiddenTab() {
+export default function ProfileCommentsTab() {
   const supabase = createClient()
   const { profile } = useProfile()
-  const [items, setItems] = useState<PostsWithAuthorAndCommunity[]>([])
+  const [items, setItems] = useState<ProfileComment[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const parentRef = useRef<HTMLDivElement>(null)
   const rowRefs = useRef<Record<number, HTMLDivElement>>({})
 
-  const estimateSize = (index: number) => {
-    const item = items[index]
-    if (!item || !item.content) return 120
-    return 100 + Math.ceil(item.content.length / 80) * 20
-  }
-
   const virtualizer = useWindowVirtualizer({
     count: items.length,
-    estimateSize,
+    estimateSize: () => 140,
     scrollMargin: 16,
     overscan: 5,
-    measureElement: (el) => el?.getBoundingClientRect().height ?? estimateSize(0),
+    measureElement: (el) => el?.getBoundingClientRect().height ?? 140,
   })
 
   const fetchItems = async (from: number) => {
     const to = from + PAGE_SIZE - 1
     const { data, error } = await supabase
-      .from("hidden_posts")
-      .select(`
-        created_at,
-        posts!inner(
-          *,
-          users(username, avatar_url, verified),
-          posts_votes(vote_type, voter_id, id),
-          post_attachments(*),
-          communities(community_name, verified, image_url),
-          comments(count)
-        )
-      `)
-      .eq("user_id", profile.account_id)
+      .from("comments")
+      .select("id, body, stripped_body, created_at, net_votes, slug, deleted, users(username, avatar_url, verified), comments_votes(vote_type, voter_id, id), posts(title, slug, communities(community_name, image_url))")
+      .eq("creator_id", profile.account_id)
+      .eq("deleted", false)
       .order("created_at", { ascending: false })
       .range(from, to)
 
     if (error) { console.error(error); return [] }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (data ?? []).map((v: any) => v.posts).filter(Boolean) as PostsWithAuthorAndCommunity[]
+    return (data ?? []) as any as ProfileComment[]
   }
 
   useEffect(() => {
@@ -108,7 +92,7 @@ export default function ProfileHiddenTab() {
         {!isLoading && items.length === 0 && (
           <div className="flex items-center justify-center">
             <h4 className="mt-20 border-b pb-2 w-fit scroll-m-20 text-xl font-semibold tracking-tight">
-              No hidden posts
+              No comments yet
             </h4>
           </div>
         )}
@@ -124,7 +108,7 @@ export default function ProfileHiddenTab() {
                   ref={(el) => { if (el) rowRefs.current[virtualItem.index] = el }}
                   style={{ position: "absolute", top: 0, left: 0, width: "100%", transform: `translateY(${virtualItem.start}px)` }}
                 >
-                  <FeedPostCard post={item} setItems={setItems} />
+                  <ProfileCommentCard comment={item} />
                 </div>
               )
             })}

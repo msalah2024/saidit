@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select"
 import { format } from "date-fns"
 import { useView } from "@/app/context/ViewContext"
+import { useSavedType } from "@/app/context/SavedTypeContext"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 
 export default function ProfileHeader() {
@@ -46,6 +47,7 @@ export default function ProfileHeader() {
     const [showRightScroll, setShowRightScroll] = useState(false)
     const [open, setOpen] = useState(false)
     const { view, setView } = useView()
+    const { savedType, setSavedType } = useSavedType()
     const scrollContainerRef = useRef<HTMLDivElement>(null)
 
     const activeTab = searchParams.get("tab") ?? "overview"
@@ -59,7 +61,7 @@ export default function ProfileHeader() {
     const tabs = [
         { id: "overview", label: "Overview" },
         { id: "posts", label: "Posts" },
-        { id: "comments", label: "Comments", disabled: true },
+        { id: "comments", label: "Comments" },
         { id: "saved", label: "Saved", ownerOnly: true },
         { id: "hidden", label: "Hidden", ownerOnly: true },
         { id: "upvoted", label: "Upvoted", ownerOnly: true },
@@ -453,6 +455,19 @@ export default function ProfileHeader() {
                         </SelectGroup>
                     </SelectContent>
                 </Select>
+                {activeTab === "saved" && (
+                    <Select value={savedType} onValueChange={setSavedType}>
+                        <SelectTrigger className="w-34">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem value="posts">Posts</SelectItem>
+                                <SelectItem value="comments">Comments</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                )}
             </div>
         </div>
     )

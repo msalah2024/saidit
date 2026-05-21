@@ -1908,3 +1908,87 @@ export async function getTrendingPosts() {
   const result = await supabase.rpc("get_posts_hot", { from_offset: 0, to_offset: 4 })
   return { data: result.data ?? [], error: result.error }
 }
+
+export async function toggleSavePost(postId: string) {
+  const supabase = await createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, message: "Not authenticated", saved: false }
+
+    const { data: existing } = await supabase
+      .from('saved_posts')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('post_id', postId)
+      .maybeSingle()
+
+    if (existing) {
+      const { error } = await supabase.from('saved_posts').delete().eq('user_id', user.id).eq('post_id', postId)
+      if (error) throw new Error(error.message)
+      return { success: true, saved: false }
+    } else {
+      const { error } = await supabase.from('saved_posts').insert({ user_id: user.id, post_id: postId })
+      if (error) throw new Error(error.message)
+      return { success: true, saved: true }
+    }
+  } catch (error) {
+    console.error("Toggle save post error", error)
+    return { success: false, message: "An error occurred", saved: false }
+  }
+}
+
+export async function toggleHidePost(postId: string) {
+  const supabase = await createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, message: "Not authenticated", hidden: false }
+
+    const { data: existing } = await supabase
+      .from('hidden_posts')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('post_id', postId)
+      .maybeSingle()
+
+    if (existing) {
+      const { error } = await supabase.from('hidden_posts').delete().eq('user_id', user.id).eq('post_id', postId)
+      if (error) throw new Error(error.message)
+      return { success: true, hidden: false }
+    } else {
+      const { error } = await supabase.from('hidden_posts').insert({ user_id: user.id, post_id: postId })
+      if (error) throw new Error(error.message)
+      return { success: true, hidden: true }
+    }
+  } catch (error) {
+    console.error("Toggle hide post error", error)
+    return { success: false, message: "An error occurred", hidden: false }
+  }
+}
+
+export async function toggleSaveComment(commentId: string) {
+  const supabase = await createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, message: "Not authenticated", saved: false }
+
+    const { data: existing } = await supabase
+      .from('saved_comments')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('comment_id', commentId)
+      .maybeSingle()
+
+    if (existing) {
+      const { error } = await supabase.from('saved_comments').delete().eq('user_id', user.id).eq('comment_id', commentId)
+      if (error) throw new Error(error.message)
+      return { success: true, saved: false }
+    } else {
+      const { error } = await supabase.from('saved_comments').insert({ user_id: user.id, comment_id: commentId })
+      if (error) throw new Error(error.message)
+      return { success: true, saved: true }
+    }
+  } catch (error) {
+    console.error("Toggle save comment error", error)
+    return { success: false, message: "An error occurred", saved: false }
+  }
+}

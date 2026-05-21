@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react'
+import React, { memo, useState, useEffect } from 'react'
 import {
     Card,
     CardAction,
@@ -8,13 +8,13 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { BadgeCheck, Ellipsis, Forward, Loader2, MessageCircle, Rows3, Trash } from 'lucide-react';
+import { BadgeCheck, Bookmark, Ellipsis, EyeOff, Forward, Loader2, MessageCircle, Rows3, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
 import TextContent from './posts-content-type/textContent';
 import { PostsWithAuthorAndCommunity } from '@/complexTypes';
-import { deletePost } from '@/app/actions'; // Import removeVote
+import { deletePost, toggleSavePost, toggleHidePost } from '@/app/actions';
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext';
 import { toast } from "sonner"
 import { useView } from '@/app/context/ViewContext';
@@ -54,7 +54,49 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
 
     const { user } = useGeneralProfile();
     const { view } = useView()
+    const supabase = createClient();
     const isAuthor = post.author_id === user?.id
+    const [isSaved, setIsSaved] = useState(false)
+    const [isSavingOrHiding, setIsSavingOrHiding] = useState(false)
+
+    useEffect(() => {
+        if (!user) return;
+        supabase
+            .from("saved_posts")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("post_id", post.id)
+            .maybeSingle()
+            .then(({ data }) => setIsSaved(!!data));
+    }, [user?.id, post.id]);
+
+    const handleSave = async () => {
+        if (!user) { toast.error("Sign in to save posts"); return; }
+        setIsSavingOrHiding(true)
+        const result = await toggleSavePost(post.id)
+        if (result.success) {
+            setIsSaved(result.saved)
+            toast.success(result.saved ? "Post saved!" : "Post removed from saved")
+        } else {
+            toast.error("An error occurred")
+        }
+        setIsSavingOrHiding(false)
+    }
+
+    const handleHide = async () => {
+        if (!user) { toast.error("Sign in to hide posts"); return; }
+        setIsSavingOrHiding(true)
+        const result = await toggleHidePost(post.id)
+        if (result.success && result.hidden) {
+            setItems((prev) => prev.filter((item) => item.id !== post.id))
+            toast.success("Post hidden")
+        } else if (result.success) {
+            toast.success("Post unhidden")
+        } else {
+            toast.error("An error occurred")
+        }
+        setIsSavingOrHiding(false)
+    }
 
     if (view === "Compact") {
         return (
@@ -116,21 +158,26 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                                 </Link>
                                 <CardAction className='z-10 hover:cursor-pointer'>
                                     <DropdownMenu modal={false}>
-                                        <DropdownMenuTrigger asChild disabled={!isAuthor}>
+                                        <DropdownMenuTrigger asChild>
                                             <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
                                                 <Ellipsis size={18} />
                                             </div>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent className='mr-6 lg:mr-18'>
-                                            {
-                                                isAuthor &&
+                                            {isAuthor && (
                                                 <DropdownMenuItem
                                                     onClick={() => deleteDialogRef.current?.click()}
                                                     className='text-primary-foreground-muted'>
                                                     <Trash className='text-primary-foreground-muted' /> Delete
                                                 </DropdownMenuItem>
-                                            }
-                                            <DropdownMenuItem onClick={() => sharePost(post.communities.community_name, post.slug)}>
+                                            )}
+                                            <DropdownMenuItem onClick={handleSave} disabled={isSavingOrHiding} className='text-primary-foreground-muted'>
+                                                <Bookmark size={16} className='text-primary-foreground-muted' fill={isSaved ? "currentColor" : "none"} /> {isSaved ? "Unsave" : "Save"}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={handleHide} disabled={isSavingOrHiding} className='text-primary-foreground-muted'>
+                                                <EyeOff size={16} className='text-primary-foreground-muted' /> Hide
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => sharePost(post.communities.community_name, post.slug)} className='text-primary-foreground-muted'>
                                                 <Forward size={18} /> Share
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -174,18 +221,23 @@ export default memo(function PostCard({ post, setItems }: PostCardProps) {
                 </div>
                 <CardAction className='z-10'>
                     <DropdownMenu modal={false}>
-                        <DropdownMenuTrigger asChild disabled={!isAuthor}>
+                        <DropdownMenuTrigger asChild>
                             <div className='p-1.5 hover:bg-reddit-gray rounded-full bg-background hover:cursor-pointer'><Ellipsis size={16} /></div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className='mr-6 lg:mr-18'>
-                            {
-                                isAuthor &&
+                            {isAuthor && (
                                 <DropdownMenuItem
                                     onClick={() => deleteDialogRef.current?.click()}
                                     className='text-primary-foreground-muted'>
                                     <Trash className='text-primary-foreground-muted' /> Delete
                                 </DropdownMenuItem>
-                            }
+                            )}
+                            <DropdownMenuItem onClick={handleSave} disabled={isSavingOrHiding} className='text-primary-foreground-muted'>
+                                <Bookmark size={16} className='text-primary-foreground-muted' fill={isSaved ? "currentColor" : "none"} /> {isSaved ? "Unsave" : "Save"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleHide} disabled={isSavingOrHiding} className='text-primary-foreground-muted'>
+                                <EyeOff size={16} className='text-primary-foreground-muted' /> Hide
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </CardAction>

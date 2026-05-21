@@ -3,7 +3,7 @@ import { usePost } from '@/app/context/PostContext'
 import React, { memo, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { BadgeCheck, Bookmark, Ellipsis, Forward, Loader2, MessageCircle, Trash } from 'lucide-react'
+import { BadgeCheck, Bookmark, Ellipsis, EyeOff, Forward, Loader2, MessageCircle, Trash } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { formatRelativeTime } from '@/lib/formatDate'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
@@ -26,7 +26,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { deletePost, flagPostDeleted, upsertVisitedPost } from '@/app/actions'
+import { deletePost, flagPostDeleted, upsertVisitedPost, toggleSavePost, toggleHidePost } from '@/app/actions'
 import { sharePost } from '@/lib/sharePost'
 import { PostsWithAuthorAndCommunity } from '@/complexTypes'
 import { useCommunity } from '@/app/context/CommunityContext'
@@ -53,8 +53,50 @@ export default function PostHeader() {
     const router = useRouter()
 
     const deleteDialogRef = React.useRef<HTMLButtonElement>(null);
+    const [isSaved, setIsSaved] = useState(false)
+    const [isSavingOrHiding, setIsSavingOrHiding] = useState(false)
+    const supabase = createClient()
+
+    useEffect(() => {
+        if (!user) return;
+        supabase
+            .from("saved_posts")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("post_id", post.id)
+            .maybeSingle()
+            .then(({ data }) => setIsSaved(!!data));
+    }, [user?.id, post.id]);
 
     const isSingleThreadPage = params.commentSlug !== undefined && params.commentSlug !== null
+
+    const handleSave = async () => {
+        if (!user) { toast.error("Sign in to save posts"); return; }
+        setIsSavingOrHiding(true)
+        const result = await toggleSavePost(post.id)
+        if (result.success) {
+            setIsSaved(result.saved)
+            toast.success(result.saved ? "Post saved!" : "Post removed from saved")
+        } else {
+            toast.error("An error occurred")
+        }
+        setIsSavingOrHiding(false)
+    }
+
+    const handleHide = async () => {
+        if (!user) { toast.error("Sign in to hide posts"); return; }
+        setIsSavingOrHiding(true)
+        const result = await toggleHidePost(post.id)
+        if (result.success && result.hidden) {
+            toast.success("Post hidden")
+            router.push(`/s/${post.communities.community_name}`)
+        } else if (result.success) {
+            toast.success("Post unhidden")
+        } else {
+            toast.error("An error occurred")
+        }
+        setIsSavingOrHiding(false)
+    }
 
     const postContent = () => {
         switch (post.post_type) {
@@ -160,9 +202,16 @@ export default function PostHeader() {
                                 </DropdownMenuItem>
                             }
                             <DropdownMenuItem
-                                disabled
+                                onClick={handleSave}
+                                disabled={isSavingOrHiding}
                                 className='text-primary-foreground-muted'>
-                                <Bookmark className='text-primary-foreground-muted' /> Save
+                                <Bookmark className='text-primary-foreground-muted' fill={isSaved ? "currentColor" : "none"} /> {isSaved ? "Unsave" : "Save"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={handleHide}
+                                disabled={isSavingOrHiding || post.deleted}
+                                className='text-primary-foreground-muted'>
+                                <EyeOff className='text-primary-foreground-muted' /> Hide
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

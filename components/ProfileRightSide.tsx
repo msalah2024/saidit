@@ -165,7 +165,7 @@ export default function ProfileRightSide() {
                                         const icon = platform?.icon;
                                         return (
                                             <Button key={link.id}
-                                                variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
+                                                variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground max-w-full overflow-hidden'
                                                 onClick={() => {
                                                     window.open(link.link, '_blank')
                                                 }}
@@ -176,9 +176,10 @@ export default function ProfileRightSide() {
                                                         alt={link.social_name + " icon"}
                                                         width={20}
                                                         height={20}
+                                                        className="shrink-0"
                                                     />
                                                 )}
-                                                {link.username}
+                                                <span className="truncate">{link.username}</span>
                                             </Button>
                                         )
                                     })

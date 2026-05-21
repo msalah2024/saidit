@@ -3,6 +3,7 @@ import ProfileCommunitiesTab from "@/components/ProfileCommunitiesTab"
 import ProfileVotedTab from "@/components/ProfileVotedTab"
 import ProfileSavedTab from "@/components/ProfileSavedTab"
 import ProfileHiddenTab from "@/components/ProfileHiddenTab"
+import ProfileCommentsTab from "@/components/ProfileCommentsTab"
 
 interface PageProps {
   searchParams: Promise<{ tab?: string; sort?: string }>
@@ -22,6 +23,8 @@ export default async function Page({ searchParams }: PageProps) {
       return <ProfileSavedTab />
     case "hidden":
       return <ProfileHiddenTab />
+    case "comments":
+      return <ProfileCommentsTab />
     case "posts":
     case "overview":
     default:

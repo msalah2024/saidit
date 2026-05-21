@@ -15,6 +15,9 @@ export default function ScrollToTop() {
         const prev = prevPathname.current
         prevPathname.current = pathname
 
+        // Track in-app navigation so PostBackButton knows whether to go back or home
+        sessionStorage.setItem("saidit_prev_path", prev)
+
         // Skip when opening or closing a post modal so the feed keeps its position
         if (pathname.includes("/comments/") || prev.includes("/comments/")) return
 

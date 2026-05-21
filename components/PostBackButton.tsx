@@ -8,10 +8,8 @@ export default function PostBackButton() {
     const router = useRouter()
 
     const handleBack = () => {
-        const referrer = document.referrer
-        const isSaiditReferrer = referrer && new URL(referrer).hostname === window.location.hostname
-
-        if (isSaiditReferrer) {
+        const prevPath = sessionStorage.getItem("saidit_prev_path")
+        if (prevPath && prevPath.startsWith("/")) {
             router.back()
         } else {
             router.push('/')
