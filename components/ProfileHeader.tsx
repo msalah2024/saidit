@@ -403,8 +403,7 @@ export default function ProfileHeader() {
                         <Button
                             key={tab.id}
                             variant={'ghost'}
-                            onClick={() => !tab.disabled && navigateTab(tab.id)}
-                            disabled={tab.disabled}
+                            onClick={() => navigateTab(tab.id)}
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap flex-shrink-0",
                                 activeTab === tab.id
