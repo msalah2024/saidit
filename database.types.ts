@@ -655,6 +655,114 @@ export type Database = {
           },
         ]
       }
+      saved_posts: {
+        Row: {
+          id: string
+          user_id: string
+          post_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          post_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          post_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+          {
+            foreignKeyName: "saved_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_comments: {
+        Row: {
+          id: string
+          user_id: string
+          comment_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          comment_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          comment_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+          {
+            foreignKeyName: "saved_comments_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hidden_posts: {
+        Row: {
+          id: string
+          user_id: string
+          post_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          post_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          post_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hidden_posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["account_id"]
+          },
+          {
+            foreignKeyName: "hidden_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
