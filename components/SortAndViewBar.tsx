@@ -23,9 +23,10 @@ import { useRouter } from "nextjs-toploader/app";
 
 interface SortAndViewBarProps {
   currentSort: string;
+  basePath?: string;
 }
 
-export default function SortAndViewBar({ currentSort }: SortAndViewBarProps) {
+export default function SortAndViewBar({ currentSort, basePath }: SortAndViewBarProps) {
   const { view, setView } = useView();
   const router = useRouter();
   const [sort, setSort] = useState(currentSort);
@@ -37,7 +38,14 @@ export default function SortAndViewBar({ currentSort }: SortAndViewBarProps) {
   const handleChange = (value: string) => {
     setSort(value);
 
-    if (value === "best") {
+    if (basePath !== undefined) {
+      const defaultSorts: Record<string, string> = { "/popular": "hot", "/all": "new" };
+      if (defaultSorts[basePath] === value) {
+        router.push(basePath);
+      } else {
+        router.push(`${basePath}?sort=${value}`);
+      }
+    } else if (value === "best") {
       router.push("/");
     } else {
       router.push(`/${value}`);

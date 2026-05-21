@@ -893,7 +893,8 @@ export async function createCommunity(creatorID: string, formData: z.infer<typeo
       community_name: formData.name,
       community_name_lower: formData.name.toLowerCase(),
       description: formData.description,
-      type: formData.type
+      type: formData.type,
+      topics: formData.topics ?? []
     }).select()
 
     if (createCommunityError) {

@@ -273,7 +273,7 @@ export default function ProfileHeader() {
             </div>
 
             {socialLinks && socialLinks.length > 0 && (
-                <div className="flex flex-wrap gap-2 mx-4 lg:hidden">
+                <div className="flex flex-wrap gap-2 mx-4 lg:hidden min-w-0 overflow-hidden">
                     {socialLinks.map((link) => {
                         const platform = socialPlatforms.find((sp) => sp.name.toLowerCase() === link.social_name.toLowerCase())
                         const icon = platform?.icon
@@ -281,15 +281,15 @@ export default function ProfileHeader() {
                             <Button
                                 key={link.id}
                                 variant="link"
-                                className="rounded-full bg-muted hover:bg-reddit-gray text-foreground"
+                                className="rounded-full bg-muted hover:bg-reddit-gray text-foreground max-w-full overflow-hidden"
                                 onClick={() => {
                                     window.open(link.link, "_blank")
                                 }}
                             >
                                 {icon && (
-                                    <Image src={icon || "/placeholder.svg"} alt={link.social_name + " icon"} width={20} height={20} />
+                                    <Image src={icon || "/placeholder.svg"} alt={link.social_name + " icon"} width={20} height={20} className="shrink-0" />
                                 )}
-                                {link.username}
+                                <span className="truncate">{link.username}</span>
                             </Button>
                         )
                     })}

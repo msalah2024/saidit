@@ -27,7 +27,7 @@ interface TopicSelectorProps {
 }
 
 // Topic categories data
-const topicCategories: TopicCategory[] = [
+export const topicCategories: TopicCategory[] = [
     {
         name: "Art & Design",
         emoji: "🎨",

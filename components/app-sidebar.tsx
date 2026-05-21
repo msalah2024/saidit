@@ -29,17 +29,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       title: "Popular",
-      url: "#",
+      url: "/popular",
       icon: TrendingUp,
     },
     {
       title: "Explore",
-      url: "#",
+      url: "/explore",
       icon: Telescope,
     },
     {
       title: "All",
-      url: "#",
+      url: "/all",
       icon: Layers,
     },
   ]
@@ -59,7 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-reddit-gray py-5 rounded-sm cursor-pointer">
-                    <Link scroll={false} aria-disabled={item.title !== "Home"} className="select-none" href={item.url}>
+                    <Link scroll={false} className="select-none" href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>

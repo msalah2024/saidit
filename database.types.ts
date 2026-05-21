@@ -132,6 +132,7 @@ export type Database = {
           id: string
           image_url: string | null
           members_nickname: string | null
+          topics: string[] | null
           type: Database["public"]["Enums"]["community_type"]
           updated_at: string | null
           verified: boolean
@@ -149,6 +150,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           members_nickname?: string | null
+          topics?: string[] | null
           type: Database["public"]["Enums"]["community_type"]
           updated_at?: string | null
           verified?: boolean
@@ -166,6 +168,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           members_nickname?: string | null
+          topics?: string[] | null
           type?: Database["public"]["Enums"]["community_type"]
           updated_at?: string | null
           verified?: boolean

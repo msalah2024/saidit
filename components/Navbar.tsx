@@ -75,7 +75,7 @@ export default function Navbar({ user, profile }: NavbarProps) {
                         <div className='ml-4 lg:ml-2 flex items-center gap-4 shrink-0 sm:flex-1'>
                             <SidebarTrigger variant={'outline'} className='text-primary-foreground hover:bg-reddit-gray p-4' />
                             <Link href="/" className='flex items-center gap-2'>
-                                <h2 className="hidden sm:block text-3xl font-semibold tracking-tight">
+                                <h2 className="text-3xl font-semibold tracking-tight">
                                     saidit
                                 </h2>
                             </Link>
