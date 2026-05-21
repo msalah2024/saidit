@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { Bell, Check, CheckCheck } from "lucide-react";
+import { Bell, Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
@@ -306,7 +306,6 @@ export default function NotificationBell({ user }: NotificationBellProps) {
                 onClick={() => setOpen(false)}
                 className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
-                <CheckCheck size={14} />
                 See all notifications
               </Link>
             </div>
