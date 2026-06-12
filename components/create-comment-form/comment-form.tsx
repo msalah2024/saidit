@@ -14,9 +14,8 @@ import {
 } from "@/components/ui/form"
 import { usePost } from '@/app/context/PostContext'
 import { useGeneralProfile } from '@/app/context/GeneralProfileContext'
-import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
-import { generateSlug, manageCommentVotes } from '@/app/actions'
+import { createComment, generateSlug } from '@/app/actions'
 import { stripHTML } from '@/lib/stripHTML'
 import { NormalizedComment } from '@/complexTypes'
 
@@ -29,7 +28,6 @@ interface CommentFormComponentProps {
 function CommentFormComponent({ setShowTipTap, showTipTap, setNormalizedComments }: CommentFormComponentProps) {
     const { post } = usePost()
     const { profile } = useGeneralProfile()
-    const supabase = createClient()
 
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -70,52 +68,42 @@ function CommentFormComponent({ setShowTipTap, showTipTap, setNormalizedComments
             const slug = await generateSlug(values.body)
             const strippedBody = stripHTML(values.body)
 
-            const { data, error } = await supabase.from('comments').insert({
-                creator_id: profile?.account_id,
-                post_id: post.id,
-                body: values.body,
-                stripped_body: strippedBody,
-                slug: slug
-            }).select().single()
+            const result = await createComment(
+                profile.account_id,
+                post.id,
+                '',   // empty = top-level comment
+                values.body,
+                strippedBody,
+                slug,
+                post.slug ?? '',
+                post.communities?.community_name ?? '',
+                profile.username ?? '',
+            )
 
-            if (error) {
+            if (!result.success) {
                 toast.error("An error occurred")
-            }
-
-            else {
-                const result = await manageCommentVotes(profile?.account_id, data.id, 'upvote')
-                if (!result.success) {
-                    toast.error("An error occurred")
+            } else {
+                const data = result.data!
+                setShowTipTap(false)
+                const newComment: NormalizedComment = {
+                    id: data.id,
+                    author: {
+                        username: profile.username ?? null,
+                        avatar_url: profile.avatar_url ?? null,
+                        verified: profile.verified ?? false,
+                    },
+                    content: data.body || "",
+                    stripped_content: data.stripped_body || "",
+                    createdAt: data.created_at,
+                    updatedAt: data.updated_at,
+                    replies: [],
+                    isOP: data.creator_id === post.author_id,
+                    creator_id: data.creator_id,
+                    comments_votes: result.votes ?? [],
+                    deleted: data.deleted,
+                    slug: data.slug
                 }
-                else {
-                    const { data: commentVotes, error } = await supabase.from('comments_votes').select('id, vote_type, voter_id').eq('comment_id', data.id)
-
-                    if (error) {
-                        toast.error("An error occurred")
-                    }
-                    else {
-                        setShowTipTap(false)
-                        const newComment: NormalizedComment = {
-                            id: data.id,
-                            author: {
-                                username: profile.username ?? null,
-                                avatar_url: profile.avatar_url ?? null,
-                                verified: profile.verified ?? false,
-                            },
-                            content: data.body || "",
-                            stripped_content: data.stripped_body || "",
-                            createdAt: data.created_at,
-                            updatedAt: data.updated_at,
-                            replies: [],
-                            isOP: data.creator_id === post.author_id,
-                            creator_id: data.creator_id,
-                            comments_votes: commentVotes,
-                            deleted: data.deleted,
-                            slug: data.slug
-                        }
-                        setNormalizedComments(prev => [newComment, ...prev])
-                    }
-                }
+                setNormalizedComments(prev => [newComment, ...prev])
             }
         } catch (error) {
             console.error(error)

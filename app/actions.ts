@@ -2025,7 +2025,7 @@ export async function createComment(
     const { data, error } = await supabase.from('comments').insert({
       creator_id: creatorId,
       post_id: postId,
-      parent_id: parentId,
+      parent_id: parentId || null,
       body,
       stripped_body: strippedBody,
       slug,
@@ -2048,17 +2048,44 @@ export async function createComment(
 
     if (votesError) throw new Error(votesError.message)
 
-    // Send reply + follower notifications (awaited so they complete before returning)
+    // Send notifications (awaited so they complete before returning)
     try {
       const admin = getSupabaseAdmin()
-      const [{ data: parentComment }, { data: followers }] = await Promise.all([
-        admin.from('comments').select('creator_id').eq('id', parentId).single(),
-        admin.from('comment_follows').select('user_id').eq('comment_id', parentId),
-      ])
 
       const notified = new Set<string>([creatorId]) // never notify the commenter themselves
 
-      // Notify parent comment author
+      const isTopLevel = !parentId
+
+      const [parentCommentResult, followersResult, postResult] = await Promise.all([
+        isTopLevel
+          ? Promise.resolve({ data: null })
+          : admin.from('comments').select('creator_id').eq('id', parentId).single(),
+        isTopLevel
+          ? Promise.resolve({ data: [] })
+          : admin.from('comment_follows').select('user_id').eq('comment_id', parentId),
+        admin.from('posts').select('author_id').eq('id', postId).single(),
+      ])
+
+      const parentComment = parentCommentResult.data
+      const followers = followersResult.data ?? []
+      const postAuthorId = (postResult.data as { author_id: string } | null)?.author_id
+
+      // Notify post author with post_comment (for any comment on their post)
+      if (postAuthorId && !notified.has(postAuthorId)) {
+        notified.add(postAuthorId)
+        await admin.from('notifications').insert({
+          user_id: postAuthorId,
+          actor_id: creatorId,
+          actor_username: actorUsername,
+          type: 'post_comment',
+          post_id: postId,
+          comment_id: data.id,
+          post_slug: postSlug,
+          community_name: communityName,
+        })
+      }
+
+      // Notify parent comment author with comment_reply (for replies only)
       if (parentComment && !notified.has(parentComment.creator_id)) {
         notified.add(parentComment.creator_id)
         await admin.from('notifications').insert({
@@ -2074,10 +2101,10 @@ export async function createComment(
       }
 
       // Notify followers of the parent comment (skip anyone already notified)
-      const followerIds = (followers ?? []).map(f => f.user_id).filter(id => !notified.has(id))
+      const followerIds = followers.map((f: { user_id: string }) => f.user_id).filter((id: string) => !notified.has(id))
       if (followerIds.length > 0) {
         await admin.from('notifications').insert(
-          followerIds.map(userId => ({
+          followerIds.map((userId: string) => ({
             user_id: userId,
             actor_id: creatorId,
             actor_username: actorUsername,
@@ -2090,7 +2117,7 @@ export async function createComment(
         )
       }
     } catch (e) {
-      console.error('Reply notification error', e)
+      console.error('Notification error', e)
     }
 
     return {
@@ -2157,6 +2184,198 @@ export async function toggleNotificationRead(notificationId: string, read: boole
     return { success: false }
   }
   return { success: true }
+}
+
+// ─── Messaging ───────────────────────────────────────────────────────────────
+
+export type ConversationSummary = {
+  id: string
+  otherUser: { account_id: string; username: string | null; avatar_url: string | null } | null
+  lastMessage: { content: string; sender_id: string; created_at: string; deleted: boolean } | null
+  unreadCount: number
+}
+
+export type MessageWithSender = {
+  id: string
+  conversation_id: string
+  sender_id: string
+  content: string
+  edited: boolean
+  deleted: boolean
+  created_at: string
+  updated_at: string
+  sender: { username: string | null; avatar_url: string | null } | null
+}
+
+export async function getConversations(): Promise<ConversationSummary[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+  const admin = getSupabaseAdmin()
+
+  const { data: myParts } = await admin
+    .from('conversation_participants').select('conversation_id, last_read_at').eq('user_id', user.id)
+  if (!myParts?.length) return []
+
+  const convIds = myParts.map(p => p.conversation_id)
+  const lastReadMap = Object.fromEntries(myParts.map(p => [p.conversation_id, p.last_read_at]))
+
+  const { data: otherParts } = await admin
+    .from('conversation_participants').select('conversation_id, user_id')
+    .in('conversation_id', convIds).neq('user_id', user.id)
+
+  const otherIds = [...new Set((otherParts ?? []).map(p => p.user_id))]
+  const { data: userRows } = otherIds.length
+    ? await admin.from('users').select('account_id, username, avatar_url').in('account_id', otherIds)
+    : { data: [] }
+
+  const userMap = Object.fromEntries((userRows ?? []).map(u => [u.account_id, u]))
+  const otherPartMap = Object.fromEntries((otherParts ?? []).map(p => [p.conversation_id, p.user_id]))
+
+  const results = await Promise.all(convIds.map(async (convId) => {
+    const { data: msgs } = await admin.from('messages').select('content, sender_id, created_at, deleted')
+      .eq('conversation_id', convId).order('created_at', { ascending: false }).limit(1)
+    const lastRead = lastReadMap[convId]
+    const { count } = await admin.from('messages').select('*', { count: 'exact', head: true })
+      .eq('conversation_id', convId).neq('sender_id', user.id).eq('deleted', false)
+      .gt('created_at', lastRead ?? '1970-01-01T00:00:00Z')
+    const otherUserId = otherPartMap[convId]
+    return {
+      id: convId,
+      otherUser: otherUserId ? (userMap[otherUserId] ?? null) : null,
+      lastMessage: msgs?.[0] ?? null,
+      unreadCount: count ?? 0,
+    }
+  }))
+
+  return results.sort((a, b) =>
+    (b.lastMessage?.created_at ?? '').localeCompare(a.lastMessage?.created_at ?? '')
+  )
+}
+
+export async function getOrCreateConversation(otherUserId: string): Promise<{ id: string } | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.id === otherUserId) return null
+  const admin = getSupabaseAdmin()
+
+  // Find existing conversation between the two users
+  const { data: myConvs } = await admin.from('conversation_participants')
+    .select('conversation_id').eq('user_id', user.id)
+  const { data: theirConvs } = await admin.from('conversation_participants')
+    .select('conversation_id').eq('user_id', otherUserId)
+
+  const myIds = new Set((myConvs ?? []).map(c => c.conversation_id))
+  const existing = (theirConvs ?? []).find(c => myIds.has(c.conversation_id))
+  if (existing) return { id: existing.conversation_id }
+
+  // Create new conversation
+  const { data: conv, error } = await admin.from('conversations').insert({}).select('id').single()
+  if (error || !conv) return null
+  await admin.from('conversation_participants').insert([
+    { conversation_id: conv.id, user_id: user.id },
+    { conversation_id: conv.id, user_id: otherUserId },
+  ])
+  return { id: conv.id }
+}
+
+export async function getMessages(conversationId: string): Promise<MessageWithSender[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+  const admin = getSupabaseAdmin()
+
+  const { data: part } = await admin.from('conversation_participants')
+    .select('user_id').eq('conversation_id', conversationId).eq('user_id', user.id).maybeSingle()
+  if (!part) return []
+
+  const { data: msgs } = await admin.from('messages').select('*')
+    .eq('conversation_id', conversationId).order('created_at', { ascending: true }).limit(100)
+  if (!msgs?.length) return []
+
+  const senderIds = [...new Set(msgs.map(m => m.sender_id))]
+  const { data: senders } = await admin.from('users')
+    .select('account_id, username, avatar_url').in('account_id', senderIds)
+  const senderMap = Object.fromEntries((senders ?? []).map(s => [s.account_id, s]))
+
+  return msgs.map(m => ({ ...m, sender: senderMap[m.sender_id] ?? null }))
+}
+
+export async function sendMessage(conversationId: string, content: string): Promise<{ success: boolean; data?: MessageWithSender }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false }
+  const admin = getSupabaseAdmin()
+
+  // Verify participant
+  const { data: part } = await admin.from('conversation_participants')
+    .select('user_id').eq('conversation_id', conversationId).eq('user_id', user.id).maybeSingle()
+  if (!part) return { success: false }
+
+  const { data: msg, error } = await admin.from('messages')
+    .insert({ conversation_id: conversationId, sender_id: user.id, content: content.trim() })
+    .select().single()
+  if (error || !msg) return { success: false }
+
+  // Update conversation last_message_at
+  await admin.from('conversations').update({ last_message_at: msg.created_at }).eq('id', conversationId)
+
+  const { data: senderRow } = await admin.from('users')
+    .select('username, avatar_url').eq('account_id', user.id).single()
+
+  return { success: true, data: { ...msg, sender: senderRow ?? null } }
+}
+
+export async function editMessage(messageId: string, content: string): Promise<{ success: boolean }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false }
+
+  const { error } = await supabase.from('messages')
+    .update({ content: content.trim(), edited: true, updated_at: new Date().toISOString() })
+    .eq('id', messageId).eq('sender_id', user.id)
+  return { success: !error }
+}
+
+export async function deleteMessage(messageId: string): Promise<{ success: boolean }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false }
+
+  const { error } = await supabase.from('messages')
+    .update({ deleted: true, updated_at: new Date().toISOString() })
+    .eq('id', messageId).eq('sender_id', user.id)
+  return { success: !error }
+}
+
+export async function markConversationRead(conversationId: string): Promise<void> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  await supabase.from('conversation_participants')
+    .update({ last_read_at: new Date().toISOString() })
+    .eq('conversation_id', conversationId).eq('user_id', user.id)
+}
+
+export async function getUserByUsername(username: string) {
+  const admin = getSupabaseAdmin()
+  const { data } = await admin.from('users')
+    .select('account_id, username, avatar_url').eq('username_lower', username.toLowerCase()).maybeSingle()
+  return data ?? null
+}
+
+export async function getOtherLastRead(conversationId: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const admin = getSupabaseAdmin()
+  const { data } = await admin
+    .from('conversation_participants')
+    .select('user_id, last_read_at')
+    .eq('conversation_id', conversationId)
+    .neq('user_id', user.id)
+    .maybeSingle()
+  return data?.last_read_at ?? null
 }
 
 export async function toggleSaveComment(commentId: string) {

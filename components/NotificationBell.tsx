@@ -38,6 +38,7 @@ interface NotificationBellProps {
 export function notificationText(n: Notification) {
   const actor = n.actor_username ? `u/${n.actor_username}` : "Someone";
   if (n.type === "post_upvote") return `${actor} upvoted your post`;
+  if (n.type === "post_comment") return `${actor} commented on your post`;
   if (n.type === "comment_reply") return `${actor} replied to your comment`;
   if (n.type === "comment_follow_reply") return `${actor} replied to a comment you follow`;
   return "You have a new notification";

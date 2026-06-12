@@ -14,6 +14,7 @@ import { Button } from './ui/button'
 import { Plus } from 'lucide-react'
 import NavbarSearchBar from './NavbarSearchBar'
 import NotificationBell from './NotificationBell'
+import MessagesButton from './MessagesButton'
 
 type Profile = {
     username: string
@@ -107,6 +108,7 @@ export default function Navbar({ user, profile }: NavbarProps) {
                                             <Plus /> Create Post
                                         </Link>
                                     </Button>
+                                    <MessagesButton user={user} />
                                     <NotificationBell user={user} />
                                     <ProfileMenu profile={profile} />
                                 </>

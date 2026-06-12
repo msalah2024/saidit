@@ -10,10 +10,31 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
+      comment_follows: {
+        Row: {
+          comment_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           body: string | null
@@ -259,6 +280,162 @@ export type Database = {
           },
         ]
       }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          last_read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          last_read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          last_read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+        }
+        Relationships: []
+      }
+      hidden_posts: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hidden_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          deleted: boolean
+          edited: boolean
+          id: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          deleted?: boolean
+          edited?: boolean
+          id?: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          deleted?: boolean
+          edited?: boolean
+          id?: string
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          actor_username: string | null
+          comment_id: string | null
+          community_name: string | null
+          created_at: string | null
+          id: string
+          post_id: string | null
+          post_slug: string | null
+          read: boolean | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_username?: string | null
+          comment_id?: string | null
+          community_name?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          post_slug?: string | null
+          read?: boolean | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          actor_username?: string | null
+          comment_id?: string | null
+          community_name?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          post_slug?: string | null
+          read?: boolean | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       post_attachments: {
         Row: {
           alt_text: string | null
@@ -417,21 +594,21 @@ export type Database = {
       recent_searches: {
         Row: {
           id: string
-          user_id: string
           query: string
           searched_at: string
+          user_id: string
         }
         Insert: {
           id?: string
-          user_id: string
           query: string
           searched_at?: string
+          user_id: string
         }
         Update: {
           id?: string
-          user_id?: string
           query?: string
           searched_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -514,6 +691,64 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["account_id"]
+          },
+        ]
+      }
+      saved_comments: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_comments_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_posts: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -658,198 +893,18 @@ export type Database = {
           },
         ]
       }
-      saved_posts: {
-        Row: {
-          id: string
-          user_id: string
-          post_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          post_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          post_id?: string
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "saved_posts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["account_id"]
-          },
-          {
-            foreignKeyName: "saved_posts_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      saved_comments: {
-        Row: {
-          id: string
-          user_id: string
-          comment_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          comment_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          comment_id?: string
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "saved_comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["account_id"]
-          },
-          {
-            foreignKeyName: "saved_comments_comment_id_fkey"
-            columns: ["comment_id"]
-            isOneToOne: false
-            referencedRelation: "comments"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      comment_follows: {
-        Row: {
-          id: string
-          user_id: string
-          comment_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          comment_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          comment_id?: string
-          created_at?: string
-        }
-        Relationships: []
-      }
-      notifications: {
-        Row: {
-          id: string
-          user_id: string
-          actor_id: string | null
-          actor_username: string | null
-          type: string
-          read: boolean
-          created_at: string
-          post_id: string | null
-          comment_id: string | null
-          post_slug: string | null
-          community_name: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          actor_id?: string | null
-          actor_username?: string | null
-          type: string
-          read?: boolean
-          created_at?: string
-          post_id?: string | null
-          comment_id?: string | null
-          post_slug?: string | null
-          community_name?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          actor_id?: string | null
-          actor_username?: string | null
-          type?: string
-          read?: boolean
-          created_at?: string
-          post_id?: string | null
-          comment_id?: string | null
-          post_slug?: string | null
-          community_name?: string | null
-        }
-        Relationships: []
-      }
-      hidden_posts: {
-        Row: {
-          id: string
-          user_id: string
-          post_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          post_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          post_id?: string
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "hidden_posts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["account_id"]
-          },
-          {
-            foreignKeyName: "hidden_posts_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      build_reply_tree: {
-        Args: { comment_id: string }
-        Returns: Json
-      }
-      calculate_karma: {
-        Args: { score: number }
-        Returns: number
-      }
+      build_reply_tree: { Args: { comment_id: string }; Returns: Json }
+      calculate_karma: { Args: { score: number }; Returns: number }
       fetch_comment_with_replies_by_slug: {
         Args: { slug: string }
         Returns: Json
       }
-      fetch_replies: {
-        Args: { parent_id: string }
-        Returns: Json
-      }
+      fetch_replies: { Args: { parent_id: string }; Returns: Json }
       get_comment_with_replies_by_slug: {
         Args: { comment_slug: string }
         Returns: Json
@@ -897,11 +952,11 @@ export type Database = {
       }
       get_posts_hot: {
         Args: { from_offset: number; to_offset: number }
-        Returns: Json
+        Returns: Json[]
       }
       get_posts_rising: {
         Args: { from_offset: number; to_offset: number }
-        Returns: Json
+        Returns: Json[]
       }
       track_post_visit: {
         Args: { p_community_id: string; p_post_id: string; p_user_id: string }

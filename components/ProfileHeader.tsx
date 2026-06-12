@@ -7,6 +7,11 @@ import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from "nextjs-toploader/app"
 import { useSearchParams } from "next/navigation"
+import { getOrCreateConversation } from "@/app/actions"
+import { useIsMobile } from "@/hooks/use-mobile"
+import MessagesDrawer from "./MessagesDrawer"
+import { createClient } from "@/utils/supabase/client"
+import { User } from "@supabase/supabase-js"
 import Image from "next/image"
 import { socialPlatforms } from "@/lib/social-platforms-data"
 import { cn } from "@/lib/utils"
@@ -46,9 +51,32 @@ export default function ProfileHeader() {
     const [showLeftScroll, setShowLeftScroll] = useState(false)
     const [showRightScroll, setShowRightScroll] = useState(false)
     const [open, setOpen] = useState(false)
+    const [msgDrawerOpen, setMsgDrawerOpen] = useState(false)
+    const [msgConvId, setMsgConvId] = useState<string | undefined>(undefined)
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
     const { view, setView } = useView()
     const { savedType, setSavedType } = useSavedType()
     const scrollContainerRef = useRef<HTMLDivElement>(null)
+    const isMobile = useIsMobile()
+    const supabase = createClient()
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => setCurrentUser(user))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const handleSendMessage = async () => {
+        if (!profile.account_id) return
+        const result = await getOrCreateConversation(profile.account_id)
+        if (!result) return
+        if (isMobile) {
+            router.push(`/messages/${result.id}`)
+        } else {
+            setMsgConvId(result.id)
+            setMsgDrawerOpen(true)
+        }
+        setOpen(false)
+    }
 
     const activeTab = searchParams.get("tab") ?? "overview"
     const activeSort = searchParams.get("sort") ?? "new"
@@ -145,6 +173,7 @@ export default function ProfileHeader() {
     };
 
     return (
+        <>
         <div className="flex flex-col lg:mt-4 gap-4">
             <div
                 className={`relative flex justify-end h-20 lg:hidden bg-cover bg-center bg-no-repeat ${!profile.banner_url ? "bg-[#5BAE4A] bg-[linear-gradient(0deg,#000_0%,rgba(0,0,0,0.00)_111.72%)]" : ""
@@ -195,7 +224,13 @@ export default function ProfileHeader() {
                                 <Button variant="secondary" className="rounded-full" disabled>
                                     Follow
                                 </Button>
-                                <Button size="icon" variant="redditGray" className="bg-reddit-gray hover:bg-reddit-gray/80" disabled>
+                                <Button
+                                    size="icon"
+                                    variant="redditGray"
+                                    className="bg-reddit-gray hover:bg-reddit-gray/80"
+                                    onClick={handleSendMessage}
+                                    disabled={!currentUser || isOwner}
+                                >
                                     <MessageCircleMore />
                                 </Button>
                                 <Drawer open={open} onOpenChange={setOpen}>
@@ -217,7 +252,10 @@ export default function ProfileHeader() {
                                                 <Forward strokeWidth={2} />
                                                 Share
                                             </div>
-                                            <div className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
+                                            <div
+                                                className='flex items-center px-6 py-3 gap-4 w-full justify-start cursor-pointer'
+                                                onClick={handleSendMessage}
+                                            >
                                                 <Mail /> Send a Message
                                             </div>
                                             <div
@@ -469,5 +507,16 @@ export default function ProfileHeader() {
                 )}
             </div>
         </div>
+
+        {/* Desktop messages drawer — opened from profile page */}
+        {currentUser && !isMobile && (
+            <MessagesDrawer
+                user={currentUser}
+                open={msgDrawerOpen}
+                onOpenChange={setMsgDrawerOpen}
+                initialConversationId={msgConvId}
+            />
+        )}
+        </>
     )
 }
