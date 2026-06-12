@@ -6,6 +6,12 @@ import { BadgeCheck, CalendarDays, Camera, ChevronLeft, ChevronRight, Ellipsis, 
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from "nextjs-toploader/app"
+import { useSearchParams } from "next/navigation"
+import { getOrCreateConversation } from "@/app/actions"
+import { useIsMobile } from "@/hooks/use-mobile"
+import MessagesDrawer from "./MessagesDrawer"
+import { createClient } from "@/utils/supabase/client"
+import { User } from "@supabase/supabase-js"
 import Image from "next/image"
 import { socialPlatforms } from "@/lib/social-platforms-data"
 import { cn } from "@/lib/utils"
@@ -33,19 +39,47 @@ import {
 } from "@/components/ui/select"
 import { format } from "date-fns"
 import { useView } from "@/app/context/ViewContext"
+import { useSavedType } from "@/app/context/SavedTypeContext"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 
 export default function ProfileHeader() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const { profile, isOwner, socialLinks } = useProfile()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isCopied, setIsCopied] = useState(false)
-    const [activeTab, setActiveTab] = useState("overview")
     const [showLeftScroll, setShowLeftScroll] = useState(false)
     const [showRightScroll, setShowRightScroll] = useState(false)
     const [open, setOpen] = useState(false)
+    const [msgDrawerOpen, setMsgDrawerOpen] = useState(false)
+    const [msgConvId, setMsgConvId] = useState<string | undefined>(undefined)
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
     const { view, setView } = useView()
+    const { savedType, setSavedType } = useSavedType()
     const scrollContainerRef = useRef<HTMLDivElement>(null)
+    const isMobile = useIsMobile()
+    const supabase = createClient()
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => setCurrentUser(user))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const handleSendMessage = async () => {
+        if (!profile.account_id) return
+        const result = await getOrCreateConversation(profile.account_id)
+        if (!result) return
+        if (isMobile) {
+            router.push(`/messages/${result.id}`)
+        } else {
+            setMsgConvId(result.id)
+            setMsgDrawerOpen(true)
+        }
+        setOpen(false)
+    }
+
+    const activeTab = searchParams.get("tab") ?? "overview"
+    const activeSort = searchParams.get("sort") ?? "new"
 
     const createAtFormatted = format(new Date(profile.created_at), 'MMM dd, yyyy');
     const verifiedSinceFormatted = profile.verified_since
@@ -59,9 +93,26 @@ export default function ProfileHeader() {
         { id: "saved", label: "Saved", ownerOnly: true },
         { id: "hidden", label: "Hidden", ownerOnly: true },
         { id: "upvoted", label: "Upvoted", ownerOnly: true },
-        { id: "downvoted", label: "Downvoted", ownerOnly: true },]
+        { id: "downvoted", label: "Downvoted", ownerOnly: true },
+    ]
 
     const visibleTabs = tabs.filter((tab) => !tab.ownerOnly || isOwner)
+
+    const navigateTab = (tabId: string) => {
+        const params = new URLSearchParams()
+        params.set("tab", tabId)
+        if (activeSort !== "new") params.set("sort", activeSort)
+        router.push(`/u/${profile.username}?${params.toString()}`)
+    }
+
+    const navigateSort = (sort: string) => {
+        const params = new URLSearchParams()
+        params.set("tab", activeTab)
+        params.set("sort", sort)
+        router.push(`/u/${profile.username}?${params.toString()}`)
+    }
+
+    const sortHidden = activeTab === "saved" || activeTab === "hidden"
 
     const checkScroll = () => {
         if (scrollContainerRef.current) {
@@ -122,6 +173,7 @@ export default function ProfileHeader() {
     };
 
     return (
+        <>
         <div className="flex flex-col lg:mt-4 gap-4">
             <div
                 className={`relative flex justify-end h-20 lg:hidden bg-cover bg-center bg-no-repeat ${!profile.banner_url ? "bg-[#5BAE4A] bg-[linear-gradient(0deg,#000_0%,rgba(0,0,0,0.00)_111.72%)]" : ""
@@ -172,7 +224,13 @@ export default function ProfileHeader() {
                                 <Button variant="secondary" className="rounded-full" disabled>
                                     Follow
                                 </Button>
-                                <Button size="icon" variant="redditGray" className="bg-reddit-gray hover:bg-reddit-gray/80" disabled>
+                                <Button
+                                    size="icon"
+                                    variant="redditGray"
+                                    className="bg-reddit-gray hover:bg-reddit-gray/80"
+                                    onClick={handleSendMessage}
+                                    disabled={!currentUser || isOwner}
+                                >
                                     <MessageCircleMore />
                                 </Button>
                                 <Drawer open={open} onOpenChange={setOpen}>
@@ -194,7 +252,10 @@ export default function ProfileHeader() {
                                                 <Forward strokeWidth={2} />
                                                 Share
                                             </div>
-                                            <div className='flex items-center px-6 py-3 gap-4 w-full justify-start'>
+                                            <div
+                                                className='flex items-center px-6 py-3 gap-4 w-full justify-start cursor-pointer'
+                                                onClick={handleSendMessage}
+                                            >
                                                 <Mail /> Send a Message
                                             </div>
                                             <div
@@ -250,7 +311,7 @@ export default function ProfileHeader() {
             </div>
 
             {socialLinks && socialLinks.length > 0 && (
-                <div className="flex flex-wrap gap-2 mx-4 lg:hidden">
+                <div className="flex flex-wrap gap-2 mx-4 lg:hidden min-w-0 overflow-hidden">
                     {socialLinks.map((link) => {
                         const platform = socialPlatforms.find((sp) => sp.name.toLowerCase() === link.social_name.toLowerCase())
                         const icon = platform?.icon
@@ -258,15 +319,15 @@ export default function ProfileHeader() {
                             <Button
                                 key={link.id}
                                 variant="link"
-                                className="rounded-full bg-muted hover:bg-reddit-gray text-foreground"
+                                className="rounded-full bg-muted hover:bg-reddit-gray text-foreground max-w-full overflow-hidden"
                                 onClick={() => {
                                     window.open(link.link, "_blank")
                                 }}
                             >
                                 {icon && (
-                                    <Image src={icon || "/placeholder.svg"} alt={link.social_name + " icon"} width={20} height={20} />
+                                    <Image src={icon || "/placeholder.svg"} alt={link.social_name + " icon"} width={20} height={20} className="shrink-0" />
                                 )}
-                                {link.username}
+                                <span className="truncate">{link.username}</span>
                             </Button>
                         )
                     })}
@@ -380,8 +441,7 @@ export default function ProfileHeader() {
                         <Button
                             key={tab.id}
                             variant={'ghost'}
-                            onClick={() => setActiveTab(tab.id)}
-                            disabled={tab.id !== "overview"}
+                            onClick={() => navigateTab(tab.id)}
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap flex-shrink-0",
                                 activeTab === tab.id
@@ -406,21 +466,20 @@ export default function ProfileHeader() {
                 )}
             </div>
             <div className="flex gap-2 mx-4 lg:mx-0">
-                <Select defaultValue='New' disabled>
-                    <SelectTrigger className="w-32">
-                        <SelectValue placeholder="Best" />
-                    </SelectTrigger>
-                    <SelectContent defaultChecked>
-                        <SelectGroup>
-                            <SelectLabel>Sort by</SelectLabel>
-                            <SelectItem value="Best">Best</SelectItem>
-                            <SelectItem value="Hot">Hot</SelectItem>
-                            <SelectItem value="New">New</SelectItem>
-                            <SelectItem value="Top">Top</SelectItem>
-                            <SelectItem value="Rising">Rising</SelectItem>
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
+                {!sortHidden && (
+                    <Select value={activeSort} onValueChange={navigateSort}>
+                        <SelectTrigger className="w-32">
+                            <SelectValue placeholder="New" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Sort by</SelectLabel>
+                                <SelectItem value="new">New</SelectItem>
+                                <SelectItem value="top">Top</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                )}
                 <Select value={view} onValueChange={setView}>
                     <SelectTrigger className="w-34">
                         <SelectValue placeholder="Card" />
@@ -433,7 +492,31 @@ export default function ProfileHeader() {
                         </SelectGroup>
                     </SelectContent>
                 </Select>
+                {activeTab === "saved" && (
+                    <Select value={savedType} onValueChange={setSavedType}>
+                        <SelectTrigger className="w-34">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem value="posts">Posts</SelectItem>
+                                <SelectItem value="comments">Comments</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                )}
             </div>
         </div>
+
+        {/* Desktop messages drawer — opened from profile page */}
+        {currentUser && !isMobile && (
+            <MessagesDrawer
+                user={currentUser}
+                open={msgDrawerOpen}
+                onOpenChange={setMsgDrawerOpen}
+                initialConversationId={msgConvId}
+            />
+        )}
+        </>
     )
 }

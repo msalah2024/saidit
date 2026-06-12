@@ -5,7 +5,7 @@ import { fetchCommunityByName } from '../../actions';
 import CommunityChildLayout from '@/components/CommunityChildLayout';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default async function Layout({ children, params }: any) {
+export default async function Layout({ children, modal, params }: any) {
     const awaitedParams = await params
     const communityName = awaitedParams.name
 
@@ -19,6 +19,7 @@ export default async function Layout({ children, params }: any) {
         <CommunityProvider community={community.data}>
             <CommunityChildLayout>
                 {children}
+                {modal}
             </CommunityChildLayout>
         </CommunityProvider>
     );

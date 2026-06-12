@@ -1,9 +1,9 @@
 "use client"
 import { usePost } from '@/app/context/PostContext'
-import React, { memo, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { BadgeCheck, Bookmark, Ellipsis, Forward, Loader2, MessageCircle, Trash } from 'lucide-react'
+import { BadgeCheck, Bookmark, Ellipsis, EyeOff, Forward, Loader2, MessageCircle, Trash } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { formatRelativeTime } from '@/lib/formatDate'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
@@ -26,8 +26,10 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { deletePost, flagPostDeleted } from '@/app/actions'
+import { deletePost, flagPostDeleted, upsertVisitedPost, toggleSavePost, toggleHidePost } from '@/app/actions'
+import { sharePost } from '@/lib/sharePost'
 import { PostsWithAuthorAndCommunity } from '@/complexTypes'
+import { useCommunity } from '@/app/context/CommunityContext'
 
 const TextContentComments = dynamic(
     () => import('./posts-content-type/textContentComments'),
@@ -45,13 +47,56 @@ const LinkContent = dynamic(
 export default function PostHeader() {
     const { post } = usePost()
     const { user } = useGeneralProfile()
+    const { community } = useCommunity()
     const isAuthor = post.author_id === user?.id
     const params = useParams()
     const router = useRouter()
 
     const deleteDialogRef = React.useRef<HTMLButtonElement>(null);
+    const [isSaved, setIsSaved] = useState(false)
+    const [isSavingOrHiding, setIsSavingOrHiding] = useState(false)
+    const supabase = createClient()
+
+    useEffect(() => {
+        if (!user) return;
+        supabase
+            .from("saved_posts")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("post_id", post.id)
+            .maybeSingle()
+            .then(({ data }) => setIsSaved(!!data));
+    }, [user?.id, post.id]);
 
     const isSingleThreadPage = params.commentSlug !== undefined && params.commentSlug !== null
+
+    const handleSave = async () => {
+        if (!user) { toast.error("Sign in to save posts"); return; }
+        setIsSavingOrHiding(true)
+        const result = await toggleSavePost(post.id)
+        if (result.success) {
+            setIsSaved(result.saved)
+            toast.success(result.saved ? "Post saved!" : "Post removed from saved")
+        } else {
+            toast.error("An error occurred")
+        }
+        setIsSavingOrHiding(false)
+    }
+
+    const handleHide = async () => {
+        if (!user) { toast.error("Sign in to hide posts"); return; }
+        setIsSavingOrHiding(true)
+        const result = await toggleHidePost(post.id)
+        if (result.success && result.hidden) {
+            toast.success("Post hidden")
+            router.push(`/s/${post.communities.community_name}`)
+        } else if (result.success) {
+            toast.success("Post unhidden")
+        } else {
+            toast.error("An error occurred")
+        }
+        setIsSavingOrHiding(false)
+    }
 
     const postContent = () => {
         switch (post.post_type) {
@@ -85,6 +130,24 @@ export default function PostHeader() {
             window.dispatchEvent(new CustomEvent('showTipTap', { detail: true }));
         }
     }
+
+    useEffect(() => {
+        const updateVisitedHistory = async () => {
+            try {
+                if (!user) { return }
+
+                const result = await upsertVisitedPost(post.id, user?.id, community?.id)
+                if (!result.success) {
+                    toast.error("An error occurred updating post history")
+                }
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        updateVisitedHistory()
+
+    }, [post.id, user, community.id])
 
     return (
         <div className='flex flex-col gap-2 w-full'>
@@ -139,9 +202,16 @@ export default function PostHeader() {
                                 </DropdownMenuItem>
                             }
                             <DropdownMenuItem
-                                disabled
+                                onClick={handleSave}
+                                disabled={isSavingOrHiding}
                                 className='text-primary-foreground-muted'>
-                                <Bookmark className='text-primary-foreground-muted' /> Save
+                                <Bookmark className='text-primary-foreground-muted' fill={isSaved ? "currentColor" : "none"} /> {isSaved ? "Unsave" : "Save"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={handleHide}
+                                disabled={isSavingOrHiding || post.deleted}
+                                className='text-primary-foreground-muted'>
+                                <EyeOff className='text-primary-foreground-muted' /> Hide
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -164,13 +234,18 @@ export default function PostHeader() {
                     deleted={post.deleted}
                 />
                 <Button disabled={post.deleted} onClick={handleCommentClick} className='p-0 m-0 h-8 rounded-full z-10 hover:cursor-pointer' variant={'ghost'}>
-                    <div className='flex items-center h-8 px-3 bg-muted text-primary-foreground-muted rounded-full gap-1.5'><MessageCircle size={18} />
+                    <div className='flex items-center h-8 px-3 bg-muted hover:bg-accent text-primary-foreground-muted rounded-full gap-1.5 transition-colors'><MessageCircle size={18} />
                         <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>{post.comments[0].count}</p>
                     </div>
                 </Button>
-                <Button disabled className='p-0 m-0 h-8 rounded-full z-10' variant={'ghost'}>
-                    <div className='flex items-center gap-1.5 h-8 px-3 bg-muted text-primary-foreground-muted rounded-full'>
-                        <Forward size={18} /> Share
+                <Button
+                    className='p-0 m-0 h-8 rounded-full z-10'
+                    variant={'ghost'}
+                    onClick={() => sharePost(community.community_name, post.slug)}
+                >
+                    <div className='flex items-center gap-1.5 h-8 px-3 bg-muted hover:bg-accent text-primary-foreground-muted rounded-full transition-colors'>
+                        <Forward size={18} />
+                        <p className='text-sm font-medium leading-0 text-primary-foreground-muted select-none'>Share</p>
                     </div>
                 </Button>
             </div>

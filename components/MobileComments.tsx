@@ -18,7 +18,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { deleteComment, flagCommentAsDeleted } from '@/app/actions'
+import { createClient } from '@/utils/supabase/client'
+import { deleteComment, flagCommentAsDeleted, toggleCommentFollow } from '@/app/actions'
 import EditForm from './create-comment-form/edit-form'
 import { usePost } from '@/app/context/PostContext'
 import { highlightText } from '@/lib/highlightText'
@@ -44,7 +45,9 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
     const [editingCommentID, setEditingCommentID] = useState<string | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isCopied, setIsCopied] = useState(false)
+    const [followedMap, setFollowedMap] = useState<{ [id: string]: boolean }>({})
     const { user } = useGeneralProfile()
+    const supabase = createClient()
 
     const isDesktop = useMediaQuery("(min-width: 768px)")
 
@@ -77,6 +80,35 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
         }));
         triggerRefresh();
     }
+
+    const handleFollowComment = async (commentId: string) => {
+        if (!user) { toast.error("Sign in to follow comments"); return; }
+        const result = await toggleCommentFollow(commentId)
+        if (result.success) {
+            setFollowedMap(prev => ({ ...prev, [commentId]: result.following }))
+            toast.success(result.following ? "Following comment" : "Unfollowed comment")
+        } else {
+            toast.error("An error occurred")
+        }
+    }
+
+    // Load initial follow state for all comments
+    useEffect(() => {
+        if (!user || !comments.length) return
+        const ids = comments.map(c => c.id)
+        supabase
+            .from('comment_follows')
+            .select('comment_id')
+            .eq('user_id', user.id)
+            .in('comment_id', ids)
+            .then(({ data }) => {
+                if (!data) return
+                const map: { [id: string]: boolean } = {}
+                data.forEach(f => { map[f.comment_id] = true })
+                setFollowedMap(map)
+            })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id, comments.length])
 
     const handleAuthDialog = () => {
         window.dispatchEvent(new CustomEvent('openAuthDialog'))
@@ -382,7 +414,10 @@ export default function MobileComment({ comments, depth = 0, setNormalizedCommen
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent>
-                                                            <DropdownMenuItem disabled><Bell className='text-primary-foreground' />Follow comment</DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleFollowComment(comment.id)}>
+                                                                <Bell className='text-primary-foreground' fill={followedMap[comment.id] ? 'currentColor' : 'none'} />
+                                                                {followedMap[comment.id] ? 'Unfollow comment' : 'Follow comment'}
+                                                            </DropdownMenuItem>
                                                             {
                                                                 !isDesktop &&
                                                                 <DropdownMenuItem

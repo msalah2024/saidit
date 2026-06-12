@@ -18,7 +18,7 @@ export default function CommunityChildLayout({ children }: any) {
       <div className={`w-full ${shouldUseMaxWidth ? "max-w-6xl" : "w-full"}`}>
         <CommunityHeader />
         <div className='flex gap-4'>
-          <div className='w-full mt-4 mx-4'>
+          <div className='flex-1 mt-4 mx-4 min-w-0'>
             {children}
           </div>
           <div className='min-w-80 w-80 hidden lg:flex'>

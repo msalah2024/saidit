@@ -207,7 +207,6 @@ input:autofill {
     color: var(--primary-foreground-muted);
 }
 
-/* Add this to your CSS */
 @keyframes highlight-fade {
     0% {
         background-color: var(--primary);
@@ -220,4 +219,37 @@ input:autofill {
 
 .highlight-animation {
     animation: highlight-fade 1.5s ease-out;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    margin-block: .5em;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.35);
+}
+
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.2s ease;
+}
+
+.custom-scrollbar:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }

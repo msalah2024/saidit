@@ -11,6 +11,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { GeneralProfileProvider } from "./context/GeneralProfileContext";
 import { cookies } from "next/headers";
 import { ViewProvider } from "./context/ViewContext";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const robotoSlap = Roboto_Slab({
   variable: "--font-roboto-slab",
@@ -35,20 +36,27 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
+  modal,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('users').select('*, community_memberships(*, communities(*))').eq('account_id', user?.id).single()
+  const { data: profile, error } = user
+    ? await supabase.rpc('get_full_user_profile', { user_account_id: user.id })
+    : { data: null, error: null };
+
+  if (error) {
+    console.error('Error fetching profile:', error);
+  }
 
   const cookieStore = await cookies()
-  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
-
+  const defaultOpen = cookieStore.get("sidebar_state_new")?.value !== "false"
 
   return (
     <>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" suppressHydrationWarning className="custom-scrollbar">
         <body className={`${robotoSlap.className} ${robotoSlapLocal.className} ${inter.className}`} suppressHydrationWarning>
           <NextTopLoader
             color="#5BAE4A"
@@ -62,8 +70,10 @@ export default async function RootLayout({
                 <ViewProvider>
                   <AppSidebar />
                   <SidebarInset>
+                    <ScrollToTop />
                     <div className="w-full mt-14">
                       {children}
+                      {modal}
                     </div>
                   </SidebarInset>
                 </ViewProvider>

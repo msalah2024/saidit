@@ -277,6 +277,7 @@ export default memo(function ImagesContent({ post }: ImagesContentProps) {
                                 prose-p:my-0
                                 text-base
                                 prose-h1:text-2xl
+                                prose-a:text-accent
                                 prose-h2:text-xl
                                 prose-h3:text-lg
                                 prose-blockquote:p:text-primary-foreground-muted

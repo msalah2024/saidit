@@ -25,6 +25,7 @@ import { revalidatePath } from "next/cache";
 import { Tables } from "@/database.types";
 import { nanoid } from 'nanoid'
 import { CommentWithAuthor } from "@/complexTypes";
+import { getSupabaseAdmin } from "@/utils/supabase/admin";
 
 
 export async function isEmailAvailable(formData: z.infer<typeof EmailStepSchema>) {
@@ -893,7 +894,8 @@ export async function createCommunity(creatorID: string, formData: z.infer<typeo
       community_name: formData.name,
       community_name_lower: formData.name.toLowerCase(),
       description: formData.description,
-      type: formData.type
+      type: formData.type,
+      topics: formData.topics ?? []
     }).select()
 
     if (createCommunityError) {
@@ -1091,31 +1093,36 @@ export async function removeCommunityMembership(userID: string, communityID: str
   }
 }
 
-export async function fetchAllCommunities() {
+export async function fetchAllCommunities(page = 1, pageSize = 100) {
   const supabase = await createClient()
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
 
   try {
-    const { data, error } = await supabase.from('communities')
-      .select("community_name, description, image_url, banner_url, community_memberships(count)")
+    const { data, error, count } = await supabase.from('communities')
+      .select("community_name, description, image_url, banner_url, community_memberships(count)", { count: 'exact' })
+      .order('created_at', { ascending: true })
+      .range(from, to)
 
     if (error) {
       console.error("Fetch communities error", error.message)
       throw new Error(error.message || "An error occurred")
     }
 
-    else {
-      return {
-        success: true,
-        message: "Communities fetched successfully",
-        data: data
-      }
+    return {
+      success: true,
+      message: "Communities fetched successfully",
+      data: data,
+      count: count ?? 0,
     }
 
   } catch (error) {
     console.error("Fetch communities error", error)
     return {
       success: false,
-      message: "Fetch communities error"
+      message: "Fetch communities error",
+      data: null,
+      count: 0,
     }
   }
 }
@@ -1237,12 +1244,47 @@ export async function managePostVotes(voterID: string, postID: string, voteType:
       throw new Error(error.message || "An error occurred")
     }
 
-    else {
-      return {
-        success: true,
-        message: "Vote upsert successful",
-        data: data
+    // Upvote notification (awaited)
+    if (voteType === 'upvote') {
+      try {
+        const admin = getSupabaseAdmin()
+        const [{ data: post }, { data: actor }] = await Promise.all([
+          admin.from('posts').select('author_id, slug, communities(community_name)').eq('id', postID).single(),
+          admin.from('users').select('username').eq('account_id', voterID).single(),
+        ])
+        if (post && post.author_id !== voterID) {
+          // Avoid duplicate notifications
+          const { data: existing } = await admin
+            .from('notifications')
+            .select('id')
+            .eq('user_id', post.author_id)
+            .eq('actor_id', voterID)
+            .eq('type', 'post_upvote')
+            .eq('post_id', postID)
+            .maybeSingle()
+          if (!existing) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const communityName = (post.communities as any)?.community_name ?? null
+            await admin.from('notifications').insert({
+              user_id: post.author_id,
+              actor_id: voterID,
+              actor_username: actor?.username ?? null,
+              type: 'post_upvote',
+              post_id: postID,
+              post_slug: post.slug,
+              community_name: communityName,
+            })
+          }
+        }
+      } catch (e) {
+        console.error('Notification error', e)
       }
+    }
+
+    return {
+      success: true,
+      message: "Vote upsert successful",
+      data: data
     }
 
   } catch (error) {
@@ -1638,4 +1680,728 @@ export async function flagPostDeleted(postID: string) {
     }
   }
 
+}
+
+export async function upsertRecentlyVisitedCommunity(communityID: string, userID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.from('recently_visited_communities').upsert({
+      community_id: communityID,
+      user_id: userID
+    }, { onConflict: 'user_id, community_id' })
+
+    if (error) {
+      console.error("Community history upsert error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Community history updated successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Community history upsert error", error)
+    return {
+      success: false,
+      message: "Post delete error"
+    }
+  }
+}
+
+export async function upsertVisitedPost(postID: string, userID: string, communityID: string) {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.rpc('track_post_visit', {
+      p_user_id: userID,
+      p_post_id: postID,
+      p_community_id: communityID,
+
+    })
+
+    if (error) {
+      console.error("Post history upsert error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Post history updated successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Post history upsert error", error)
+    return {
+      success: false,
+      message: "Post delete error"
+    }
+  }
+}
+
+export async function clearRecentlyVisitedPosts(userID: string) {
+  const supabase = await createClient()
+  try {
+    const { error } = await supabase.from('recently_visited_posts').delete().eq('user_id', userID)
+
+    if (error) {
+      console.error("Posts history delete error", error.message)
+      throw new Error(error.message || "An error occurred")
+    }
+
+    else {
+      return {
+        success: true,
+        message: "Posts history deleted successfully"
+      }
+    }
+
+  } catch (error) {
+    console.error("Posts history delete error", error)
+    return {
+      success: false,
+      message: "Posts delete error"
+    }
+  }
+}
+
+export async function searchPosts(
+  query: string,
+  sort: string = "relevance",
+  timeFilter: string = "all",
+  communityName?: string
+) {
+  const supabase = await createClient();
+  if (!query.trim()) return { data: [], error: null };
+
+  let dbQuery = supabase
+    .from("posts")
+    .select(
+      "*, users(username, avatar_url, verified), posts_votes(vote_type, voter_id, id), post_attachments(*), communities(community_name, verified, image_url), comments(count)"
+    )
+    .eq("deleted", false)
+    .or(`title.ilike.%${query}%,content.ilike.%${query}%`);
+
+  if (communityName) {
+    const { data: community } = await supabase
+      .from("communities")
+      .select("id")
+      .eq("community_name", communityName)
+      .single();
+    if (community) dbQuery = dbQuery.eq("community_id", community.id);
+  }
+
+  if (timeFilter !== "all") {
+    const daysMap: Record<string, number> = { year: 365, month: 30, week: 7, day: 1 };
+    const days = daysMap[timeFilter] ?? 365;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    dbQuery = dbQuery.gte("created_at", cutoff.toISOString());
+  }
+
+  if (sort === "new") {
+    dbQuery = dbQuery.order("created_at", { ascending: false });
+  } else {
+    dbQuery = dbQuery.order("net_votes", { ascending: false });
+  }
+
+  return dbQuery.limit(25);
+}
+
+export async function searchCommunities(query: string) {
+  const supabase = await createClient();
+  if (!query.trim()) return { data: [], error: null };
+
+  return supabase
+    .from("communities")
+    .select("*, community_memberships(count)")
+    .or(
+      `community_name.ilike.%${query}%,display_name.ilike.%${query}%,description.ilike.%${query}%`
+    )
+    .order("community_name_lower", { ascending: true })
+    .limit(25);
+}
+
+export async function searchUsers(query: string) {
+  const supabase = await createClient();
+  if (!query.trim()) return { data: [], error: null };
+
+  return supabase
+    .from("users")
+    .select(
+      "account_id, username, display_name, avatar_url, description, post_karma, comment_karma, verified"
+    )
+    .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
+    .order("username", { ascending: true })
+    .limit(25);
+
+}
+
+export async function getRecentSearches() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { data: null, authenticated: false }
+
+  const { data, error } = await supabase
+    .from("recent_searches")
+    .select("query")
+    .eq("user_id", user.id)
+    .order("searched_at", { ascending: false })
+    .limit(5)
+
+  if (error) return { data: null, authenticated: true, error }
+  return { data: data.map((r) => r.query), authenticated: true }
+}
+
+export async function saveRecentSearch(query: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { authenticated: false }
+
+  await supabase
+    .from("recent_searches")
+    .upsert(
+      { user_id: user.id, query: query.trim(), searched_at: new Date().toISOString() },
+      { onConflict: "user_id,query" }
+    )
+
+  // Keep only the 5 most recent per user
+  const { data: all } = await supabase
+    .from("recent_searches")
+    .select("id, searched_at")
+    .eq("user_id", user.id)
+    .order("searched_at", { ascending: false })
+
+  if (all && all.length > 5) {
+    const toDelete = all.slice(5).map((r) => r.id)
+    await supabase.from("recent_searches").delete().in("id", toDelete)
+  }
+
+  return { authenticated: true }
+}
+
+export async function deleteRecentSearch(query: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { authenticated: false }
+
+  await supabase
+    .from("recent_searches")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("query", query.trim())
+
+  return { authenticated: true }
+}
+
+export async function clearAllRecentSearches() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { authenticated: false }
+
+  await supabase.from("recent_searches").delete().eq("user_id", user.id)
+  return { authenticated: true }
+}
+
+export async function getTrendingCommunities() {
+  const supabase = await createClient()
+  const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+  const { data: recentPosts, error } = await supabase
+    .from("posts")
+    .select("community_id, communities(id, community_name, image_url, community_memberships(count))")
+    .eq("deleted", false)
+    .gte("created_at", cutoff)
+    .order("net_votes", { ascending: false })
+    .limit(50)
+
+  if (error || !recentPosts) return { data: [], error }
+
+  const seen = new Set<string>()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const communities: any[] = []
+
+  for (const post of recentPosts) {
+    if (!post.communities) continue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const c = post.communities as any
+    if (!seen.has(c.id)) {
+      seen.add(c.id)
+      communities.push(c)
+      if (communities.length >= 5) break
+    }
+  }
+
+  return { data: communities, error: null }
+}
+
+export async function getTrendingPosts() {
+  const supabase = await createClient()
+  const result = await supabase.rpc("get_posts_hot", { from_offset: 0, to_offset: 4 })
+  return { data: result.data ?? [], error: result.error }
+}
+
+export async function toggleSavePost(postId: string) {
+  const supabase = await createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, message: "Not authenticated", saved: false }
+
+    const { data: existing } = await supabase
+      .from('saved_posts')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('post_id', postId)
+      .maybeSingle()
+
+    if (existing) {
+      const { error } = await supabase.from('saved_posts').delete().eq('user_id', user.id).eq('post_id', postId)
+      if (error) throw new Error(error.message)
+      return { success: true, saved: false }
+    } else {
+      const { error } = await supabase.from('saved_posts').insert({ user_id: user.id, post_id: postId })
+      if (error) throw new Error(error.message)
+      return { success: true, saved: true }
+    }
+  } catch (error) {
+    console.error("Toggle save post error", error)
+    return { success: false, message: "An error occurred", saved: false }
+  }
+}
+
+export async function toggleHidePost(postId: string) {
+  const supabase = await createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, message: "Not authenticated", hidden: false }
+
+    const { data: existing } = await supabase
+      .from('hidden_posts')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('post_id', postId)
+      .maybeSingle()
+
+    if (existing) {
+      const { error } = await supabase.from('hidden_posts').delete().eq('user_id', user.id).eq('post_id', postId)
+      if (error) throw new Error(error.message)
+      return { success: true, hidden: false }
+    } else {
+      const { error } = await supabase.from('hidden_posts').insert({ user_id: user.id, post_id: postId })
+      if (error) throw new Error(error.message)
+      return { success: true, hidden: true }
+    }
+  } catch (error) {
+    console.error("Toggle hide post error", error)
+    return { success: false, message: "An error occurred", hidden: false }
+  }
+}
+
+export async function createComment(
+  creatorId: string,
+  postId: string,
+  parentId: string,
+  body: string,
+  strippedBody: string,
+  slug: string,
+  postSlug: string,
+  communityName: string,
+  actorUsername: string
+) {
+  const supabase = await createClient()
+
+  // Verify the caller is who they claim to be
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.id !== creatorId) {
+    return { success: false as const, message: 'Unauthorized' }
+  }
+
+  try {
+    const { data, error } = await supabase.from('comments').insert({
+      creator_id: creatorId,
+      post_id: postId,
+      parent_id: parentId || null,
+      body,
+      stripped_body: strippedBody,
+      slug,
+    }).select().single()
+
+    if (error) throw new Error(error.message)
+
+    // Auto-upvote own comment
+    const { error: voteError } = await supabase.from('comments_votes').insert({
+      voter_id: creatorId,
+      comment_id: data.id,
+      vote_type: 'upvote',
+    })
+    if (voteError) console.error('Auto-vote error', voteError)
+
+    const { data: commentVotes, error: votesError } = await supabase
+      .from('comments_votes')
+      .select('id, vote_type, voter_id')
+      .eq('comment_id', data.id)
+
+    if (votesError) throw new Error(votesError.message)
+
+    // Send notifications (awaited so they complete before returning)
+    try {
+      const admin = getSupabaseAdmin()
+
+      const notified = new Set<string>([creatorId]) // never notify the commenter themselves
+
+      const isTopLevel = !parentId
+
+      const [parentCommentResult, followersResult, postResult] = await Promise.all([
+        isTopLevel
+          ? Promise.resolve({ data: null })
+          : admin.from('comments').select('creator_id').eq('id', parentId).single(),
+        isTopLevel
+          ? Promise.resolve({ data: [] })
+          : admin.from('comment_follows').select('user_id').eq('comment_id', parentId),
+        admin.from('posts').select('author_id').eq('id', postId).single(),
+      ])
+
+      const parentComment = parentCommentResult.data
+      const followers = followersResult.data ?? []
+      const postAuthorId = (postResult.data as { author_id: string } | null)?.author_id
+
+      // Notify post author with post_comment (for any comment on their post)
+      if (postAuthorId && !notified.has(postAuthorId)) {
+        notified.add(postAuthorId)
+        await admin.from('notifications').insert({
+          user_id: postAuthorId,
+          actor_id: creatorId,
+          actor_username: actorUsername,
+          type: 'post_comment',
+          post_id: postId,
+          comment_id: data.id,
+          post_slug: postSlug,
+          community_name: communityName,
+        })
+      }
+
+      // Notify parent comment author with comment_reply (for replies only)
+      if (parentComment && !notified.has(parentComment.creator_id)) {
+        notified.add(parentComment.creator_id)
+        await admin.from('notifications').insert({
+          user_id: parentComment.creator_id,
+          actor_id: creatorId,
+          actor_username: actorUsername,
+          type: 'comment_reply',
+          post_id: postId,
+          comment_id: data.id,
+          post_slug: postSlug,
+          community_name: communityName,
+        })
+      }
+
+      // Notify followers of the parent comment (skip anyone already notified)
+      const followerIds = followers.map((f: { user_id: string }) => f.user_id).filter((id: string) => !notified.has(id))
+      if (followerIds.length > 0) {
+        await admin.from('notifications').insert(
+          followerIds.map((userId: string) => ({
+            user_id: userId,
+            actor_id: creatorId,
+            actor_username: actorUsername,
+            type: 'comment_follow_reply',
+            post_id: postId,
+            comment_id: data.id,
+            post_slug: postSlug,
+            community_name: communityName,
+          }))
+        )
+      }
+    } catch (e) {
+      console.error('Notification error', e)
+    }
+
+    return {
+      success: true,
+      data,
+      votes: commentVotes ?? [],
+    }
+  } catch (error) {
+    console.error('Create comment error', error)
+    return { success: false as const, message: 'An error occurred' }
+  }
+}
+
+export async function markNotificationsRead(notificationIds: string[]) {
+  const supabase = await createClient()
+  if (!notificationIds.length) return { success: true }
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read: true })
+    .in('id', notificationIds)
+  if (error) {
+    console.error('Mark notifications read error', error)
+    return { success: false }
+  }
+  return { success: true }
+}
+
+export async function toggleCommentFollow(commentId: string) {
+  const supabase = await createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, following: false }
+
+    const { data: existing } = await supabase
+      .from('comment_follows')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('comment_id', commentId)
+      .maybeSingle()
+
+    if (existing) {
+      const { error } = await supabase.from('comment_follows').delete().eq('id', existing.id)
+      if (error) throw new Error(error.message)
+      return { success: true, following: false }
+    } else {
+      const { error } = await supabase.from('comment_follows').insert({ user_id: user.id, comment_id: commentId })
+      if (error) throw new Error(error.message)
+      return { success: true, following: true }
+    }
+  } catch (error) {
+    console.error('Toggle comment follow error', error)
+    return { success: false, following: false }
+  }
+}
+
+export async function toggleNotificationRead(notificationId: string, read: boolean) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read })
+    .eq('id', notificationId)
+  if (error) {
+    console.error('Toggle notification read error', error)
+    return { success: false }
+  }
+  return { success: true }
+}
+
+// ─── Messaging ───────────────────────────────────────────────────────────────
+
+export type ConversationSummary = {
+  id: string
+  otherUser: { account_id: string; username: string | null; avatar_url: string | null } | null
+  lastMessage: { content: string; sender_id: string; created_at: string; deleted: boolean } | null
+  unreadCount: number
+}
+
+export type MessageWithSender = {
+  id: string
+  conversation_id: string
+  sender_id: string
+  content: string
+  edited: boolean
+  deleted: boolean
+  created_at: string
+  updated_at: string
+  sender: { username: string | null; avatar_url: string | null } | null
+}
+
+export async function getConversations(): Promise<ConversationSummary[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+  const admin = getSupabaseAdmin()
+
+  const { data: myParts } = await admin
+    .from('conversation_participants').select('conversation_id, last_read_at').eq('user_id', user.id)
+  if (!myParts?.length) return []
+
+  const convIds = myParts.map(p => p.conversation_id)
+  const lastReadMap = Object.fromEntries(myParts.map(p => [p.conversation_id, p.last_read_at]))
+
+  const { data: otherParts } = await admin
+    .from('conversation_participants').select('conversation_id, user_id')
+    .in('conversation_id', convIds).neq('user_id', user.id)
+
+  const otherIds = [...new Set((otherParts ?? []).map(p => p.user_id))]
+  const { data: userRows } = otherIds.length
+    ? await admin.from('users').select('account_id, username, avatar_url').in('account_id', otherIds)
+    : { data: [] }
+
+  const userMap = Object.fromEntries((userRows ?? []).map(u => [u.account_id, u]))
+  const otherPartMap = Object.fromEntries((otherParts ?? []).map(p => [p.conversation_id, p.user_id]))
+
+  const results = await Promise.all(convIds.map(async (convId) => {
+    const { data: msgs } = await admin.from('messages').select('content, sender_id, created_at, deleted')
+      .eq('conversation_id', convId).order('created_at', { ascending: false }).limit(1)
+    const lastRead = lastReadMap[convId]
+    const { count } = await admin.from('messages').select('*', { count: 'exact', head: true })
+      .eq('conversation_id', convId).neq('sender_id', user.id).eq('deleted', false)
+      .gt('created_at', lastRead ?? '1970-01-01T00:00:00Z')
+    const otherUserId = otherPartMap[convId]
+    return {
+      id: convId,
+      otherUser: otherUserId ? (userMap[otherUserId] ?? null) : null,
+      lastMessage: msgs?.[0] ?? null,
+      unreadCount: count ?? 0,
+    }
+  }))
+
+  return results.sort((a, b) =>
+    (b.lastMessage?.created_at ?? '').localeCompare(a.lastMessage?.created_at ?? '')
+  )
+}
+
+export async function getOrCreateConversation(otherUserId: string): Promise<{ id: string } | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.id === otherUserId) return null
+  const admin = getSupabaseAdmin()
+
+  // Find existing conversation between the two users
+  const { data: myConvs } = await admin.from('conversation_participants')
+    .select('conversation_id').eq('user_id', user.id)
+  const { data: theirConvs } = await admin.from('conversation_participants')
+    .select('conversation_id').eq('user_id', otherUserId)
+
+  const myIds = new Set((myConvs ?? []).map(c => c.conversation_id))
+  const existing = (theirConvs ?? []).find(c => myIds.has(c.conversation_id))
+  if (existing) return { id: existing.conversation_id }
+
+  // Create new conversation
+  const { data: conv, error } = await admin.from('conversations').insert({}).select('id').single()
+  if (error || !conv) return null
+  await admin.from('conversation_participants').insert([
+    { conversation_id: conv.id, user_id: user.id },
+    { conversation_id: conv.id, user_id: otherUserId },
+  ])
+  return { id: conv.id }
+}
+
+export async function getMessages(conversationId: string): Promise<MessageWithSender[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+  const admin = getSupabaseAdmin()
+
+  const { data: part } = await admin.from('conversation_participants')
+    .select('user_id').eq('conversation_id', conversationId).eq('user_id', user.id).maybeSingle()
+  if (!part) return []
+
+  const { data: msgs } = await admin.from('messages').select('*')
+    .eq('conversation_id', conversationId).order('created_at', { ascending: true }).limit(100)
+  if (!msgs?.length) return []
+
+  const senderIds = [...new Set(msgs.map(m => m.sender_id))]
+  const { data: senders } = await admin.from('users')
+    .select('account_id, username, avatar_url').in('account_id', senderIds)
+  const senderMap = Object.fromEntries((senders ?? []).map(s => [s.account_id, s]))
+
+  return msgs.map(m => ({ ...m, sender: senderMap[m.sender_id] ?? null }))
+}
+
+export async function sendMessage(conversationId: string, content: string): Promise<{ success: boolean; data?: MessageWithSender }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false }
+  const admin = getSupabaseAdmin()
+
+  // Verify participant
+  const { data: part } = await admin.from('conversation_participants')
+    .select('user_id').eq('conversation_id', conversationId).eq('user_id', user.id).maybeSingle()
+  if (!part) return { success: false }
+
+  const { data: msg, error } = await admin.from('messages')
+    .insert({ conversation_id: conversationId, sender_id: user.id, content: content.trim() })
+    .select().single()
+  if (error || !msg) return { success: false }
+
+  // Update conversation last_message_at
+  await admin.from('conversations').update({ last_message_at: msg.created_at }).eq('id', conversationId)
+
+  const { data: senderRow } = await admin.from('users')
+    .select('username, avatar_url').eq('account_id', user.id).single()
+
+  return { success: true, data: { ...msg, sender: senderRow ?? null } }
+}
+
+export async function editMessage(messageId: string, content: string): Promise<{ success: boolean }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false }
+
+  const { error } = await supabase.from('messages')
+    .update({ content: content.trim(), edited: true, updated_at: new Date().toISOString() })
+    .eq('id', messageId).eq('sender_id', user.id)
+  return { success: !error }
+}
+
+export async function deleteMessage(messageId: string): Promise<{ success: boolean }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false }
+
+  const { error } = await supabase.from('messages')
+    .update({ deleted: true, updated_at: new Date().toISOString() })
+    .eq('id', messageId).eq('sender_id', user.id)
+  return { success: !error }
+}
+
+export async function markConversationRead(conversationId: string): Promise<void> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  await supabase.from('conversation_participants')
+    .update({ last_read_at: new Date().toISOString() })
+    .eq('conversation_id', conversationId).eq('user_id', user.id)
+}
+
+export async function getUserByUsername(username: string) {
+  const admin = getSupabaseAdmin()
+  const { data } = await admin.from('users')
+    .select('account_id, username, avatar_url').eq('username_lower', username.toLowerCase()).maybeSingle()
+  return data ?? null
+}
+
+export async function getOtherLastRead(conversationId: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const admin = getSupabaseAdmin()
+  const { data } = await admin
+    .from('conversation_participants')
+    .select('user_id, last_read_at')
+    .eq('conversation_id', conversationId)
+    .neq('user_id', user.id)
+    .maybeSingle()
+  return data?.last_read_at ?? null
+}
+
+export async function toggleSaveComment(commentId: string) {
+  const supabase = await createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, message: "Not authenticated", saved: false }
+
+    const { data: existing } = await supabase
+      .from('saved_comments')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('comment_id', commentId)
+      .maybeSingle()
+
+    if (existing) {
+      const { error } = await supabase.from('saved_comments').delete().eq('user_id', user.id).eq('comment_id', commentId)
+      if (error) throw new Error(error.message)
+      return { success: true, saved: false }
+    } else {
+      const { error } = await supabase.from('saved_comments').insert({ user_id: user.id, comment_id: commentId })
+      if (error) throw new Error(error.message)
+      return { success: true, saved: true }
+    }
+  } catch (error) {
+    console.error("Toggle save comment error", error)
+    return { success: false, message: "An error occurred", saved: false }
+  }
 }

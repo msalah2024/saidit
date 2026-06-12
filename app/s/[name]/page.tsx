@@ -6,6 +6,8 @@ import { createClient } from "@/utils/supabase/client"
 import { useCommunity } from "@/app/context/CommunityContext"
 import { PostsWithAuthorAndCommunity } from "@/complexTypes"
 import PulseLogo from "@/components/PulseLogo"
+import { useGeneralProfile } from "@/app/context/GeneralProfileContext"
+import { upsertRecentlyVisitedCommunity } from "@/app/actions"
 
 const PAGE_SIZE = 20
 
@@ -15,6 +17,7 @@ export default function VirtualScroller() {
     const [isLoading, setIsLoading] = useState(false)
     const [hasMore, setHasMore] = useState(true)
     const { community } = useCommunity()
+    const { user } = useGeneralProfile()
     // Reference to parent container
     const parentRef = useRef<HTMLDivElement>(null)
 
@@ -112,6 +115,21 @@ export default function VirtualScroller() {
 
         setIsLoading(false)
     }
+
+    useEffect(() => {
+        if (!user) return;
+
+        const updateRecentlyVisitedCommunity = async () => {
+            const result = await upsertRecentlyVisitedCommunity(community.id, user.id);
+            if (!result.success) {
+                console.error(result.message);
+            }
+        }
+
+        updateRecentlyVisitedCommunity()
+
+    }, [community.id, user]);
+
 
     // Measure elements after they're rendered
     useLayoutEffect(() => {

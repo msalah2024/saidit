@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Camera, Ellipsis, Forward, Mail, Plus } from 'lucide-react'
 import { useProfile } from "@/app/context/ProfileContext";
@@ -19,12 +19,33 @@ import { socialPlatforms } from '@/lib/social-platforms-data';
 import Image from 'next/image';
 import { toast } from "sonner"
 import { format } from 'date-fns';
+import { getOrCreateConversation } from "@/app/actions";
+import { createClient } from "@/utils/supabase/client";
+import { User } from "@supabase/supabase-js";
+import MessagesDrawer from "./MessagesDrawer";
 
 export default function ProfileRightSide() {
     const { profile, isOwner, socialLinks = [] } = useProfile();
     const router = useRouter()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isCopied, setIsCopied] = useState(false)
+    const [msgDrawerOpen, setMsgDrawerOpen] = useState(false)
+    const [msgConvId, setMsgConvId] = useState<string | undefined>(undefined)
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
+    const supabase = createClient()
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => setCurrentUser(user))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const handleSendMessage = async () => {
+        if (!profile.account_id) return
+        const result = await getOrCreateConversation(profile.account_id)
+        if (!result) return
+        setMsgConvId(result.id)
+        setMsgDrawerOpen(true)
+    }
 
     const createAtFormatted = format(new Date(profile.created_at), 'MMM dd, yyyy');
 
@@ -52,6 +73,7 @@ export default function ProfileRightSide() {
     };
 
     return (
+        <>
         <div className='w-80 bg-black mt-4 pb-2 rounded-2xl hidden lg:flex lg:flex-col'>
             <div
                 className={`flex justify-end h-28 rounded-t-2xl bg-cover bg-center bg-no-repeat ${!profile.banner_url
@@ -91,7 +113,7 @@ export default function ProfileRightSide() {
                                     <DropdownMenuTrigger className='rounded-full p-1 bg-muted hover:bg-reddit-gray'><Ellipsis /></DropdownMenuTrigger>
                                     <DropdownMenuContent className='mr-10'>
                                         <DropdownMenuItem onClick={copyToClipboard}><Forward className='text-foreground' />Share</DropdownMenuItem>
-                                        <DropdownMenuItem><Mail className='text-foreground' />Send a Message</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={handleSendMessage}><Mail className='text-foreground' />Send a Message</DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
 
@@ -165,7 +187,7 @@ export default function ProfileRightSide() {
                                         const icon = platform?.icon;
                                         return (
                                             <Button key={link.id}
-                                                variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground'
+                                                variant="link" className='rounded-full bg-muted hover:bg-reddit-gray text-foreground max-w-full overflow-hidden'
                                                 onClick={() => {
                                                     window.open(link.link, '_blank')
                                                 }}
@@ -176,9 +198,10 @@ export default function ProfileRightSide() {
                                                         alt={link.social_name + " icon"}
                                                         width={20}
                                                         height={20}
+                                                        className="shrink-0"
                                                     />
                                                 )}
-                                                {link.username}
+                                                <span className="truncate">{link.username}</span>
                                             </Button>
                                         )
                                     })
@@ -214,5 +237,15 @@ export default function ProfileRightSide() {
                 )}
             </div>
         </div>
+
+        {currentUser && (
+            <MessagesDrawer
+                user={currentUser}
+                open={msgDrawerOpen}
+                onOpenChange={setMsgDrawerOpen}
+                initialConversationId={msgConvId}
+            />
+        )}
+        </>
     )
 }
