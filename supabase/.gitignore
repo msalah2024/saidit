@@ -1,0 +1,12 @@
+# Supabase
+.branches
+.temp
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local
+
+# Local OAuth secrets (auto-loaded by the CLI) — keep out of git, but commit the template
+.env
+!.env.example
