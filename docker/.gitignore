@@ -1,0 +1,11 @@
+# Secrets (local demo values live in .env; never commit real ones)
+.env
+
+# Runtime data created by the stack
+volumes/db/data/
+volumes/storage/
+volumes/pooler/.*
+volumes/functions/**/.cache
+
+# Uploaded/seeded files end up under volumes/storage at runtime
+!volumes/storage/.gitkeep

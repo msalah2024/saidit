@@ -1,8 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Emit a self-contained server bundle (.next/standalone) for small Docker images
+  output: "standalone",
   images: {
     remotePatterns: [
+      // --- Local Supabase (self-hosted Kong gateway + CLI dev stack) ---
+      { protocol: 'http', hostname: 'localhost', port: '8000' },
+      { protocol: 'http', hostname: '127.0.0.1', port: '8000' },
+      { protocol: 'http', hostname: '127.0.0.1', port: '54321' },
+
       // --- General Purpose Hostnames (from previous config) ---
       {
         protocol: 'https',

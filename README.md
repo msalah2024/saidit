@@ -23,6 +23,90 @@
 - **Database:** PostgreSQL (via Supabase)
 - **Realtime Features:** Supabase Realtime
 
+## **🏃 Getting Started**
+
+There are two ways to run Saidit locally.
+
+### Prerequisites
+
+- **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (running)
+- **Node.js 22+** and **npm** — only needed for the host-based dev workflow
+
+### Option A — Run everything in Docker (self-contained)
+
+Runs the app **and** a full self-hosted Supabase stack (Postgres, Auth, REST,
+Realtime, Storage, Kong, Studio) in containers. Best for running/demoing.
+No secrets to configure — `docker/.env` ships with working local demo keys.
+
+```bash
+cd docker
+docker compose up -d            # first run pulls images + builds (a few minutes)
+```
+
+On first start a one-shot migrator applies the schema, creates the storage
+buckets, and seeds the default avatars automatically.
+
+| Service              | URL                    | Login                                                    |
+| -------------------- | ---------------------- | -------------------------------------------------------- |
+| App                  | http://localhost:3000  | —                                                        |
+| Supabase Studio      | http://localhost:8000  | `supabase` / `this_password_is_insecure_and_should_be_updated` |
+| Mailpit (local mail) | http://localhost:8025  | —                                                        |
+
+```bash
+docker compose down             # stop (keeps data)
+docker compose down -v          # stop + wipe DB/storage (fresh start)
+```
+
+See **[`docker/README.md`](docker/README.md)** for full details (dev container,
+OAuth setup, resetting, the browser-vs-internal URL split).
+
+### Option B — Develop with hot reload
+
+Run Supabase in Docker but the app on your host, so code edits reflect instantly:
+
+```bash
+# 1) Start the backend
+cd docker && docker compose up -d
+
+# 2) At the repo root, create .env.local pointing at the dockerized Supabase:
+#    NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
+#    NEXT_PUBLIC_SUPABASE_ANON_KEY=<ANON_KEY from docker/.env>
+#    SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY from docker/.env>
+#    NEXT_PUBLIC_DOMAIN=http://localhost:3000
+
+# 3) Run the app with hot reload
+npm install
+npm run dev
+```
+
+> Prefer the Supabase CLI instead of the Docker stack? Run `supabase start`
+> and point `.env.local` at `http://127.0.0.1:54321` with the CLI's keys
+> (`supabase status`), then `npm run dev`.
+
+> **Windows note:** develop using Option B (app on host). The in-container dev
+> stack doesn't hot-reload for repos on the `C:` drive (a Docker Desktop bind-mount
+> limitation). On macOS/Linux the dev container hot-reloads fine.
+
+### Enabling Google / Discord login (optional)
+
+1. In each provider's console, add the redirect URI `http://localhost:8000/auth/v1/callback`.
+2. In `docker/.env`, set `GOOGLE_ENABLED=true` + `GOOGLE_CLIENT_ID`/`GOOGLE_SECRET` (and/or `DISCORD_*`).
+3. `cd docker && docker compose up -d` to recreate the auth service.
+
+### Troubleshooting
+
+- **"Request header or cookie too large"** when opening the app or Studio — the
+  app (`:3000`) and Supabase (`:8000`) share the `localhost` cookie domain, so
+  stale auth cookies pile up. Fix: open DevTools (**F12**) → **Application** →
+  **Clear site data** for `localhost`, then reload.
+- **A service isn't coming up** — check health with `docker compose ps` (from
+  `docker/`); all should read `healthy`. App-specific errors: `docker logs saidit-app`.
+- **Schema/storage missing after a reset** — the one-shot `saidit-migrate`
+  container applies the schema and seeds storage; check `docker logs saidit-migrate`.
+- **Avatar upload fails with an RLS error** on a stack created before the storage
+  policies were added — recreate from scratch with `docker compose down -v` then
+  `up -d` (re-runs all migrations, including the storage policies).
+
 ## **⌚ To-do**
 
 ## Project Setup

@@ -107,7 +107,8 @@ export async function signUp(formData: z.infer<typeof RegisterSchema>) {
       throw new Error(authError.message || "An error occurred")
     }
 
-    const avatar_url = gender === "male" ? (await supabase.storage.from("saidit-defaults").getPublicUrl("default-avatars/saidit-male-avatar-new.png")) : (await supabase.storage.from("saidit-defaults").getPublicUrl("default-avatars/saidit-female-avatar-new.png"))
+    const avatarFile = gender === "male" ? "saidit-male-avatar-new.png" : "saidit-female-avatar-new.png"
+    const avatar_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/saidit-defaults/default-avatars/${avatarFile}`
 
     const { error: profileError } = await supabase.from("users").insert({
       username,
@@ -115,7 +116,7 @@ export async function signUp(formData: z.infer<typeof RegisterSchema>) {
       email,
       gender,
       account_id: authData?.user?.id,
-      avatar_url: avatar_url.data.publicUrl
+      avatar_url: avatar_url
     })
 
     if (profileError) {
@@ -338,7 +339,8 @@ export async function createProfile(formData: z.infer<typeof CreateProfileSchema
   const account_id = user.id
 
   try {
-    const avatar_url = gender === "male" ? (await supabase.storage.from("saidit-defaults").getPublicUrl("default-avatars/saidit-male-avatar-new.png")) : (await supabase.storage.from("saidit-defaults").getPublicUrl("default-avatars/saidit-female-avatar-new.png"))
+    const avatarFile = gender === "male" ? "saidit-male-avatar-new.png" : "saidit-female-avatar-new.png"
+    const avatar_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/saidit-defaults/default-avatars/${avatarFile}`
 
     const { error: profileError } = await supabase.from("users").insert({
       username,
@@ -346,7 +348,7 @@ export async function createProfile(formData: z.infer<typeof CreateProfileSchema
       email,
       gender,
       account_id: account_id,
-      avatar_url: avatar_url.data.publicUrl
+      avatar_url: avatar_url
     })
 
     if (profileError) {

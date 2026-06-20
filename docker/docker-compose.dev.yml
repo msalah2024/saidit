@@ -1,0 +1,35 @@
+# Dev override: run the app with `next dev` + hot reload instead of the
+# production standalone image.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#
+services:
+  app:
+    # Drop the production image build — run source directly with Node
+    build: !reset null
+    image: node:22-alpine
+    container_name: saidit-app-dev
+    working_dir: /app
+    # Use Webpack (not Turbopack) in Docker: its watcher honors WATCHPACK_POLLING,
+    # which is required for hot reload across Windows/macOS bind mounts. Turbopack's
+    # native watcher does not receive file events through the host mount.
+    command: sh -c "npm install && npx next dev --webpack -H 0.0.0.0"
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_PUBLIC_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${ANON_KEY}
+      NEXT_PUBLIC_DOMAIN: ${SITE_URL}
+      SUPABASE_INTERNAL_URL: http://kong:8000
+      SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      NEWS_API_KEY: ${NEWS_API_KEY:-}
+      # Reliable file watching inside Docker (Windows/macOS bind mounts)
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ..:/app
+      # Keep container-built deps & build cache out of the host mount
+      - saidit-node-modules:/app/node_modules
+      - saidit-next-cache:/app/.next
+
+volumes:
+  saidit-node-modules:
+  saidit-next-cache:

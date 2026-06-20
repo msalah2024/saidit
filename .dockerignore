@@ -1,0 +1,38 @@
+# Dependencies & build output (reinstalled/rebuilt inside the image)
+node_modules
+.next
+out
+
+# Secrets — never bake into the image
+.env
+.env.*
+!.env.example
+!.env.docker.example
+
+# Version control & tooling
+.git
+.gitignore
+.claude
+*.log
+npm-debug.log*
+
+# Docker files themselves
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Self-hosted Supabase stack (not part of the app image)
+docker
+
+# Local Supabase CLI state (self-hosted stack uses ./docker/volumes instead)
+supabase/.temp
+supabase/.branches
+
+# Editor / OS noise
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Docs
+README.md

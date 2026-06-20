@@ -3,7 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 
 export function getSupabaseAdmin() {
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    // Server-side admin client: prefer the internal URL (http://kong:8000 in Docker).
+    process.env.SUPABASE_INTERNAL_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
       auth: {

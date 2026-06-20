@@ -33,6 +33,12 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# claude code (worktrees + session state)
+.claude/
+
+# local dev server logs
+.dev-server*.log
+
 # vercel
 .vercel
 

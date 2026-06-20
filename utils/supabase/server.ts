@@ -7,7 +7,9 @@ export async function createClient() {
   // Create a server's supabase client with newly configured cookie,
   // which could be used to maintain user's session
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    // Prefer an internal URL for server-to-Supabase calls (e.g. http://kong:8000
+    // inside Docker); falls back to the public browser URL when unset.
+    process.env.SUPABASE_INTERNAL_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
